@@ -1,3 +1,3 @@
-/** The V0.1 web engine is native-ready. Add Capacitor CLI/platform packages for an Android build in V0.2. */
-const config={appId:'mg.soratro.app',appName:'SORATRO',webDir:'dist',server:{androidScheme:'https'}};
+import type { CapacitorConfig } from '@capacitor/cli';
+const config:CapacitorConfig={appId:'mg.soratro.app',appName:'SORATRO',webDir:'dist',server:{androidScheme:'https'},plugins:{SplashScreen:{launchShowDuration:800,backgroundColor:'#17151C',androidScaleType:'CENTER_INSIDE',showSpinner:false},StatusBar:{backgroundColor:'#17151C',style:'LIGHT'}}};
 export default config;

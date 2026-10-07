@@ -1,8 +1,8 @@
-# SORATRO V0.1
+# SORATRO V0.2
 
 Atelier de composition chorale en notation Solfa : jouer au piano, enregistrer le timing, corriger, quantifier, lire les quatre voix et sauvegarder sur l’appareil.
 
-Le prototype reprend la structure SATB et les regroupements en 6/8 de la partition IRAKA fournie comme référence. L’étude de démonstration est un exemple, pas une transcription intégrale d’IRAKA.
+La V0.1 reprend la structure SATB et les regroupements en 6/8 de la partition IRAKA fournie comme référence. L’étude de démonstration est un exemple, pas une transcription intégrale d’IRAKA.
 
 ## Site Web
 
@@ -32,7 +32,7 @@ Le service worker est activé dans la version compilée. La PWA demande HTTPS, o
 
 ## Premier essai
 
-1. Créer IRAKA : Do = Db, 6/8, 72 BPM.
+1. Créer IRAKA : SATB, Do = Db, 6/8, ♩. = 72. Choisir l’unité de tempo affichée.
 2. Choisir Soprano, appuyer sur REC et attendre le décompte.
 3. Jouer avec la souris, les doigts, un clavier MIDI, ou les touches du PC.
 4. Arrêter, quantifier, puis déplacer une note ou modifier sa durée.
@@ -42,7 +42,7 @@ Clavier PC : A W S E D F T G Y H U J K O L P ;. Z / X changent l’octave. Espac
 
 ## Convention musicale
 
-La timeline est exprimée en noires, indépendamment du tempo. En 6/8, une mesure contient 3 unités et six croches de 0,5 unité. Le BPM correspond à la noire. Les croches 1 et 4 portent les accents fort et moyen. Une noire pointée dure 1,5 unité.
+La timeline est exprimée en noires, indépendamment du tempo. En 6/8, une mesure contient 3 unités et six croches de 0,5 unité. Le BPM interne correspond à la noire ; l’interface peut exprimer le tempo à la noire pointée ou à la croche sans changer la musique. Les croches 1 et 4 portent les accents fort et moyen. Une noire pointée dure 1,5 unité.
 
 Le Do mobile dépend de la tonalité choisie : C D E F G en Do=C et Db Eb F Gb Ab en Do=Db deviennent d r m f s. Les hauteurs MIDI restent inchangées. Les octaves et altérations sont des données structurées avant leur affichage.
 
@@ -52,7 +52,7 @@ Les secondes brutes NOTE ON/OFF, les positions originales et les positions quant
 
 Les projets et préférences sont enregistrés dans IndexedDB, sur cet appareil et pour ce navigateur. Aucun compte, serveur musical ou service cloud n’est nécessaire. La sauvegarde se déclenche à chaque modification terminée et chaque note relâchée. Une note tenue se termine lorsque l’enregistrement s’arrête ou quand l’application passe à l’arrière-plan.
 
-Ne pas effacer les données du navigateur pour ce site si vous souhaitez conserver vos projets. La synchronisation et l’export de projets ne sont pas inclus dans V0.1.
+Exporter régulièrement un fichier `.soratro` protège contre l’effacement des données du navigateur. Importer ce fichier sur un autre appareil restaure la composition complète. Historique prévisualise et restaure des snapshots espacés, avec duplication préalable activée par défaut. Aucun cloud n’est nécessaire. Voir [le format](docs/FORMAT-SORATRO.md).
 
 ## Architecture
 
@@ -66,7 +66,7 @@ Ne pas effacer les données du navigateur pour ce site si vous souhaitez conserv
 - `src/ui/` : interface React, piano tactile, Piano Roll et partition SVG.
 - `scripts/generate-sw.mjs` : cache de tous les fichiers locaux de la version compilée.
 
-`capacitor.config.ts` prépare le nom, l’identifiant et le dossier Web pour Android. Les dépendances natives et l’APK restent à réaliser dans V0.2. L’interface Web peut déjà être installée comme PWA.
+Le projet Capacitor 8 est dans `android/`, avec sélecteur de fichiers, partage, impression et MIDI natif. Le workflow Android compile un APK de test ; voir [Android](docs/ANDROID.md). La PWA reste installable et hors ligne. Une mise à jour attend la sauvegarde avant activation.
 
 ## Vérification
 
@@ -75,4 +75,16 @@ npm run build
 npm test
 ```
 
-Les tests automatisés couvrent le cœur musical, le stockage et le cache hors ligne à la racine ainsi que sous `/soratro/`. Le [rapport de validation](SORATRO_V0.1_Rapport.md) détaille les résultats de la V0.1 et les essais qui nécessitent encore un téléphone ou un vrai clavier MIDI. Le banc de test navigateur est accessible en développement à `/tests/browser.html`.
+Les tests automatisés couvrent le cœur musical, le stockage et le cache hors ligne à la racine ainsi que sous `/soratro/`. Le [rapport V0.2](docs/RAPPORT-V0.2.md) détaille les nouveautés, tests et limites. Le [rapport V0.1 conservé](SORATRO_V0.1_Rapport.md) détaille les résultats initiaux et les essais qui nécessitent encore un téléphone ou un vrai clavier MIDI. Le banc de test navigateur est accessible en développement à `/tests/browser.html`.
+
+## Fonctions V0.2
+
+- **Enregistrement** : Overdub/Replace, Punch, pré-roll, prises de boucle, audition et choix. **Audio → Calibration** : clics/frappes, compensation et réglage manuel.
+- **Mesures / Structure** : passages multivoix, timeline, repères, signatures/tempo ponctuels, levée, reprises avec fins 1/2. Formation flexible et renommage des voix.
+- **Piano Roll** : sélection multiple/rectangle, copie/duplication, zoom, snap, ghost notes, menu contextuel. Quantification 1/2–1/32, triolets, Auto et Strength.
+- **Paroles** : espaces/tirets, syllabes corrigibles, liens aux notes, assignation Espace en lecture/clic, mélismes, couplets, refrain et texte commun.
+- **Partition / PDF / Export** : mêmes données musicales, mise en page par systèmes/pages, alignement des voix et paroles, PDF vectoriel A4/A5/Letter avec police locale, SVG/PNG et impression.
+- **Répétition** : voix seule/dominante 100 % / 30 %/ensemble, 50–120 % sans changer la hauteur, boucle par mesures finie/infinie.
+- **Audio/MIDI** : quatre sons locaux légers, pan/master, sustain CC64, reconnexion et PANIC.
+
+Raccourcis ajoutés : R (REC), M (métronome), L dans le Piano Roll (boucle), Ctrl+C/X/V/D (copier/couper/coller/dupliquer), Ctrl+A dans le Piano Roll, flèches (déplacement). Les champs et dialogues suspendent les raccourcis musicaux. Les fonctions futures non implémentées sont détaillées dans le rapport.

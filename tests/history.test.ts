@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import 'fake-indexeddb/auto';
+import { createProject,id,makeNote } from '../src/music/model.ts';
+import { ProjectRepository,retainedVersions,type ProjectVersion } from '../src/storage/repository.ts';
+import { encodeProject,decodeProject } from '../src/storage/project-file.ts';
+test('Hundreds of autosaves retain current state without hundreds of snapshots, then save a changed checkpoint',async()=>{const repo=new ProjectRepository('history-'+id()),p=createProject(),now=Date.now();await repo.save(p,'Initial',false,now);for(let i=0;i<120;i++){p.title='Edit '+i;await repo.save(p,'Automatique',false,now+i*1000);}assert.equal((await repo.versions(p.id)).length,1);assert.equal((await repo.get(p.id))!.title,'Edit 119');await repo.save(p,'Automatique',false,now+300001);assert.equal((await repo.versions(p.id)).length,2);await repo.save(p,'Unchanged',true,now+600001);assert.equal((await repo.versions(p.id)).length,2);await repo.close();});
+test('Export → delete local data → import in another repository is exact',async()=>{const a=new ProjectRepository('device-a-'+id()),b=new ProjectRepository('device-b-'+id()),p=createProject();p.tracks[0].events.push(makeNote('soprano',61,0,1,72));await a.save(p);const portable=await encodeProject((await a.get(p.id))!);await a.delete(p.id);assert.equal(await a.get(p.id),undefined);await b.save(await decodeProject(portable));assert.deepEqual(await b.get(p.id),p);await a.close();await b.close();});
+test('History retention is bounded and removes obsolete checkpoints',()=>{const p=createProject(),now=Date.now();const rows:ProjectVersion[]=Array.from({length:1000},(_,i)=>({id:String(i),projectId:p.id,savedAt:new Date(now-i*3600000).toISOString(),reason:'Auto',fingerprint:String(i),project:p}));const kept=retainedVersions(rows,now);assert.ok(kept.length<=48);assert.equal(kept[0].id,'0');assert.ok(kept.every(v=>now-Date.parse(v.savedAt)<=30*86400000));});

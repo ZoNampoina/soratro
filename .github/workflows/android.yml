@@ -1,0 +1,48 @@
+name: Build SORATRO Android APK
+on:
+  push:
+    branches: [main, work/v0.2]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install and validate the embedded offline app
+        run: |
+          npm ci
+          npm run build
+          npm test
+          npx cap sync android
+      - name: Build and lint Android
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug lintDebug --no-daemon
+      - name: Upload installable test APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SORATRO-Android-${{ github.sha }}
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Android-lint-${{ github.sha }}
+          path: android/app/build/reports/lint-results-debug.html
+          retention-days: 30

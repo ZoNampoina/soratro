@@ -1,0 +1,3 @@
+export interface DurationValue {name:'whole'|'half'|'quarter'|'eighth'|'sixteenth'|'thirty-second';beats:number;dots:0|1|2;tuplet?:3}
+const bases:DurationValue['name'][]=['whole','half','quarter','eighth','sixteenth','thirty-second'];
+export function durationValue(beats:number):DurationValue|null {for(let i=0;i<bases.length;i++)for(const dots of [0,1,2] as const){const value=4/2**i*(dots===0?1:dots===1?1.5:1.75);if(Math.abs(value-beats)<.0001)return {name:bases[i],beats:value,dots};}for(let i=1;i<bases.length;i++){const value=4/2**i*2/3;if(Math.abs(value-beats)<.0001)return {name:bases[i],beats:value,dots:0,tuplet:3};}return null;}

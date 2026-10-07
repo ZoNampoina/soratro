@@ -3,3 +3,6 @@ dist/
 .sites-runtime/
 *.tsbuildinfo
 test-results/
+
+tests/.runtime/
+tmp/

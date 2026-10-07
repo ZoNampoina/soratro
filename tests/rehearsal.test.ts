@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import { createDemo } from '../src/music/model.ts';import { rehearsalVolumes } from '../src/music/rehearsal.ts';
+test('Rehearsal selected voice is dominant 100/30, solo works, and original mixer and pitches remain unchanged',()=>{const p=createDemo(),before=structuredClone(p.tracks);p.settings.rehearsalVoice='alto';p.settings.rehearsalMix='dominant';assert.deepEqual([...rehearsalVolumes(p,true).values()],[.3,1,.3,.3]);p.settings.rehearsalMix='solo';assert.deepEqual([...rehearsalVolumes(p,true).values()],[0,1,0,0]);p.settings.rehearsalSpeed=70;assert.deepEqual(p.tracks,before);p.settings.rehearsalMix='ensemble';assert.ok([...rehearsalVolumes(p,true).values()].every(v=>v===.72));});
