@@ -9,7 +9,8 @@
     "build:pages": "tsc -b && vite build --base=/soratro/ && node scripts/generate-sw.mjs",
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "test": "node --experimental-strip-types --test tests/*.test.ts && npm run test:ui",
-    "test:ui": "node scripts/test-ui.mjs"
+    "test:ui": "node scripts/test-ui.mjs",
+    "test:browser": "playwright test"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

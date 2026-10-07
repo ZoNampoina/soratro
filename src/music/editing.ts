@@ -1,7 +1,7 @@
 import { id,noteDuration,noteStart,signatureInfo,type NoteEvent,type Project,type TrackId } from './model.ts';
 import { measureAt,measureCount,tempoAt,invalidateTimeline } from './timeline.ts';
 import { validateRepeats } from './repeats.ts';
-import { quantize } from '../quantization/quantizer.ts';
+import { quantizeForProject } from '../quantization/quantizer.ts';
 export type EditScope=TrackId|'all';
 export type MeasureAction='insert-before'|'insert-after'|'delete'|'duplicate'|'clear'|'quantize'|'transpose'|'move';
 export interface MusicBlock {duration:number;measureLength:number;tracks:{id:string;events:NoteEvent[]}[];lyrics:Project['lyrics'];sourceStart:number;signatures:Project['signatureMap'];tempos:Project['tempoMap'];markers:Project['markers'];indications:Project['indications'];repeats:Project['repeats'];takes:Project['takes'];hasPickup:boolean}
@@ -36,7 +36,7 @@ export function pasteBlock(p:Project,block:MusicBlock,afterMeasure:number,scope:
 export function transpose(p:Project,semitones:number,scope:EditScope='all',first?:number,last?:number){if(!Number.isInteger(semitones)||Math.abs(semitones)>48)throw new Error('Transposition invalide.');const start=first?measureAt(p,first).start:0,end=last?measureAt(p,last).end:Infinity;const notes=chosen(p,scope).flatMap(t=>t.events).filter(n=>noteStart(n)>=start&&noteStart(n)<end);if(notes.some(n=>n.midiPitch+semitones<0||n.midiPitch+semitones>127))throw new Error('La transposition dépasserait les hauteurs MIDI 0–127.');for(const n of notes)n.midiPitch+=semitones;}
 export function editMeasures(p:Project,action:MeasureAction,first:number,last:number,scope:EditScope='all',target=last,amount=0){if(!Number.isInteger(first)||!Number.isInteger(last)||first<1||last<first||last>10000)throw new Error('Sélection de mesures invalide.');const start=measureAt(p,first).start,end=measureAt(p,last).end,duration=end-start,count=last-first+1,oldCount=measureCount(p);
   if(action==='transpose'){transpose(p,amount,scope,first,last);return;}
-  if(action==='quantize'){for(const t of chosen(p,scope)){const region=t.events.filter(n=>noteStart(n)>=start&&noteStart(n)<end),quantized=new Map(quantize(region,p.settings.quantization,p.settings.quantizationStrength).map(n=>[n.id,n]));t.events=t.events.map(n=>quantized.get(n.id)??n);}return;}
+  if(action==='quantize'){for(const t of chosen(p,scope)){const region=t.events.filter(n=>noteStart(n)>=start&&noteStart(n)<end),quantized=new Map(quantizeForProject(p,region,p.settings.quantization,p.settings.quantizationStrength).map(n=>[n.id,n]));t.events=t.events.map(n=>quantized.get(n.id)??n);}return;}
   if(action==='duplicate'){pasteBlock(p,copyMeasures(p,first,last,scope),target,scope);return;}
   if(action==='move'){if(target>=first-1&&target<=last)throw new Error('La destination doit être en dehors de la sélection.');const block=copyMeasures(p,first,last,scope);ensureNormalBlock(p,block,target,scope);editMeasures(p,'delete',first,last,scope);pasteBlock(p,block,target>last?target-count:target,scope);return;}
   if(action==='insert-before'||action==='insert-after'){const block=copyMeasures(p,first,last,scope);block.tracks=block.tracks.map(t=>({...t,events:[]}));block.lyrics=[];block.markers=[];block.indications=[];block.repeats=[];block.takes=[];pasteBlock(p,block,action==='insert-before'?first-1:last,scope);return;}

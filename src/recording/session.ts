@@ -10,7 +10,7 @@ export class RecordingSession {
   private engine:AudioEngine;private projects:ProjectStore;
   constructor(engine:AudioEngine=audio,projects:ProjectStore=store){this.engine=engine;this.projects=projects;this.recorder=new Recorder(n=>this.capture(n));engine.onStop=()=>this.finish();engine.onRecordingStart=()=>this.begin();engine.onRecordLoop=(_raw,time)=>this.nextCycle(time);}
   async record(countIn:number){const p=this.projects.getSnapshot().project;if(!p)return;this.releaseAll();this.baseline=structuredClone(p);this.captured=[];this.newTakes=[];this.takeId=null;this.projects.beginTake();this.armed=true;
-    const loop=p.settings.loopRecording,punch=p.settings.punchEnabled;this.start=punch?p.settings.punchStart:loop?p.settings.loopStart:this.engine.position();this.end=punch?p.settings.punchEnd:loop?p.settings.loopEnd:Infinity;
+    const loop=p.settings.loopRecording,punch=p.settings.punchEnabled;this.start=loop?p.settings.loopStart:punch?p.settings.punchStart:this.engine.position();this.end=loop?p.settings.loopEnd:punch?p.settings.punchEnd:Infinity;
     const startMeasure=measureForBeat(p,this.start).number,preRollStart=punch||loop?measureAt(p,Math.max(1,startMeasure-p.settings.preRoll)).start:this.start;
     try{await this.engine.record(this.start,countIn,{start:this.start,end:this.end,preRollStart,loop,trackId:this.trackId});}catch(e){this.armed=false;this.projects.endTake();throw e;}
   }

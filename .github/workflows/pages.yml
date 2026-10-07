@@ -29,6 +29,10 @@ jobs:
         run: npm run build:pages
       - name: Verify music, storage and offline cache
         run: npm test
+      - name: Install Chromium for actual browser validation
+        run: npx playwright install --with-deps chromium
+      - name: Verify recording, PDF, touch and offline restart in Chromium
+        run: npm run test:browser
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
         with:
