@@ -4,6 +4,14 @@ Atelier de composition chorale en notation Solfa : jouer au piano, enregistrer l
 
 Le prototype reprend la structure SATB et les regroupements en 6/8 de la partition IRAKA fournie comme référence. L’étude de démonstration est un exemple, pas une transcription intégrale d’IRAKA.
 
+## Site Web
+
+Adresse GitHub Pages : https://zonampoina.github.io/soratro/
+
+Le workflow `.github/workflows/pages.yml` compile, vérifie les tests et publie automatiquement les changements de `main`. Il peut également être lancé depuis l’onglet Actions. Dans Settings → Pages, la source de publication doit être **GitHub Actions**.
+
+Pour compiler cette version localement : `npm run build:pages`. Les ressources, l’installation PWA et le cache hors ligne restent dans le dossier `/soratro/`. La commande `npm run build` conserve une compilation pour une adresse à la racine.
+
 ## Lancement
 
 Node.js 22.18+ (24 recommandé), npm et Chrome / Edge récents.
@@ -67,4 +75,4 @@ npm run build
 npm test
 ```
 
-16 tests automatisés et 7 vérifications navigateur ont réussi. Le [rapport de validation](SORATRO_V0.1_Rapport.md) détaille les résultats et les essais qui nécessitent encore un téléphone ou un vrai clavier MIDI. Le banc de test navigateur est accessible en développement à `/tests/browser.html`.
+Les tests automatisés couvrent le cœur musical, le stockage et le cache hors ligne à la racine ainsi que sous `/soratro/`. Le [rapport de validation](SORATRO_V0.1_Rapport.md) détaille les résultats de la V0.1 et les essais qui nécessitent encore un téléphone ou un vrai clavier MIDI. Le banc de test navigateur est accessible en développement à `/tests/browser.html`.

@@ -2,6 +2,12 @@
 
 Date : 7 octobre 2026. Dépôt : https://github.com/ZoNampoina/soratro
 
+## Publication GitHub Pages
+
+La configuration de publication cible https://zonampoina.github.io/soratro/. Le workflow GitHub Actions compile la version `/soratro/`, lance les tests puis déploie le site. Les ressources, le manifeste PWA, les icônes et le service worker utilisent le dossier de l’application. Le cache est propre à ce dossier et préserve ceux des autres applications du même domaine.
+
+Après cette adaptation : compilation Pages réussie et **17 tests automatisés réussis**, dont la navigation à froid hors ligne à la racine et sous `/soratro/`. Les résultats ci-dessous décrivent la validation fonctionnelle initiale de V0.1.
+
 ## Fonctions réalisées
 
 - Création, ouverture, renommage, duplication et suppression de projets. Métadonnées, tonalité, BPM, mesures, paroles et quatre pistes SATB.
