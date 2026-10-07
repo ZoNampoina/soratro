@@ -10,7 +10,7 @@ Adresse GitHub Pages : https://zonampoina.github.io/soratro/
 
 Le workflow `.github/workflows/pages.yml` compile, vérifie les tests et publie automatiquement les changements de `main`. Il peut également être lancé depuis l’onglet Actions. Dans Settings → Pages, la source de publication doit être **GitHub Actions**.
 
-Pour compiler cette version localement : `npm run build:pages`. Les ressources, l’installation PWA et le cache hors ligne restent dans le dossier `/soratro/`. La commande `npm run build` conserve une compilation pour une adresse à la racine.
+Pour compiler cette version localement : `npm run build:pages`, puis `npm run preview -- --base=/soratro/` pour l’aperçu correspondant. Les ressources, l’installation PWA et le cache hors ligne restent dans le dossier `/soratro/`. La commande `npm run build` conserve une compilation pour une adresse à la racine.
 
 ## Lancement
 
@@ -66,13 +66,15 @@ Exporter régulièrement un fichier `.soratro` protège contre l’effacement de
 - `src/ui/` : interface React, piano tactile, Piano Roll et partition SVG.
 - `scripts/generate-sw.mjs` : cache de tous les fichiers locaux de la version compilée.
 
-Le projet Capacitor 8 est dans `android/`, avec sélecteur de fichiers, partage, impression et MIDI natif. Le workflow Android compile un APK de test ; voir [Android](docs/ANDROID.md). La PWA reste installable et hors ligne. Une mise à jour attend la sauvegarde avant activation.
+Le projet Capacitor 8 est dans `android/`, avec sélecteur de fichiers, partage, impression et MIDI natif. Le workflow Android compile un APK de test ; voir [Android](docs/ANDROID.md). La PWA reste installable et hors ligne. Une mise à jour attend la sauvegarde avant activation. Pour le premier passage V0.1 → V0.2, fermez tous les onglets SORATRO et la PWA, puis rouvrez le site : la V0.1 ne possède pas encore le bouton de mise à jour. Ne supprimez pas les données du navigateur.
 
 ## Vérification
 
 ```sh
-npm run build
+npm run build:pages
 npm test
+npx playwright install chromium
+npm run test:browser
 ```
 
 Les tests automatisés couvrent le cœur musical, le stockage et le cache hors ligne à la racine ainsi que sous `/soratro/`. Le [rapport V0.2](docs/RAPPORT-V0.2.md) détaille les nouveautés, tests et limites. Le [rapport V0.1 conservé](SORATRO_V0.1_Rapport.md) détaille les résultats initiaux et les essais qui nécessitent encore un téléphone ou un vrai clavier MIDI. Le banc de test navigateur est accessible en développement à `/tests/browser.html`.

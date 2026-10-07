@@ -4,7 +4,7 @@
 
 Évolution incrémentale depuis `17b58d40e104a3a869b2af1e4d4c5e29d3792ff7`, sans recréer SORATRO. README, rapport V0.1, modules et tests lus avant modification. Les 17 tests d’origine et le build Pages passaient. La page publiée répondait HTTP 200 avec les bundles du build de référence. La branche `work/v0.2` permet les builds natifs avant publication de `main`.
 
-Version 0.2.0 après validation des fonctions principales. Le commit effectivement servi est inscrit automatiquement dans `/soratro/version.json` ; les contrôles Actions et publics seront consignés après exécution.
+Version 0.2.0 après validation des fonctions principales. Le commit effectivement servi est inscrit automatiquement dans `/soratro/version.json`. La publication Pages dépend des tests du moteur, de l’interface et de Chromium. La release Android exige un APK compilé et linté dont le commit embarqué correspond exactement au site.
 
 ## Fonctions ajoutées
 
@@ -28,13 +28,17 @@ Version 0.2.0 après validation des fonctions principales. Le commit effectiveme
 
 La PWA attend une activation après sauvegarde et conserve un cache précédent pour les anciens bundles. Les installations incomplètes sont supprimées, les caches d’autres projets restent intacts.
 
+À la reprise du travail interrompu, correction du snap aux limites des mesures et de l’anacrouse, déplacement atomique des groupes de notes aux limites du Piano Roll, et démarrage de la boucle de répétition à sa borne gauche. Le build vide son répertoire de sortie pour éviter des ressources périmées entre les bases `/` et `/soratro/`. L’aperçu local utilise explicitement la base Pages. Un rechargement Chromium hors ligne a révélé que `Vary: Origin` empêchait de retrouver les modules précachés ; le service worker ignore ce critère pour les ressources publiques statiques. Les sélecteurs et attentes des tests ont aussi été corrigés pour vérifier les opérations réellement terminées.
+
 ## Validation
 
-`npm ci`, TypeScript et builds racine/Pages : réussis. Au checkpoint : 50 tests de cœur et 3 parcours React/JSDOM réussis. Les contrôles finaux/navigateur et builds distants seront ajoutés après exécution.
+Validation finale du 7 octobre 2026 : `npm ci`, TypeScript et builds racine/Pages réussis ; 53 tests de cœur, 4 tests React/JSDOM et 4 parcours Chromium réussis, soit 61 tests. Le premier parcours Chromium inclut sept contrôles de régression avec le véritable Web Audio, le transport, IndexedDB et les dispositions mobiles. `git diff --check` et le contrôle syntaxique des scripts de service worker/publication Android réussissent.
 
 Couverture : export → suppression locale → import dans une autre base, égalité exacte ; migration V0.1 ; checksum/futurs schémas/imports invalides ; rétention ; panne autosave/retry ; Punch Replace protégeant extérieurs et autres voix ; trois prises ; note tenue entre ticks ; latence incohérente refusée ; transposition atomique ; move avec tempo/signatures/fins ; mélismes/couplets ; reprises/horloge ; CC64/panic/reconnexion ; redémarrage hors ligne et tous les assets à `/` et `/soratro/`, activation explicite et ancien lazy bundle.
 
-Projet long : 100 mesures SATB, 2 400 notes, deux couplets, repères et reprise. Toutes les mesures paginées et PDF Unicode vectoriel généré. Le test limite la gravure à quatre secondes et 150 Mo supplémentaires. Poppler reconnaît le PDF et une page rendue a été inspectée. Cela ne démontre pas la fluidité d’un téléphone peu puissant.
+Chromium vérifie aussi la saisie REC au clavier PC après deux mesures de décompte, les paroles et repères, les fichiers PDF/SVG/PNG téléchargés, la conservation exacte après export `.soratro` → suppression → import, puis le rechargement sans réseau et un nouvel export PDF hors ligne. Le multitouch simulé utilise deux pointeurs simultanés, en portrait 390 × 844 et paysage 740 × 390 ; absence de débordement horizontal et bouton REC d’au moins 44 px contrôlés. Aucun de ces scénarios n’a produit d’erreur JavaScript non interceptée.
+
+Projet long : 100 mesures SATB, 2 400 notes, deux couplets, repères et reprise. Toutes les mesures paginées dans un PDF Unicode vectoriel de 13 pages. Le test limite la gravure à quatre secondes et 150 Mo supplémentaires. Poppler reconnaît le PDF ; ses première, septième et dernière pages ont été rendues et inspectées. Cela ne démontre pas la fluidité d’un téléphone peu puissant.
 
 ## Migrations et format
 
@@ -46,7 +50,7 @@ Enveloppe `.soratro` : `format`, `formatVersion: 1`, `appVersion`, `exportedAt`,
 
 Reprises imbriquées/chevauchantes refusées. Courbes de ritardando, swing, fusion/comping de prises, import MIDI, cloud et liaison de phrasé éditable non implémentés. Les indications textuelles ne modifient pas automatiquement l’audio ; une fermata ne ralentit pas le transport. Première gravure avancée, à qualifier sur partitions denses. Images d’une sélection multipage : première page ; PDF : toutes les pages. La levée reste au début, sans déplacement/duplication comme mesure complète.
 
-Chrome/Edge manuels, téléphone Android, PWA installée, multitouch physique, MIDI/pédale OTG et latence de la sortie sonore ne sont pas attestables sans matériel. Le navigateur distant a échoué ; JSDOM teste les composants, pas les navigateurs. Un APK debug compilé n’est pas une release Play Store qualifiée.
+Les parcours Chromium automatisés ont été exécutés dans un vrai navigateur. Edge manuel, téléphone Android, PWA installée, multitouch physique, MIDI/pédale OTG et latence de la sortie sonore restent à qualifier sur matériel. JSDOM couvre les composants séparément des parcours navigateur. Un APK debug compilé n’est pas une release Play Store qualifiée.
 
 ## Prochaines priorités
 

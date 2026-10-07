@@ -18,7 +18,7 @@ for(const base of ['/','/soratro/'])test('L — cold offline restart and precach
   network=false;async function request(path:string,mode='cors'){let result:Promise<Response>|undefined;listeners.get('fetch')!({request:{method:'GET',url:origin+path,mode},respondWith(p:Promise<Response>){result=p;}});return result?await result:undefined;}
   assert.equal(await (await request(base+'assets/old-lazy.js'))!.text(),'old lazy bundle');
   const response=await request(base+'?offline-check','navigate');assert.equal(response?.status,200);assert.ok((await response!.text()).includes('SORATRO'));
-  for(const url of files.keys()){if(url.endsWith('/sw.js'))continue;const r=await request(new URL(url).pathname+'?cache-check');assert.equal(r?.status,200);assert.ok((await r!.arrayBuffer()).byteLength>0);}
+  for(const url of files.keys()){if(url.endsWith('/sw.js'))continue;const r=await request(new URL(url).pathname+'?cache-check');assert.equal(r?.status,200,'Missing offline asset '+url);assert.ok((await r!.arrayBuffer()).byteLength>0);}
   assert.equal(fetchCalls,0,'An offline restart must not depend on a server');assert.equal((await request(base+'uncached-resource'))?.status,503);
   if(base!=='/')assert.equal(await request('/diart/','navigate'),undefined,'The worker must not intercept another GitHub Pages project');
 });
