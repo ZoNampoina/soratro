@@ -63,8 +63,8 @@ Ne pas effacer les données du navigateur pour ce site si vous souhaitez conserv
 ## Vérification
 
 ```sh
-npm test
 npm run build
+npm test
 ```
 
-Le rapport de validation détaillera les résultats et les vérifications qui nécessitent encore un téléphone ou un vrai clavier MIDI.
+16 tests automatisés et 7 vérifications navigateur ont réussi. Le [rapport de validation](SORATRO_V0.1_Rapport.md) détaille les résultats et les essais qui nécessitent encore un téléphone ou un vrai clavier MIDI. Le banc de test navigateur est accessible en développement à `/tests/browser.html`.
