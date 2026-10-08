@@ -2,6 +2,7 @@ import { noteDuration,noteStart,type Project } from '../music/model.ts';
 import { measureAt,measureCount,tempoLabel,unitBeats,tempoAt } from '../music/timeline.ts';
 import { beatToScoreX,layoutMeasure,measureGeometry,type MeasureGeometry } from './layout.ts';
 import { midiToSolfa } from '../solfa/converter.ts';
+import { solfaDisplay } from '../solfa/display.ts';
 import { textWidth } from './font-metrics.ts';
 export type DrawOp={kind:'text';x:number;y:number;text:string;size:number;color?:string;noteIds?:string[];beat?:number}|{kind:'line';x:number;y:number;x2:number;y2:number;width:number;color?:string}|{kind:'circle';x:number;y:number;radius:number;color?:string};
 export interface EngravedMeasure {number:number;x:number;y:number;width:number;height:number;geometry:MeasureGeometry;scale:number;inset:number}
@@ -16,6 +17,7 @@ function wrapText(text:string,width:number,size:number):string[]{const result:st
 function wrappedText(ops:DrawOp[],text:string,x:number,y:number,width:number,size:number,color='#26232d'){const lines=wrapText(text,width,size);lines.forEach((text,i)=>putText(ops,text,x,y+i*(size+5),size,color));return y+lines.length*(size+5);}
 function lyricLines(p:Project,trackId:string){return p.lyrics.filter(l=>l.trackId===trackId&&l.syllables.some(s=>s.noteId||s.noteIds?.length)).sort((a,b)=>(a.verse??1)-(b.verse??1));}
 export function engraveProject(project:Project,selection?:{first:number;last:number}):ScoreDocument {
+  const display=solfaDisplay(project);
   const size=paperSize(project),margin=project.layout.margin*PX_PER_MM,gutter=54,available=size.width-margin*2-gutter,layout=project.layout,first=selection?.first??1,last=selection?.last??measureCount(project),count=last-first+1;
   if(count<=0||count>10000)throw new Error('Sélection de partition invalide.');
   const noteIndex=new Map(project.tracks.flatMap(t=>t.events.map(n=>[n.id,n] as const))),geometries=new Map<number,MeasureGeometry>();
@@ -45,7 +47,7 @@ export function engraveProject(project:Project,selection?:{first:number;last:num
       annotationLines[barIndex].forEach((text,i)=>putText(system.ops,text,x+3,pageY+11+i*15,10));
       for(let ti=0;ti<project.tracks.length;ti++){
         const track=project.tracks[ti],baseline=y+voiceY[ti]+layout.noteSize,cells=layoutMeasure(project,ti,bar-1,geometry.width,geometry);
-        cells.forEach((cell,ci)=>{const px=x+left+cell.x*localScale,text=cell.symbols.join('/').replaceAll('–','-');putText(system.ops,text,px,baseline,layout.noteSize*scale,cell.kind==='rest'?'#96909b':'#26232d',cell.noteIds,cell.beat);if(ci<cells.length-1){const next=cells[ci+1],middle=m.groups.slice(0,-1).reduce<number[]>((result,n)=>[...result,(result.at(-1)??0)+n],[]).some(n=>Math.abs(next.beat-m.start-n*m.pulse)<.0001);putText(system.ops,middle?'|':':',x+left+next.x*localScale-9,baseline,layout.noteSize*.65*scale,'#a49dab');}});
+        cells.forEach((cell,ci)=>{const px=x+left+cell.x*localScale,text=cell.kind==='rest'&&!display.showRests?'':cell.symbols.join('/').replaceAll('–','-');putText(system.ops,text,px,baseline,layout.noteSize*scale,cell.kind==='rest'?'#96909b':'#26232d',cell.noteIds,cell.beat);if(ci<cells.length-1){const next=cells[ci+1],middle=m.groups.slice(0,-1).reduce<number[]>((result,n)=>[...result,(result.at(-1)??0)+n],[]).some(n=>Math.abs(next.beat-m.start-n*m.pulse)<.0001);putText(system.ops,middle?'|':':',x+left+next.x*localScale-9,baseline,layout.noteSize*.65*scale,'#a49dab');}});
         const lyrics=lyricLines(project,track.id);lyrics.forEach((l,li)=>{const lyricY=baseline+layout.lyricSize+6+li*(layout.lyricSize+6);if(bar===group[0])putText(system.ops,l.kind==='refrain'?'R.':l.kind==='common'?'':String(l.verse??1)+'.',margin+25,lyricY,8,'#77717d');
           for(const s of l.syllables){const ids=s.noteIds??(s.noteId?[s.noteId]:[]),notes=ids.map(key=>noteIndex.get(key)).filter((n):n is NonNullable<typeof n>=>!!n);if(!notes.length)continue;const start=Math.min(...notes.map(noteStart)),end=Math.max(...notes.map(n=>noteStart(n)+noteDuration(n)));const sx=x+left+beatToScoreX(geometry,Math.max(m.start,start))*localScale,ex=x+left+beatToScoreX(geometry,Math.min(m.end,end))*localScale;
             if(start>=m.start-1e-7&&start<m.end-1e-7){putText(system.ops,s.text+(s.hyphenAfter?'-':''),sx,lyricY,layout.lyricSize*scale);if(ids.length>1&&ex>sx+textWidth(s.text,layout.lyricSize*scale)+9)line(system.ops,sx+textWidth(s.text,layout.lyricSize*scale)+4,lyricY+2,ex,lyricY+2,.65,'#8d8492');}else if(ids.length>1&&start<m.start&&end>m.start)line(system.ops,x+left,lyricY+2,ex,lyricY+2,.65,'#8d8492');

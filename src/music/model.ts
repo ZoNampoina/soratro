@@ -1,3 +1,4 @@
+import type { SolfaDisplay } from '../solfa/display.ts';
 export type TrackId = string;
 export type Signature = `${number}/${number}`;
 export type Tonic = 'C' | 'Db' | 'D' | 'Eb' | 'E' | 'F' | 'F#' | 'G' | 'Ab' | 'A' | 'Bb' | 'B';
@@ -35,6 +36,7 @@ export interface Project {
   tonic: Tonic; timeSignature: Signature; tempo: number;
   createdAt: string; updatedAt: string; tracks: Track[]; lyrics: LyricLine[];
   markers:Marker[];takes:RecordingTake[];tempoMap:TempoChange[];signatureMap:SignatureChange[];repeats:RepeatSection[];indications:MusicalIndication[];layout:PageSettings;
+  notation?: SolfaDisplay;
   settings: {countIn:0|1|2|4;quantization:QuantizationGrid;quantizationStrength:number;loopStart:number;loopEnd:number;tempoUnit:TempoUnit;recordMode:'overdub'|'replace';punchEnabled:boolean;punchStart:number;punchEnd:number;preRoll:0|1|2|4;loopRecording:boolean;latencyCompensationMs:number;pickupBeats:number;choirTemplate:ChoirTemplate;beatGroups:number[];snap:boolean;instrument:'piano'|'soft-piano'|'organ'|'vocal';masterVolume:number;rehearsalSpeed:number;rehearsalVoice:TrackId;rehearsalMix:'ensemble'|'solo'|'dominant';loopRepeats:number;measureCount?:number};
 }
 export const id = () => {
