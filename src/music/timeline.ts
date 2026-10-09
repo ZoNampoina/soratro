@@ -12,7 +12,7 @@ export function measures(project:Project,count:number):Measure[]{
 }
 export function measureAt(project:Project,number:number){return measures(project,number)[Math.max(0,Math.ceil(number)-1)];}
 export function measureForBeat(project:Project,beat:number):Measure{let rows=measures(project,1);while(rows.at(-1)!.end<=beat+1e-8&&rows.length<100000)rows=measures(project,Math.max(rows.length+1,rows.length*2));let lo=0,hi=rows.length-1;while(lo<hi){const mid=Math.floor((lo+hi)/2);if(rows[mid].end<=beat+1e-8)lo=mid+1;else hi=mid;}return rows[lo];}
-export function measureCount(project:Project){let end=0;for(const t of project.tracks)for(const n of t.events)end=Math.max(end,noteStart(n)+noteDuration(n));const musical=measureForBeat(project,Math.max(0,end-1e-6)).number;return Math.max(4,musical,...project.markers.map(m=>m.measure),...project.repeats.map(r=>r.secondEndingEnd??r.endMeasure),project.settings.measureCount??0);}
+export function measureCount(project:Project){let end=0;for(const t of project.tracks)for(const n of t.events)end=Math.max(end,noteStart(n)+noteDuration(n));const musical=measureForBeat(project,Math.max(0,end-1e-6)).number;return Math.max(4,musical,...project.markers.map(m=>m.measure),...project.indications.map(m=>m.measure),...project.repeats.map(r=>r.secondEndingEnd??r.endMeasure),project.settings.measureCount??0);}
 export function musicEnd(project:Project){return measureAt(project,measureCount(project)).end;}
 export const unitBeats=(unit:TempoUnit)=>unit==='dotted-quarter'?1.5:unit==='eighth'?.5:1;
 export const tempoLabel=(unit:TempoUnit)=>unit==='dotted-quarter'?'♩.':unit==='eighth'?'♪':'♩';

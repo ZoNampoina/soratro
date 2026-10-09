@@ -1,74 +1,143 @@
-import { noteDuration,noteStart,type Project } from '../music/model.ts';
-import { measureAt,measureCount,tempoLabel,unitBeats,tempoAt } from '../music/timeline.ts';
-import { beatToScoreX,layoutMeasure,measureGeometry,type MeasureGeometry } from './layout.ts';
-import { midiToSolfa } from '../solfa/converter.ts';
-import { textWidth } from './font-metrics.ts';
-import { DEFAULT_SOLFA,displayLayout,type SolfaDisplay } from './display.ts';
-export type DrawOp={kind:'text';x:number;y:number;text:string;size:number;color?:string;noteIds?:string[];beat?:number}|{kind:'line';x:number;y:number;x2:number;y2:number;width:number;color?:string}|{kind:'circle';x:number;y:number;radius:number;color?:string};
+import {noteDuration,noteStart,type Project,type PageDecoration} from '../music/model.ts';
+import {measureAt,measureCount,tempoLabel,unitBeats} from '../music/timeline.ts';
+import {beatToScoreX,layoutMeasure,measureGeometry,type MeasureGeometry} from './layout.ts';
+import {convertSolfa,midiToSolfa} from '../solfa/converter.ts';
+import {textWidth} from './font-metrics.ts';
+import {DEFAULT_SOLFA,displayLayout,type SolfaDisplay} from './display.ts';
+import {lyricPlacements} from '../lyrics/shared.ts';
+import {decorationFontKey,decorationWidth,decorationText,defaultHeader,defaultFooter,showDecoration,PRINT_FONT_URLS,type FontKey} from './decorations.ts';
+import {NAVIGATION_LABELS} from '../music/navigation.ts';
+interface OpMeta {role?:'note'|'rhythm'|'lyric'|'header'|'footer'|'symbol'|'link'|'voice';measure?:number;trackId?:string;objectId?:string;beat?:number}
+export type DrawOp=OpMeta&({kind:'text';x:number;y:number;text:string;size:number;color?:string;noteIds?:string[];baseText?:string;octave?:number;font?:FontKey}|{kind:'line';x:number;y:number;x2:number;y2:number;width:number;color?:string}|{kind:'curve';x:number;y:number;cx1:number;cy1:number;cx2:number;cy2:number;x2:number;y2:number;width:number;color?:string}|{kind:'circle';x:number;y:number;radius:number;color?:string;outline?:boolean}|{kind:'image';x:number;y:number;width:number;height:number;src:string});
 export interface EngravedMeasure {number:number;x:number;y:number;width:number;height:number;geometry:MeasureGeometry;scale:number;inset:number}
 export interface ScoreSystem {index:number;page:number;first:number;last:number;x:number;y:number;width:number;height:number;measures:EngravedMeasure[];ops:DrawOp[]}
 export interface ScorePage {index:number;width:number;height:number;widthMm:number;heightMm:number;ops:DrawOp[];systems:ScoreSystem[]}
 export interface ScoreDocument {pages:ScorePage[];systems:ScoreSystem[];measureCount:number}
+export type ScoreFonts=Record<string,string>;
 export const PX_PER_MM=96/25.4;
 export function paperSize(p:Project){const sizes={A4:[210,297],A5:[148,210],Letter:[215.9,279.4]},[a,b]=sizes[p.layout.paper];const [widthMm,heightMm]=p.layout.orientation==='portrait'?[a,b]:[b,a];return {widthMm,heightMm,width:widthMm*PX_PER_MM,height:heightMm*PX_PER_MM};}
-function putText(ops:DrawOp[],text:string,x:number,y:number,size:number,color='#26232d',noteIds?:string[],beat?:number){if(text)ops.push({kind:'text',text,x,y,size,color,noteIds,beat});}
-function line(ops:DrawOp[],x:number,y:number,x2:number,y2:number,width=1,color='#37333e'){ops.push({kind:'line',x,y,x2,y2,width,color});}
-function wrapText(text:string,width:number,size:number):string[]{const result:string[]=[];let current='';for(const word of text.split(/\s+/).filter(Boolean)){const chunks:string[]=[];let chunk='';for(const letter of Array.from(word)){if(chunk&&textWidth(chunk+letter,size)>width){chunks.push(chunk);chunk='';}chunk+=letter;}if(chunk)chunks.push(chunk);for(const token of chunks){const next=current?current+' '+token:token;if(current&&textWidth(next,size)>width){result.push(current);current=token;}else current=next;}}if(current)result.push(current);return result;}
-function wrappedText(ops:DrawOp[],text:string,x:number,y:number,width:number,size:number,color='#26232d'){const lines=wrapText(text,width,size);lines.forEach((text,i)=>putText(ops,text,x,y+i*(size+5),size,color));return y+lines.length*(size+5);}
-function lyricLines(p:Project,trackId:string){return p.lyrics.filter(l=>l.trackId===trackId&&l.syllables.some(s=>s.noteId||s.noteIds?.length)).sort((a,b)=>(a.verse??1)-(b.verse??1));}
-export function engraveProject(source:Project,selection?:{first:number;last:number},display:SolfaDisplay=DEFAULT_SOLFA,voiceColors=false):ScoreDocument {
-  const project={...source,layout:displayLayout(source.layout,display)};
-  const size=paperSize(project),margin=project.layout.margin*PX_PER_MM,gutter=54,available=size.width-margin*2-gutter,layout=project.layout,first=selection?.first??1,last=selection?.last??measureCount(project),count=last-first+1;
+function text(ops:DrawOp[],value:string,x:number,y:number,size:number,meta:OpMeta={},color='#26232d',extra:Partial<Extract<DrawOp,{kind:'text'}>>={}){if(value)ops.push({kind:'text',text:value,x,y,size,color,...meta,...extra});}
+function line(ops:DrawOp[],x:number,y:number,x2:number,y2:number,width=1,color='#37333e',meta:OpMeta={}){ops.push({kind:'line',x,y,x2,y2,width,color,...meta});}
+function curve(ops:DrawOp[],x:number,y:number,cx1:number,cy1:number,cx2:number,cy2:number,x2:number,y2:number,width=1,meta:OpMeta={}){ops.push({kind:'curve',x,y,cx1,cy1,cx2,cy2,x2,y2,width,...meta});}
+function wrap(value:string,width:number,size:number,font?:FontKey):string[]{const measure=(s:string)=>font?decorationWidth(s,size,font):textWidth(s,size);const result:string[]=[];let current='';for(const word of value.split(/\s+/).filter(Boolean)){const chunks:string[]=[];let chunk='';for(const char of Array.from(word)){if(chunk&&measure(chunk+char)>width){chunks.push(chunk);chunk='';}chunk+=char;}if(chunk)chunks.push(chunk);for(const token of chunks){const next=current?current+' '+token:token;if(current&&measure(next)>width){result.push(current);current=token;}else current=next;}}if(current)result.push(current);return result;}
+/** Shared rhythmic anchors, with width proportional to time in regular justification. */
+function geometryFor(p:Project,bar:number,spacing:number,maxWidth:number):MeasureGeometry{
+  const g=measureGeometry(p,bar-1,1,1,true),notes=p.tracks.flatMap(t=>t.events),index=new Map(notes.map(n=>[n.id,n])),ends=[...g.anchors.slice(1).map(a=>a.beat),g.end],needs:number[]=[];
+  for(const [i,a] of g.anchors.entries()){
+    const groups=p.tracks.map(t=>t.events.filter(n=>Math.abs(noteStart(n)-a.beat)<1e-4).map(n=>midiToSolfa(n.midiPitch,p.tonic)).join('/'));
+    const words=p.lyrics.flatMap(l=>l.syllables.filter(s=>{const n=index.get(s.noteIds?.[0]??s.noteId??'');return n&&Math.abs(noteStart(n)-a.beat)<1e-4;}).map(s=>textWidth(s.text+(s.hyphenAfter?'-':''),p.layout.lyricSize)+12));
+    const width=Math.max(p.layout.noteSize*1.55,...groups.map(s=>textWidth(s,p.layout.noteSize)+16),...words)*spacing;
+    needs.push(width);if(ends[i]<=a.beat)throw new Error('Grille rythmique invalide.');
+  }
+  if(p.layout.justification==='adaptive'){let x=0;g.anchors=g.anchors.map((a,i)=>{const next={...a,x};x+=needs[i];return next;});g.width=Math.max(40,x);}
+  else {const rate=Math.max(p.layout.noteSize*1.55,...needs.map((n,i)=>n/(ends[i]-g.anchors[i].beat)));g.anchors=g.anchors.map(a=>({...a,x:(a.beat-g.begin)*rate}));g.width=Math.max(40,(g.end-g.begin)*rate);}
+  // Very close mixed subdivisions must not inflate every beat of a regular bar.
+  // Keep the shared grid, but distribute minimum widths locally in this dense case.
+  if(g.width>maxWidth){let x=0;g.anchors=g.anchors.map((a,i)=>{const next={...a,x};x+=Math.max(needs[i],(ends[i]-a.beat)*p.layout.noteSize*1.55*spacing);return next;});g.width=Math.max(40,x);}
+  return g;
+}
+function noteX(g:MeasureGeometry,beat:number){const a=beatToScoreX(g,beat),next=g.anchors.find(v=>v.beat>beat+1e-5);return a+((next?.x??g.width)-a)/2;}
+function decorationOps(p:Project,fields:PageDecoration[],page:number,total:number,width:number,margin:number,role:'header'|'footer'):{ops:DrawOp[];height:number}{
+  const ops:DrawOp[]=[],visible=fields.filter(d=>d.visible&&(d.field==='logo'?d.logo:decorationText(d,p,page,total))),rows=[...new Set(visible.map(d=>d.row))].sort((a,b)=>a-b);let y=0;
+  for(const row of rows){const entries=visible.filter(d=>d.row===row),hasSide=entries.some(d=>d.align!=='center'),rowWidth=width-margin*2;
+    const lines=entries.map(d=>{const zone=d.align==='center'&&!hasSide?rowWidth:rowWidth/3-10;return {d,zone,font:decorationFontKey(d),lines:wrap(decorationText(d,p,page,total),zone,d.size,decorationFontKey(d))};});
+    const height=Math.max(0,...lines.map(({d,lines})=>d.field==='logo'?d.size*3:Math.max(1,lines.length)*(d.size+5)+Math.abs(d.offsetY)));
+    for(const item of lines){const {d,font}=item;
+      if(d.field==='logo'&&d.logo){const w=Math.min(item.zone,d.size*3);ops.push({kind:'image',x:Math.max(margin,Math.min(width-margin-w,(d.align==='left'?margin:d.align==='right'?width-margin-w:width/2-w/2)+d.offsetX)),y:y+d.offsetY,width:w,height:d.size*3,src:d.logo,role,objectId:d.id});continue;}
+      item.lines.forEach((value,i)=>{const w=decorationWidth(value,d.size,font),anchor=d.align==='left'?margin:d.align==='right'?width-margin-w:width/2-w/2;
+        const x=Math.max(margin,Math.min(width-margin-w,anchor+d.offsetX));text(ops,value,x,y+d.size+i*(d.size+5)+d.offsetY,d.size,{role,objectId:d.id},d.color,{font});});
+    }y+=height+3;
+  }return {ops,height:y};
+}
+function drawSymbol(ops:DrawOp[],symbol:string,x:number,y:number,meta:OpMeta,size=12){
+  if(symbol==='coda'){ops.push({kind:'circle',x:x+6,y:y-5,radius:5,color:'#37333e',outline:true,...meta});line(ops,x-2,y-5,x+14,y-5,1,'#37333e',meta);line(ops,x+6,y-13,x+6,y+3,1,'#37333e',meta);}
+  else if(symbol==='segno'){curve(ops,x+10,y-13,x-5,y-15,x+19,y+1,x+1,y,1.5,meta);line(ops,x-1,y+2,x+12,y-15,1,'#37333e',meta);for(const [dx,dy] of [[-2,-10],[13,-1]])ops.push({kind:'circle',x:x+dx,y:y+dy,radius:1.3,...meta});}
+  else if(symbol==='breath'){curve(ops,x,y-12,x+5,y-17,x+6,y-7,x,y-4,1.5,meta);}
+  else if(symbol==='fermata'){curve(ops,x-8,y-3,x-6,y-16,x+6,y-16,x+8,y-3,1.1,meta);ops.push({kind:'circle',x,y:y-5,radius:1.5,...meta});}
+  else if(symbol==='accent'){line(ops,x-5,y-10,x+5,y-7,1,'#37333e',meta);line(ops,x+5,y-7,x-5,y-4,1,'#37333e',meta);}
+  else if(symbol==='tenuto')line(ops,x-5,y-7,x+5,y-7,1,'#37333e',meta);
+  else text(ops,symbol,x,y,size,meta);
+}
+export function engraveProject(source:Project,selection?:{first:number;last:number},display:SolfaDisplay=DEFAULT_SOLFA,voiceColors=false):ScoreDocument{
+  const project={...source,layout:displayLayout(source.layout,display)},layout=project.layout,size=paperSize(project),margin=layout.margin*PX_PER_MM,gutter=54,available=size.width-margin*2-gutter,first=selection?.first??1,last=selection?.last??measureCount(project),count=last-first+1;
   if(count<=0||count>10000)throw new Error('Sélection de partition invalide.');
-  const noteIndex=new Map(project.tracks.flatMap(t=>t.events.map(n=>[n.id,n] as const))),geometries=new Map<number,MeasureGeometry>();
-  for(let number=first;number<=last;number++){
-    const m=measureAt(project,number),geometry=measureGeometry(project,number-1,m.barBeats*layout.noteSize*1.05,layout.noteSize*1.15);
-    const gaps=geometry.anchors.map((a,i)=>{const notes=project.tracks.flatMap(t=>t.events.filter(n=>Math.abs(noteStart(n)-a.beat)<.0001));const labels=project.tracks.map(t=>notes.filter(n=>n.trackId===t.id));const music=Math.max(layout.noteSize*1.1,...labels.map(notes=>textWidth(notes.map(n=>midiToSolfa(n.midiPitch,project.tonic)).join('/'),layout.noteSize)+12));
-      const words=project.lyrics.flatMap(l=>l.syllables.filter(s=>{const key=s.noteIds?.[0]??s.noteId;return key&&Math.abs(noteStart(noteIndex.get(key)!)-a.beat)<.0001;}).map(s=>textWidth(s.text+(s.hyphenAfter?'-':''),layout.lyricSize)+8));return Math.max(music,...words,geometry.anchors[i+1]?Math.min(24,(geometry.anchors[i+1].beat-a.beat)*layout.noteSize*1.1):0)*display.spacing;});
-    let x=0;geometry.anchors=geometry.anchors.map((a,i)=>{const anchor={...a,x};x+=gaps[i];return anchor;});geometry.width=Math.max(34,x+8);geometries.set(number,geometry);
-  }
-  const voiceHeights=project.tracks.map(t=>Math.max(layout.voiceGap,layout.noteSize+9+lyricLines(project,t.id).length*(layout.lyricSize+6))),voiceY=voiceHeights.map((_,i)=>voiceHeights.slice(0,i).reduce((a,b)=>a+b,0));const musicHeight=voiceHeights.reduce((a,b)=>a+b,0),doc:ScoreDocument={pages:[],systems:[],measureCount:count};
-  let pageY=0;
-  function newPage(){const page:ScorePage={index:doc.pages.length,...size,ops:[],systems:[]};doc.pages.push(page);const width=size.width-margin*2;let y=margin+layout.titleSize;y=wrappedText(page.ops,project.title,margin,y,width,layout.titleSize)+5;y=wrappedText(page.ops,'Do = '+project.tonic+'  ·  '+measureAt(project,1).signature+'  ·  '+tempoLabel(project.settings.tempoUnit)+' = '+Number((tempoAt(project,0)/unitBeats(project.settings.tempoUnit)).toFixed(2)),margin,y,width,12)+3;const credits=[project.author&&'Paroles : '+project.author,project.composer&&'Composition : '+project.composer].filter(Boolean).join('  ·  ');y=wrappedText(page.ops,credits,margin,y,width,10,'#68616f')+3;y=wrappedText(page.ops,project.tracks.map(t=>t.shortName+' : '+t.name).join('   '),margin,y,width,9,'#68616f');pageY=y+14;return page;}
-  const padding=(bar:number)=>[project.repeats.some(r=>r.startMeasure===bar)?20:6,project.repeats.some(r=>r.endMeasure===bar)?20:8];
-  const annotations=(bar:number)=>[...(display.markers?project.markers.filter(marker=>marker.measure===bar).map(marker=>marker.label):[]),...project.indications.filter(i=>i.measure===bar&&!i.trackId).map(i=>i.text),...project.tempoMap.filter(t=>t.measure===bar).map(t=>tempoLabel(project.settings.tempoUnit)+' = '+Number((t.bpm/unitBeats(project.settings.tempoUnit)).toFixed(2))),...project.signatureMap.filter(s=>s.measure===bar).map(s=>s.signature)].join(' · ');
+  const doc:ScoreDocument={pages:[],systems:[],measureCount:count},notes=project.tracks.flatMap(t=>t.events),noteIndex=new Map(notes.map(n=>[n.id,n])),placements=lyricPlacements(project),geometries=new Map<number,MeasureGeometry>();
+  for(let bar=first;bar<=last;bar++)geometries.set(bar,geometryFor(project,bar,display.spacing,available-40));
+  const comparable=new Map<string,number>();for(const [bar,g] of geometries){const m=measureAt(project,bar),key=m.signature+':'+m.barBeats;comparable.set(key,Math.max(comparable.get(key)??0,g.width));}
+  const above=project.tracks.map(t=>project.indications.some(i=>(['breath','fermata','accent','tenuto'].includes(i.kind)||i.trackId||i.trackIds?.length)&&(!i.trackId&&!i.trackIds?.length||i.trackId===t.id||i.trackIds?.includes(t.id)))?14:0);
+  const voiceHeights=project.tracks.map((t,i)=>Math.max(layout.voiceGap,layout.noteSize+18+above[i]+(t.events.some(n=>convertSolfa(n.midiPitch,project.tonic).octave<0)?5:0)+placements.filter(l=>l.trackIndex===i).length*(layout.lyricSize+7))),voiceY=voiceHeights.map((_,i)=>voiceHeights.slice(0,i).reduce((a,b)=>a+b,0)),musicHeight=voiceHeights.reduce((a,b)=>a+b,0);
+  const header=layout.header??defaultHeader(project),footer=layout.footer??defaultFooter(project);let pageY=0,pageBottom=0;
+  function newPage(){const page:ScorePage={index:doc.pages.length,...size,ops:[],systems:[]};doc.pages.push(page);const head=showDecoration(layout.headerOn??'first',page.index)?decorationOps(project,header,page.index,0,size.width,margin,'header'):{ops:[],height:0};page.ops.push(...head.ops.map(op=>({...op,y:op.y+margin})));const foot=showDecoration(layout.footerOn??'all',page.index)?decorationOps(project,footer,page.index,0,size.width,margin,'footer'):{ops:[],height:0};pageY=margin+head.height+(head.height?(layout.headerGap??16):0);pageBottom=size.height-margin-foot.height-(layout.footerGap??16);return page;}
+  const padding=(bar:number)=>[project.repeats.some(r=>r.startMeasure===bar)?20:8,project.repeats.some(r=>r.endMeasure===bar)?20:8];
+  const barWidth=(bar:number)=>{const m=measureAt(project,bar),g=geometries.get(bar)!,[a,b]=padding(bar),base=layout.justification==='adaptive'?g.width:comparable.get(m.signature+':'+m.barBeats)!;return base*(layout.measureWidths?.[bar]??1)+a+b;};
+  const annotation=(bar:number)=>[...(display.markers?project.markers.filter(m=>m.measure===bar).map(m=>m.label):[]),...project.indications.filter(i=>i.measure===bar&&!i.trackId&&!i.trackIds?.length&&i.kind!=='breath'&&i.kind!=='fermata'&&i.kind!=='crescendo'&&i.kind!=='diminuendo'&&i.kind!=='accent'&&i.kind!=='tenuto'&&i.kind!=='final').map(i=>i.symbol==='segno'||i.symbol==='coda'?'':i.symbol?NAVIGATION_LABELS[i.symbol]:i.text),...project.tempoMap.filter(t=>t.measure===bar).map(t=>tempoLabel(project.settings.tempoUnit)+' = '+Number((t.bpm/unitBeats(project.settings.tempoUnit)).toFixed(2))),...project.signatureMap.filter(s=>s.measure===bar).map(s=>s.signature)].filter(Boolean).join(' · ');
   let page=newPage(),number=first;
-  while(number<=last){const group:number[]=[],max=layout.measuresPerSystem||12;let natural=0;
-    while(number<=last&&group.length<max){const [left,right]=padding(number),width=geometries.get(number)!.width+left+right;if(group.length&&natural+width>available)break;group.push(number);natural+=width;number++;if(layout.systemBreaks.includes(number-1))break;}
-    const scale=Math.min(1,available/natural);if(scale<.5)throw new Error('Mesure trop dense pour cette page. Réduisez la taille ou choisissez le paysage.');
-    const extra=scale===1&&(number<=last||group.length===(layout.measuresPerSystem||group.length))?(available-natural)/group.length:0;
-    const widths=group.map(bar=>{const [left,right]=padding(bar);return (geometries.get(bar)!.width+left+right)*scale+extra;});
-    const annotationLines=group.map((bar,i)=>wrapText(annotations(bar),widths[i]-6,10));const top=Math.max(35,Math.max(0,...annotationLines.map(lines=>lines.length))*15+28),systemHeight=musicHeight+top;
-    if(pageY+systemHeight>size.height-margin-30){if(!page.systems.length)throw new Error('Les voix, textes et couplets ne tiennent pas sur une page. Réduisez leur taille ou choisissez un format plus grand.');page=newPage();if(pageY+systemHeight>size.height-margin-30)throw new Error('Les voix et textes ne tiennent pas sur ce format.');}
-    const system:ScoreSystem={index:doc.systems.length,page:page.index,first:group[0],last:group.at(-1)!,x:margin,y:pageY,width:available+gutter,height:systemHeight,measures:[],ops:[]};
-    project.tracks.forEach((track,ti)=>putText(system.ops,track.shortName,margin+5,pageY+top+voiceY[ti]+layout.noteSize,12));let x=margin+gutter;
-    for(const [barIndex,bar] of group.entries()){const [left,right]=padding(bar),m=measureAt(project,bar),geometry=geometries.get(bar)!,width=widths[barIndex],localScale=(width-left-right)/geometry.width,y=pageY+top,barHeight=musicHeight-8;const position:EngravedMeasure={number:bar,x,y,width,height:barHeight,geometry,scale:localScale,inset:left};system.measures.push(position);
-      if(display.measureNumbers)putText(system.ops,String(bar)+(bar===1&&project.settings.pickupBeats?' · levée':''),x+3,pageY+top-8,9,'#77717d');if(display.separators!=='none')line(system.ops,x,y,x,y+barHeight,.9);
-      annotationLines[barIndex].forEach((text,i)=>putText(system.ops,text,x+3,pageY+11+i*15,10));
-      for(let ti=0;ti<project.tracks.length;ti++){
-        const track=project.tracks[ti],baseline=y+voiceY[ti]+layout.noteSize,cells=layoutMeasure(project,ti,bar-1,geometry.width,geometry);
-        cells.forEach((cell,ci)=>{const px=x+left+cell.x*localScale,text=cell.kind==='rest'&&!display.rests||cell.kind==='hold'&&!display.holds?'':cell.symbols.join('/').replaceAll('–','-');const fontSize=layout.noteSize*scale,color=cell.kind==='rest'?'#96909b':voiceColors?track.color:'#26232d';if(cell.kind==='note'&&cell.noteIds.length>1){let prefix='';cell.symbols.forEach((symbol,i)=>{putText(system.ops,symbol,px+textWidth(prefix,fontSize),baseline,fontSize,color,[cell.noteIds[i]],cell.beat);prefix+=symbol;if(i<cell.symbols.length-1){putText(system.ops,'/',px+textWidth(prefix,fontSize),baseline,fontSize,color);prefix+='/';}});}else putText(system.ops,text,px,baseline,fontSize,color,cell.noteIds,cell.beat);if(display.separators==='standard'&&ci<cells.length-1){const next=cells[ci+1],middle=m.groups.slice(0,-1).reduce<number[]>((result,n)=>[...result,(result.at(-1)??0)+n],[]).some(n=>Math.abs(next.beat-m.start-n*m.pulse)<.0001);putText(system.ops,middle?'|':':',x+left+next.x*localScale-9,baseline,layout.noteSize*.65*scale,'#a49dab');}});
-        const lyrics=lyricLines(project,track.id);lyrics.forEach((l,li)=>{const lyricY=baseline+layout.lyricSize+6+li*(layout.lyricSize+6);if(bar===group[0])putText(system.ops,l.kind==='refrain'?'R.':l.kind==='common'?'':String(l.verse??1)+'.',margin+25,lyricY,8,'#77717d');
-          for(const s of l.syllables){const ids=s.noteIds??(s.noteId?[s.noteId]:[]),notes=ids.map(key=>noteIndex.get(key)).filter((n):n is NonNullable<typeof n>=>!!n);if(!notes.length)continue;const start=Math.min(...notes.map(noteStart)),end=Math.max(...notes.map(n=>noteStart(n)+noteDuration(n)));const sx=x+left+beatToScoreX(geometry,Math.max(m.start,start))*localScale,ex=x+left+beatToScoreX(geometry,Math.min(m.end,end))*localScale;
-            if(start>=m.start-1e-7&&start<m.end-1e-7){putText(system.ops,s.text+(s.hyphenAfter?'-':''),sx,lyricY,layout.lyricSize*scale);if(ids.length>1&&ex>sx+textWidth(s.text,layout.lyricSize*scale)+9)line(system.ops,sx+textWidth(s.text,layout.lyricSize*scale)+4,lyricY+2,ex,lyricY+2,.65,'#8d8492');}else if(ids.length>1&&start<m.start&&end>m.start)line(system.ops,x+left,lyricY+2,ex,lyricY+2,.65,'#8d8492');
+  while(number<=last){if(layout.pageBreaks?.includes(number-1)&&page.systems.length)page=newPage();const group:number[]=[],requested=(layout.systemCounts?.[number]??layout.measuresPerSystem)||12;let natural=0;
+    while(number<=last&&group.length<requested){const width=barWidth(number);if(group.length&&natural+width>available)break;group.push(number);natural+=width;number++;if(layout.systemBreaks.includes(number-1)||layout.pageBreaks?.includes(number-1))break;}
+    const shrink=Math.min(1,available/natural);if(shrink<.5)throw new Error('Mesure trop dense pour cette page. Réduisez la taille ou choisissez le paysage.');
+    const justify=number<=last||group.length===requested,widths=group.map(bar=>barWidth(bar)*(justify?available/natural:shrink));
+    const annotations=group.map((bar,i)=>wrap(annotation(bar),widths[i]-12,10)),top=Math.max(35,Math.max(0,...annotations.map(a=>a.length))*15+26),height=top+musicHeight;
+    if(pageY+height>pageBottom){if(!page.systems.length)throw new Error('Les voix, textes et couplets ne tiennent pas sur cette page. Réduisez les tailles ou choisissez un format plus grand.');page=newPage();if(pageY+height>pageBottom)throw new Error('Les voix et textes ne tiennent pas sur ce format.');}
+    const system:ScoreSystem={index:doc.systems.length,page:page.index,first:group[0],last:group.at(-1)!,x:margin,y:pageY,width:gutter+widths.reduce((a,b)=>a+b,0),height,measures:[],ops:[]};const ops=system.ops;
+    const labels=layout.voiceLabels??'first';if(labels==='always'||labels==='first'&&!doc.systems.length||labels==='page'&&!page.systems.length)project.tracks.forEach((t,i)=>text(ops,t.shortName,margin+5,pageY+top+voiceY[i]+above[i]+layout.noteSize,12,{role:'voice',trackId:t.id}));
+    let x=margin+gutter;
+    for(const [bi,bar] of group.entries()){
+      const [left,right]=padding(bar),m=measureAt(project,bar),geometry=geometries.get(bar)!,width=widths[bi],scale=(width-left-right)/geometry.width,y=pageY+top,barHeight=musicHeight-8;const position:EngravedMeasure={number:bar,x,y,width,height:barHeight,geometry,scale,inset:left};system.measures.push(position);
+      const at=(beat:number,center=false)=>x+left+(center?noteX(geometry,beat):beatToScoreX(geometry,beat))*scale;
+      if(display.measureNumbers)text(ops,String(bar)+(bar===1&&project.settings.pickupBeats?' · levée':''),x+3,pageY+top-8,9,{measure:bar,beat:m.start},'#77717d');
+      if(display.separators!=='none')line(ops,x,y,x,y+barHeight,.9,'#37333e',{measure:bar});annotations[bi].forEach((s,i)=>text(ops,s,x+3,pageY+11+i*15,10,{measure:bar}));
+      for(const [ti,track] of project.tracks.entries()){
+        const baseline=y+voiceY[ti]+above[ti]+layout.noteSize,fontSize=layout.noteSize*Math.min(1,shrink),cells=layoutMeasure(project,ti,bar-1,geometry.width,geometry);
+        for(const cell of cells){const meta:OpMeta={role:'note',trackId:track.id,measure:bar,beat:cell.beat};if(cell.kind==='rest'&&!display.rests||cell.kind==='hold'&&!display.holds)continue;
+          const value=cell.symbols.join('/').replaceAll('–','-'),px=at(cell.beat,true)-textWidth(value,fontSize)/2,color=cell.kind==='rest'?'#96909b':voiceColors?track.color:'#26232d';
+          if(cell.kind==='note'){let prefix='';cell.symbols.forEach((symbol,i)=>{const n=noteIndex.get(cell.noteIds[i])!,solfa=convertSolfa(n.midiPitch,project.tonic);text(ops,symbol,px+textWidth(prefix,fontSize),baseline,fontSize,meta,color,{noteIds:[n.id],baseText:solfa.syllable,octave:solfa.octave});prefix+=symbol;if(i<cell.symbols.length-1){text(ops,'/',px+textWidth(prefix,fontSize),baseline,fontSize,meta,color);prefix+='/';}});}else text(ops,value,px,baseline,fontSize,meta,color);
+        }
+        if(display.separators==='standard')for(const boundary of geometry.rhythm??[]){const bx=at(boundary.beat),meta:OpMeta={role:'rhythm',measure:bar,trackId:track.id,beat:boundary.beat};
+          if(boundary.kind==='third')curve(ops,bx-1.8,baseline-fontSize*.62,bx+2,baseline-fontSize*.9,bx+3,baseline-fontSize*.58,bx-.5,baseline-fontSize*.46,1.1,meta);
+          else text(ops,boundary.label,bx-textWidth(boundary.label,fontSize*.72)/2,baseline-(boundary.kind==='quarter'||boundary.kind==='subdivision'?3:0),fontSize*.72,meta,'#6c6475');
+        }
+        const own=placements.filter(l=>l.trackIndex===ti);own.forEach(({line:l,common},li)=>{const lyricY=baseline+layout.lyricSize+10+li*(layout.lyricSize+7);if(bar===group[0])text(ops,l.kind==='refrain'?'R.':l.kind==='common'?'':String(l.verse??1)+'.',margin+25,lyricY,8,{role:'lyric',objectId:l.id},'#77717d');
+          for(const s of l.syllables){const ids=s.noteIds??(s.noteId?[s.noteId]:[]),linked=ids.map(key=>noteIndex.get(key)).filter(n=>!!n);if(!linked.length)continue;const start=Math.min(...linked.map(noteStart)),end=Math.max(...linked.map(n=>noteStart(n)+noteDuration(n))),sx=at(Math.max(m.start,start),start>=m.start),ex=at(Math.min(m.end,end));const meta:OpMeta={role:'lyric',objectId:l.id,trackId:common?undefined:l.trackId,measure:bar,beat:start};
+            if(start>=m.start-1e-7&&start<m.end-1e-7){const value=s.text+(s.hyphenAfter?'-':''),w=textWidth(value,layout.lyricSize);text(ops,value,sx-w/2,lyricY,layout.lyricSize,meta);if(ids.length>1&&ex>sx+w/2+8)line(ops,sx+w/2+4,lyricY+2,ex,lyricY+2,.65,'#8d8492',meta);}else if(ids.length>1&&start<m.start&&end>m.start)line(ops,x+left,lyricY+2,ex,lyricY+2,.65,'#8d8492',meta);
           }
-        });project.indications.filter(i=>i.measure===bar&&i.trackId===track.id).forEach(i=>putText(system.ops,i.text,x+left,baseline-20,9));
+        });
       }
-      let cursor=0;for(const groupSize of (display.separators==='standard'?m.groups.slice(0,-1):[])){cursor+=groupSize;const gx=x+beatToScoreX(geometry,m.start+cursor*m.pulse)*localScale;line(system.ops,gx,y,gx,y+barHeight,.35,'#ded9e2');}
-      const repeatStart=project.repeats.find(r=>r.startMeasure===bar),repeatEnd=project.repeats.find(r=>r.endMeasure===bar);if(repeatStart){line(system.ops,x+3,y,x+3,y+barHeight,1.7);project.tracks.forEach((_,ti)=>{for(const dy of [-4,4])system.ops.push({kind:'circle',x:x+8,y:y+voiceY[ti]+layout.noteSize-5+dy,radius:1.3});});}if(repeatEnd){line(system.ops,x+width-3,y,x+width-3,y+barHeight,1.7);putText(system.ops,'×'+repeatEnd.times,x+width-24,pageY+top-8,9);project.tracks.forEach((_,ti)=>{for(const dy of [-4,4])system.ops.push({kind:'circle',x:x+width-9,y:y+voiceY[ti]+layout.noteSize-5+dy,radius:1.3});});}
-      for(const r of project.repeats){const firstEnd=r.firstEndingStart!==undefined&&bar>=r.firstEndingStart&&bar<=r.endMeasure,secondEnd=r.secondEndingEnd!==undefined&&bar>r.endMeasure&&bar<=r.secondEndingEnd;if(firstEnd||secondEnd){line(system.ops,x,pageY+top-21,x+width,pageY+top-21,.6);if(bar===(firstEnd?r.firstEndingStart:r.endMeasure+1)){line(system.ops,x,pageY+top-21,x,pageY+top-13,.6);putText(system.ops,firstEnd?(r.times>2?'1-'+(r.times-1):'1')+'.':'2.',x+3,pageY+top-23,9);}}}
-      x+=width;if(display.separators!=='none')line(system.ops,x,y,x,y+barHeight,.9);
+      for(const i of project.indications.filter(i=>i.measure===bar)){const beat=Math.min(m.end-.0001,m.start+(i.beat??0)),ix=at(beat,i.kind!=='breath'),meta:OpMeta={role:'symbol',measure:bar,objectId:i.id,beat};const trackIds=i.trackIds?.length?i.trackIds:i.trackId?[i.trackId]:project.tracks.map(t=>t.id);
+        if(i.symbol==='segno'||i.symbol==='coda')drawSymbol(ops,i.symbol,x+left,pageY+top-12,meta);
+        else if(i.kind==='breath'||i.kind==='fermata'||i.kind==='accent'||i.kind==='tenuto'){for(const key of trackIds){const ti=project.tracks.findIndex(t=>t.id===key);if(ti>=0)drawSymbol(ops,i.kind,ix,y+voiceY[ti]+above[ti]-1,{...meta,trackId:key});}}
+        else if(i.kind==='crescendo'||i.kind==='diminuendo'){/* Spanning wedges are drawn once per system below. */}
+        else if(i.kind==='final'){line(ops,x+width-4,y,x+width-4,y+barHeight,2,'#37333e',meta);}
+        else if(i.trackId||i.trackIds?.length)for(const key of trackIds){const ti=project.tracks.findIndex(t=>t.id===key);if(ti>=0)text(ops,i.text,Math.min(x+width-textWidth(i.text,10)-3,ix),y+voiceY[ti]+above[ti]-6,10,{...meta,trackId:key});}
+      }
+      const repeatStart=project.repeats.find(r=>r.startMeasure===bar),repeatEnd=project.repeats.find(r=>r.endMeasure===bar);
+      if(repeatStart){line(ops,x+3,y,x+3,y+barHeight,1.7);project.tracks.forEach((_,ti)=>{for(const dy of [-4,4])ops.push({kind:'circle',x:x+8,y:y+voiceY[ti]+layout.noteSize-5+dy,radius:1.3});});}
+      if(repeatEnd){line(ops,x+width-3,y,x+width-3,y+barHeight,1.7);text(ops,'×'+repeatEnd.times,x+width-24,pageY+top-8,9);project.tracks.forEach((_,ti)=>{for(const dy of [-4,4])ops.push({kind:'circle',x:x+width-9,y:y+voiceY[ti]+layout.noteSize-5+dy,radius:1.3});});}
+      for(const r of project.repeats){const a=r.firstEndingStart!==undefined&&bar>=r.firstEndingStart&&bar<=r.endMeasure,b=r.secondEndingEnd!==undefined&&bar>r.endMeasure&&bar<=r.secondEndingEnd;if(a||b){line(ops,x,pageY+top-21,x+width,pageY+top-21,.6);if(bar===(a?r.firstEndingStart:r.endMeasure+1)){line(ops,x,pageY+top-21,x,pageY+top-13,.6);text(ops,a?(r.times>2?'1-'+(r.times-1):'1')+'.':'2.',x+3,pageY+top-23,9);}}}
+      x+=width;if(display.separators!=='none')line(ops,x,y,x,y+barHeight,.9,'#37333e',{measure:bar});
     }
-    page.ops.push(...system.ops);page.systems.push(system);doc.systems.push(system);pageY+=systemHeight+layout.systemGap;
+    const systemStart=system.measures[0].geometry.begin,systemEnd=system.measures.at(-1)!.geometry.end;
+    const systemX=(beat:number)=>{const m=system.measures.find(m=>beat>=m.geometry.begin&&beat<m.geometry.end)??system.measures.at(-1)!;return m.x+m.inset+beatToScoreX(m.geometry,beat)*m.scale;};
+    for(const i of project.indications.filter(i=>i.kind==='crescendo'||i.kind==='diminuendo')){const start=measureAt(project,i.measure).start+(i.beat??0),end=i.endBeat??start+1;if(end<=systemStart||start>=systemEnd||end<=start)continue;const a=Math.max(start,systemStart),b=Math.min(end,systemEnd),sx=systemX(a),ex=systemX(b),opening=(beat:number)=>4*(i.kind==='crescendo'?(beat-start)/(end-start):1-(beat-start)/(end-start));const trackIds=i.trackIds?.length?i.trackIds:i.trackId?[i.trackId]:project.tracks.map(t=>t.id);for(const key of trackIds){const ti=project.tracks.findIndex(t=>t.id===key);if(ti<0)continue;const mid=pageY+top+voiceY[ti]+above[ti]+layout.noteSize+8,meta:OpMeta={role:'symbol',objectId:i.id,trackId:key,measure:i.measure,beat:start};line(ops,sx,mid-opening(a),ex,mid-opening(b),.8,'#37333e',meta);line(ops,sx,mid+opening(a),ex,mid+opening(b),.8,'#37333e',meta);}}
+    for(const link of project.links??[]){const linked=link.noteIds.map(key=>noteIndex.get(key)).filter(n=>!!n).sort((a,b)=>noteStart(a)-noteStart(b));if(linked.length<2)continue;const start=noteStart(linked[0]),end=noteStart(linked.at(-1)!)+noteDuration(linked.at(-1)!),firstBar=system.measures[0],lastBar=system.measures.at(-1)!;if(end<=firstBar.geometry.begin||start>=lastBar.geometry.end)continue;const ti=project.tracks.findIndex(t=>t.id===link.trackId);if(ti<0)continue;
+      const position=(beat:number,center:boolean)=>{const bar=system.measures.find(m=>beat>=m.geometry.begin&&beat<m.geometry.end)??(beat<firstBar.geometry.begin?firstBar:lastBar);return bar.x+bar.inset+(center?noteX(bar.geometry,beat):beatToScoreX(bar.geometry,beat))*bar.scale;};const sx=position(Math.max(start,firstBar.geometry.begin),start>=firstBar.geometry.begin),ex=position(Math.min(noteStart(linked.at(-1)!),lastBar.geometry.end),noteStart(linked.at(-1)!)<lastBar.geometry.end),ly=pageY+top+voiceY[ti]+above[ti]+(link.kind==='melisma'?layout.noteSize+7:-7),depth=link.kind==='tie'?5:9;
+      if(ex>sx)curve(ops,sx,ly,sx+(ex-sx)*.25,ly-depth,ex-(ex-sx)*.25,ly-depth,ex,ly,link.kind==='tie'?1.1:.7,{role:'link',trackId:link.trackId,objectId:link.id});
+    }
+    page.ops.push(...ops);page.systems.push(system);doc.systems.push(system);pageY+=height+(layout.systemGaps?.[system.last]??layout.systemGap);
   }
-  for(const p of doc.pages){putText(p.ops,'SORATRO  ·  Solfa',margin,size.height-margin+10,8,'#8d8492');if(layout.pageNumbers){const text=(p.index+1)+' / '+doc.pages.length;putText(p.ops,text,size.width-margin-textWidth(text,9),size.height-margin+10,9,'#77717d');}}
+  for(const p of doc.pages){p.ops=p.ops.filter(op=>op.role!=='header');if(showDecoration(layout.headerOn??'first',p.index)){const head=decorationOps(project,header,p.index,doc.pages.length,size.width,margin,'header');p.ops.unshift(...head.ops.map(op=>({...op,y:op.y+margin})));}if(showDecoration(layout.footerOn??'all',p.index)){const foot=decorationOps(project,footer,p.index,doc.pages.length,size.width,margin,'footer');p.ops.push(...foot.ops.map(op=>({...op,y:op.y+size.height-margin-foot.height})));}}
   return doc;
 }
 function escapeXML(value:string){return value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]!));}
 const number=(v:number)=>Number(v.toFixed(3));
-export function pageSVG(page:ScorePage,fontBase64?:string,interactive=false):string {
-  const font=fontBase64?'@font-face{font-family:SoratroPrint;src:url(data:font/ttf;base64,'+fontBase64+') format("truetype");}':'';
-  const ops=page.ops.map(op=>op.kind==='text'?`<text x="${number(op.x)}" y="${number(op.y)}" font-size="${number(op.size)}" fill="${op.color??'#26232d'}"${op.noteIds?.length?' data-note-id="'+escapeXML(op.noteIds[0])+'"'+(interactive?' role="button" tabindex="0" aria-label="Note '+escapeXML(op.text)+'"':''):''}${op.beat!==undefined?' data-score-beat="'+op.beat+'"':''}>${escapeXML(op.text)}</text>`:op.kind==='line'?`<line x1="${number(op.x)}" y1="${number(op.y)}" x2="${number(op.x2)}" y2="${number(op.y2)}" stroke="${op.color??'#37333e'}" stroke-width="${number(op.width)}"/>`:`<circle cx="${number(op.x)}" cy="${number(op.y)}" r="${op.radius}" fill="${op.color??'#37333e'}"/>`).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${number(page.width)}" height="${number(page.height)}" viewBox="0 0 ${number(page.width)} ${number(page.height)}"><style>${font}text{font-family:SoratroPrint,DejaVu Sans,sans-serif;font-kerning:none;font-variant-ligatures:none;}</style><rect width="100%" height="100%" fill="#fff"/>${ops}</svg>`;
+export function pageSVG(page:ScorePage,fontBase64?:string|ScoreFonts,interactive=false):string{
+  const fonts:ScoreFonts=typeof fontBase64==='string'?{music:fontBase64}:fontBase64??{},keys=[...new Set(page.ops.flatMap(op=>op.kind==='text'&&op.font?[op.font]:[]))];
+  const family=(key:string)=>'Soratro'+key.replace(/[^a-z]/gi,'');const css=['@font-face{font-family:SoratroPrint;src:url('+ (fonts.music?'data:font/ttf;base64,'+fonts.music:new URL('../assets/ScoreFont.ttf',import.meta.url).href)+') format("truetype");}',...keys.map(key=>'@font-face{font-family:'+family(key)+';src:url('+(fonts[key]?'data:font/ttf;base64,'+fonts[key]:PRINT_FONT_URLS[key].href)+') format("truetype");}')].join('');
+  const meta=(op:DrawOp)=>`${op.role?' data-score-role="'+op.role+'"':''}${op.measure?' data-measure="'+op.measure+'"':''}${op.objectId?' data-object-id="'+escapeXML(op.objectId)+'"':''}${op.beat!==undefined?' data-score-beat="'+op.beat+'"':''}`;
+  const ops=page.ops.map(op=>{if(op.kind==='text'){const mark=op.octave?`<tspan font-size="${number(op.size*.7)}" dy="${number(op.octave>0?-op.size*.38:op.size*.18)}">${escapeXML((op.octave>0?"'":',').repeat(Math.abs(op.octave)))}</tspan>`:'';return `<text x="${number(op.x)}" y="${number(op.y)}" font-size="${number(op.size)}" fill="${op.color??'#26232d'}"${op.font?' style="font-family:'+family(op.font)+'"':''}${op.noteIds?.length?' data-note-id="'+escapeXML(op.noteIds[0])+'"'+(interactive?' role="button" tabindex="0" aria-label="Note '+escapeXML(op.text)+'"':''):''}${meta(op)}>${escapeXML(op.baseText??op.text)}${mark}</text>`;}
+    if(op.kind==='line')return `<line x1="${number(op.x)}" y1="${number(op.y)}" x2="${number(op.x2)}" y2="${number(op.y2)}" stroke="${op.color??'#37333e'}" stroke-width="${number(op.width)}"${meta(op)}/>`;
+    if(op.kind==='curve')return `<path d="M ${number(op.x)} ${number(op.y)} C ${number(op.cx1)} ${number(op.cy1)},${number(op.cx2)} ${number(op.cy2)},${number(op.x2)} ${number(op.y2)}" fill="none" stroke="${op.color??'#37333e'}" stroke-width="${number(op.width)}"${meta(op)}/>`;
+    if(op.kind==='image')return `<image x="${number(op.x)}" y="${number(op.y)}" width="${number(op.width)}" height="${number(op.height)}" href="${escapeXML(op.src)}"${meta(op)}/>`;
+    return `<circle cx="${number(op.x)}" cy="${number(op.y)}" r="${op.radius}" fill="${op.outline?'none':op.color??'#37333e'}"${op.outline?' stroke="'+(op.color??'#37333e')+'" stroke-width="1"':''}${meta(op)}/>`;}).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${number(page.width)}" height="${number(page.height)}" viewBox="0 0 ${number(page.width)} ${number(page.height)}"><style>${css}text{font-family:SoratroPrint,DejaVu Sans,sans-serif;font-kerning:none;font-variant-ligatures:none;}</style><rect width="100%" height="100%" fill="#fff"/>${interactive?page.systems.flatMap(s=>s.measures.map(m=>`<rect x="${number(m.x)}" y="${number(m.y)}" width="${number(m.width)}" height="${number(m.height)}" fill="transparent" data-measure="${m.number}" role="button" tabindex="0" aria-label="Mesure ${m.number}"/>`)).join(''):''}${ops}</svg>`;
 }
-export function systemPage(page:ScorePage,system:ScoreSystem):ScorePage {const margin=20;return {...page,width:system.width+margin*2,height:system.height+margin*2,widthMm:(system.width+margin*2)/PX_PER_MM,heightMm:(system.height+margin*2)/PX_PER_MM,ops:system.ops.map(op=>({...op,x:op.x-system.x+margin,y:op.y-system.y+margin,...(op.kind==='line'?{x2:op.x2-system.x+margin,y2:op.y2-system.y+margin}:{})})),systems:[system]};}
+export function systemPage(page:ScorePage,system:ScoreSystem):ScorePage{const margin=20,dx=margin-system.x,dy=margin-system.y;return {...page,width:system.width+margin*2,height:system.height+margin*2,widthMm:(system.width+margin*2)/PX_PER_MM,heightMm:(system.height+margin*2)/PX_PER_MM,ops:system.ops.map(op=>({...op,x:op.x+dx,y:op.y+dy,...(op.kind==='line'||op.kind==='curve'?{x2:op.x2+dx,y2:op.y2+dy}:{}),...(op.kind==='curve'?{cx1:op.cx1+dx,cy1:op.cy1+dy,cx2:op.cx2+dx,cy2:op.cy2+dy}:{})})),systems:[system]};}

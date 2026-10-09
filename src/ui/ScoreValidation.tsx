@@ -1,0 +1,7 @@
+import {useMemo,useState} from 'react';
+import type {Project} from '../music/model';
+import {checkScore} from '../score/checker';
+import {Dialog} from './Dialog';
+export function ScoreValidation({project,onClose,navigate}:{project:Project;onClose:()=>void;navigate:(measure:number,trackId?:string)=>void}){
+ const issues=useMemo(()=>checkScore(project),[project]),[ignored,setIgnored]=useState(new Set<string>());return <Dialog title="Vérifier la partition" className="validation-dialog" onClose={onClose}><p>{issues.filter(i=>i.severity==='error').length} erreur(s) · {issues.filter(i=>i.severity==='warning').length} avertissement(s) · {issues.filter(i=>i.severity==='info').length} information(s)</p><p>Les vérifications ne modifient pas la musique. Un silence ou une indication imprimée peut être volontaire.</p><ol className="score-issues">{issues.map(i=><li key={i.id} className={'issue-'+i.severity+(ignored.has(i.id)?' ignored':'')}><button onClick={()=>{navigate(i.measure,i.trackId);onClose();}}><strong>{i.severity==='error'?'Erreur':i.severity==='warning'?'Attention':'Info'} · mesure {i.measure}{i.trackId?' · '+project.tracks.find(t=>t.id===i.trackId)?.name:''}</strong><span>{i.message}</span><small>{i.recommendation}</small></button>{i.severity!=='error'&&<button onClick={()=>setIgnored(s=>new Set([...s,i.id]))}>Ignorer</button>}</li>)}</ol>{!issues.length&&<p>Aucune incohérence détectée.</p>}</Dialog>;
+}

@@ -49,7 +49,7 @@ test('Portable old/new projects retain music, locks, colors and raw timing; chor
   const p=fixture();p.tracks[0].locked=true;p.tracks[0].color='#123456';const copy=await decodeProject(await encodeProject(p));assert.deepEqual(copy,p);
   delete copy.tracks[0].locked;const legacy=await decodeProject(await encodeProject(copy));assert.deepEqual(legacy.tracks,copy.tracks);
   const chord=[makeNote('soprano',61,0,.5,84),makeNote('soprano',65,0,.5,84)];p.tracks[0].events=chord;
-  const doc=engraveProject(p),svg=pageSVG(doc.pages[0],undefined,true);for(const n of chord)assert.ok(svg.includes('data-note-id="'+n.id+'"'));assert.equal((svg.match(/role="button"/g)??[]).length,doc.pages[0].ops.filter(op=>op.kind==='text'&&op.noteIds?.length).length);
+  const doc=engraveProject(p),svg=pageSVG(doc.pages[0],undefined,true);for(const n of chord)assert.ok(svg.includes('data-note-id="'+n.id+'"'));assert.equal((svg.match(/data-note-id="[^"]+" role="button"/g)??[]).length,doc.pages[0].ops.filter(op=>op.kind==='text'&&op.noteIds?.length).length);
 });
 test('A stopped or superseded async prelisten never starts a dangling note; playback suppresses it',async()=>{
   const engine=new AudioEngine();let resolve!:()=>void;engine.init=()=>new Promise(resolveInit=>{resolve=()=>resolveInit(null as any);});const starts:number[]=[];engine.noteOn=(_key,pitch)=>starts.push(pitch);engine.noteOff=()=>{};

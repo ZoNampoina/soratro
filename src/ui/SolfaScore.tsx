@@ -15,12 +15,13 @@ interface Props {
   display?:SolfaDisplay;follow?:boolean;document?:ScoreDocument;preferenceKey?:string;preview?:boolean;
   selected?:Selection|null;focusRequest?:FocusRequest;onFullscreen?:()=>void;
   onNoteClick?:(note:NoteEvent,modifiers:{add:boolean;range:boolean})=>void;
+  onMeasureClick?:(number:number)=>void;onObjectClick?:(id:string)=>void;
   seek?:(beat:number)=>void;
 }
 const Paper=memo(function Paper({html,width,height}:{html:string;width:number;height:number}){
   return <div className="engraved-content" style={{width,height}} dangerouslySetInnerHTML={{__html:html}}/>;
 });
-export function SolfaScore({project,beat,running,compact,visible=true,display=DEFAULT_SOLFA,follow=true,document:provided,preferenceKey,preview=false,selected,focusRequest,onFullscreen,onNoteClick,seek}:Props){
+export function SolfaScore({project,beat,running,compact,visible=true,display=DEFAULT_SOLFA,follow=true,document:provided,preferenceKey,preview=false,selected,focusRequest,onFullscreen,onNoteClick,seek,onMeasureClick,onObjectClick}:Props){
   const ref=useRef<HTMLDivElement>(null);
   const [viewport,setViewport,ready]=usePreference(preferenceKey??'score:'+project.id,DEFAULT_SCORE,normalizeScore);
   const [bounds,setBounds]=useState({width:0,height:0}),[suspended,setSuspended]=useState(false),[measure,setMeasure]=useState(1),[multi,setMulti]=useState(false);
@@ -75,7 +76,7 @@ export function SolfaScore({project,beat,running,compact,visible=true,display=DE
   }
   function selectElement(el:Element,modifiers:{add:boolean;range:boolean}){
     const key=el.closest('[data-note-id]')?.getAttribute('data-note-id');
-    if(key){const note=noteIndex.get(key);if(note)onNoteClick?.(note,modifiers);}
+    if(key){const note=noteIndex.get(key);if(note)onNoteClick?.(note,modifiers);return;}const object=el.closest('[data-object-id][data-score-role="symbol"]')?.getAttribute('data-object-id');if(object){onObjectClick?.(object);return;}const number=el.closest('[data-measure]')?.getAttribute('data-measure');if(number)onMeasureClick?.(+number);
   }
   return <section hidden={!visible} className={'score-panel '+(compact?'compact-score':'')+(preview?' export-score':'')} aria-label={preview?'Aperçu de l’export':'Partition Solfa'}>
     <div className="panel-bar score-bar"><span className="panel-eyebrow"><Music2 size={14}/>{preview?'APERÇU':'PARTITION SOLFA'}</span>

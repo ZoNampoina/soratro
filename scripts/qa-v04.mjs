@@ -1,0 +1,9 @@
+import {chromium} from '@playwright/test';
+import {createProject,makeNote,id} from '../src/music/model.ts';
+import {splitLyrics,assignSequential} from '../src/lyrics/lyrics.ts';
+import {shareLyrics} from '../src/lyrics/shared.ts';
+import {encodeProject} from '../src/storage/project-file.ts';
+const {preview}=await import('vite');const server=await preview({base:'/soratro/',preview:{host:'127.0.0.1',port:Number(process.env.SORATRO_QA_PORT??4181),strictPort:true}});
+const browser=await chromium.launch({executablePath:process.env.SORATRO_CHROMIUM_PATH,args:['--no-sandbox']});const page=await browser.newPage({viewport:{width:1440,height:1000}});
+const p=createProject({title:'IRAKA — Étude de gravure traditionnelle',author:'Chœur de vérification',composer:'SORATRO',timeSignature:'4/4',tonic:'Db'});p.settings.measureCount=20;for(const [ti,t] of p.tracks.entries())t.events=Array.from({length:80},(_,i)=>makeNote(t.id,[61,63,65,66,68,70,72][i%7]+(ti===0?12:ti===3?-12:0),i,1,72));p.lyrics=[{id:id(),trackId:'soprano',text:'Ry mpa-nom-po tsa-ra, sa-dy ma-ha-to-ky '.repeat(6),syllables:splitLyrics('Ry mpa-nom-po tsa-ra, sa-dy ma-ha-to-ky '.repeat(6)),kind:'verse',verse:1}];assignSequential(p,p.lyrics[0].id);shareLyrics(p,p.lyrics[0].id,p.tracks.map(t=>t.id));
+await page.goto('http://127.0.0.1:'+(process.env.SORATRO_QA_PORT??4181)+'/soratro/');await page.locator('input[type=file]').setInputFiles({name:'qa.soratro',mimeType:'application/json',buffer:Buffer.from(await encodeProject(p))});await page.getByRole('button',{name:'Partition',exact:true}).click();await page.getByLabel('Cadrage de la partition').selectOption('width');await page.getByRole('button',{name:'Mode clair'}).click();await page.screenshot({path:'tmp/qa-v04-score.png'});await page.getByRole('tab',{name:'Mise en page de la partition'}).click();await page.screenshot({path:'tmp/qa-v04-layout.png'});await browser.close();server.httpServer.close();

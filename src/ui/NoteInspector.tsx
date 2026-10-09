@@ -5,9 +5,11 @@ import {selectedNotes,transposeSelected,moveSelected,durationSelected,alignSelec
 import {gridStep} from '../quantization/quantizer';
 import {copyNotes,pasteNotes,type Selection} from '../music/note-editing';
 import {measureForBeat} from '../music/timeline';
+import {addMusicLink} from '../music/links';
 import {useState} from 'react';
 interface Props {project:Project;selected:Selection|null;recording:boolean;update:(fn:(p:Project)=>void)=>boolean;select:(s:Selection|null)=>void;remove:()=>void;lyricsOpen:boolean;lyrics:()=>void;hidden:boolean}
 export function NoteInspector({project:p,selected,recording,update,select,remove,lyricsOpen,lyrics,hidden}:Props){
+  const [linkKind,setLinkKind]=useState<'tie'|'phrase'|'melisma'>('tie');
   const [alignment,setAlignment]=useState<Alignment>('starts');
   const notes=selectedNotes(p,selected),note=notes.find(n=>n.id===selected?.id)??notes[0];
   const lockedTracks=p.tracks.filter(t=>t.locked&&notes.some(n=>n.trackId===t.id)),disabled=recording||lockedTracks.length>0;
@@ -15,7 +17,8 @@ export function NoteInspector({project:p,selected,recording,update,select,remove
   function changeSolfa(degree:number,alteration:number,octave:number){if(!note)return;update(current=>transposeSelected(current,selected,solfaToMidi(degree,alteration,octave,current.tonic)-note.midiPitch));}
   const step=gridStep(p.settings.quantization,notes,b=>measureForBeat(p,b).start)||.125;
   return <div hidden={hidden} className="note-inspector" aria-label="Inspecteur des notes">{note&&solfa?<>
-    <span className="inspector-title" style={{color:p.tracks.find(t=>t.id===note.trackId)?.color}}>{midiToSolfa(note.midiPitch,p.tonic)}<small>{noteName(note.midiPitch)} · {notes.length} note{notes.length>1?'s':''}</small></span>
+    <span className="inspector-title" style={{color:p.tracks.find(t=>t.id===note.trackId)?.color}}>{midiToSolfa(note.midiPitch,p.tonic)}<small>M. {measureForBeat(p,noteStart(note)).number} · {noteName(note.midiPitch)} · {notes.length} note{notes.length>1?'s':''}</small></span>
+    {notes.length>1&&<div className="inspector-links"><select aria-label="Type de liaison" disabled={disabled} value={linkKind} onChange={e=>setLinkKind(e.target.value as typeof linkKind)}><option value="tie">Durée</option><option value="phrase">Phrasé</option><option value="melisma">Mélisme</option></select><button disabled={disabled} onClick={()=>update(p=>addMusicLink(p,linkKind,notes.map(n=>n.id)))}>Lier les notes</button><button disabled={disabled} onClick={()=>update(p=>{p.links=p.links?.filter(l=>!l.noteIds.some(key=>notes.some(n=>n.id===key)));})}>Retirer les liaisons</button></div>}
     {lockedTracks.length>0&&<span className="locked-note-message">Piste verrouillée : {lockedTracks.map(t=>t.name).join(', ')}. Déverrouillez-la pour éditer.</span>}
     <label>Hauteur<select aria-label="Hauteur de la note" value={note.midiPitch} disabled={disabled} onChange={e=>update(p=>transposeSelected(p,selected,+e.target.value-note.midiPitch))}>{Array.from({length:128},(_,m)=><option key={m} value={m}>{noteName(m)} · MIDI {m}</option>)}</select></label>
     <label>Solfa<select aria-label="Degré Solfa" value={solfa.degree} disabled={disabled} onChange={e=>changeSolfa(+e.target.value,solfa.alteration,solfa.octave)}>{['d','r','m','f','s','l','t'].map((s,i)=><option key={s} value={i+1}>{s}</option>)}</select></label>

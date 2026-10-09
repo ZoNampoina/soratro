@@ -1,4 +1,8 @@
 # SORATRO V0.3
+## Version 0.4.0
+
+La gravure traditionnelle, les paroles communes, les renvois de lecture et les styles de page complètent l’atelier existant. Voir [le rapport](docs/RAPPORT-V0.4.md), [la reprise auditée](docs/AUDIT-REPRISE-V0.4.md), [les conventions](docs/GRAVURE-TRADITIONNELLE.md) et [les notes de version](docs/RELEASE-V0.4.md).
+
 
 Atelier de composition chorale en notation Solfa : jouer au piano, enregistrer le timing, corriger, quantifier, lire les quatre voix et sauvegarder sur l’appareil.
 

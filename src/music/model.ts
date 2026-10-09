@@ -4,7 +4,7 @@ export type Tonic = 'C' | 'Db' | 'D' | 'Eb' | 'E' | 'F' | 'F#' | 'G' | 'Ab' | 'A
 export const TONICS: Tonic[] = ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
 export const SIGNATURES: Signature[] = ['2/4','3/4','4/4','5/4','6/8','7/8','9/8','12/8'];
 export const SCHEMA_VERSION = 2;
-export const APP_VERSION = '0.3.0';
+export const APP_VERSION = '0.4.0';
 export type TempoUnit = 'quarter' | 'dotted-quarter' | 'eighth';
 export type QuantizationGrid = 'none'|'1/2'|'1/4'|'1/8'|'1/16'|'1/32'|'triplet-quarter'|'triplet-eighth'|'triplet-sixteenth'|'compound'|'auto';
 export type ChoirTemplate = 'Solo'|'Unisson'|'SA'|'SAB'|'SATB'|'SSA'|'SSAA'|'TTB'|'TTBB'|'Personnalisé';
@@ -13,9 +13,14 @@ export interface Marker {id:string;measure:number;label:string}
 export interface TempoChange {measure:number;bpm:number}
 export interface SignatureChange {measure:number;signature:Signature;groups?:number[]}
 export interface RepeatSection {id:string;startMeasure:number;endMeasure:number;times:number;firstEndingStart?:number;secondEndingEnd?:number}
-export interface MusicalIndication {id:string;measure:number;trackId?:string;text:string;kind:'dynamic'|'text'|'fermata'|'breath'|'crescendo'|'diminuendo'}
+export type NavigationSymbol='segno'|'coda'|'to-coda'|'fine'|'dc'|'dc-fine'|'dc-coda'|'ds'|'ds-fine'|'ds-coda';
+export interface MusicalIndication {id:string;measure:number;trackId?:string;trackIds?:string[];beat?:number;text:string;kind:'dynamic'|'text'|'fermata'|'breath'|'crescendo'|'diminuendo'|'navigation'|'tempo'|'accent'|'tenuto'|'final';symbol?:NavigationSymbol;targetId?:string;endBeat?:number}
+export interface MusicLink {id:string;kind:'tie'|'phrase'|'melisma';trackId:TrackId;noteIds:string[]}
+export interface SharedLyricText {id:string;name:string;text:string;syllables:Syllable[];trackIds:TrackId[]}
+export type DecorationField='custom'|'title'|'author'|'composer'|'tonic'|'tempo'|'signature'|'date'|'page'|'pages'|'logo';
+export interface PageDecoration {id:string;field:DecorationField;text:string;align:'left'|'center'|'right';size:number;bold:boolean;italic:boolean;color:string;font:'sans'|'serif'|'mono';visible:boolean;row:number;offsetX:number;offsetY:number;logo?:string}
 export interface RecordingTake {id:string;name:string;trackId:TrackId;startBeat:number;endBeat:number;createdAt:string;events:NoteEvent[];selected:boolean;mode?:'overdub'|'replace'}
-export interface PageSettings {paper:'A4'|'A5'|'Letter';orientation:'portrait'|'landscape';margin:number;measuresPerSystem:number;noteSize:number;lyricSize:number;voiceGap:number;systemGap:number;titleSize:number;pageNumbers:boolean;systemBreaks:number[]}
+export interface PageSettings {paper:'A4'|'A5'|'Letter';orientation:'portrait'|'landscape';margin:number;measuresPerSystem:number;noteSize:number;lyricSize:number;voiceGap:number;systemGap:number;titleSize:number;pageNumbers:boolean;systemBreaks:number[];pageBreaks?:number[];systemCounts?:Record<string,number>;measureWidths?:Record<string,number>;systemGaps?:Record<string,number>;justification?:'regular'|'adaptive';voiceLabels?:'first'|'page'|'always'|'never';lyricPlacement?:'auto'|'common'|'group'|'voice';compoundPulse?:boolean;header?:PageDecoration[];footer?:PageDecoration[];headerOn?:'first'|'all'|'following'|'none';footerOn?:'first'|'all'|'following'|'none';headerGap?:number;footerGap?:number}
 export interface NoteEvent {
   id: string; trackId: TrackId; midiPitch: number; velocity: number;
   originalStart: number; originalDuration: number;
@@ -29,12 +34,12 @@ export interface Track {
   volume: number; mute: boolean; solo: boolean; events: NoteEvent[];
   pan?:number;locked?:boolean;
 }
-export interface LyricLine {id:string;text:string;trackId:TrackId;syllables:Syllable[];verse?:number;section?:string;kind?:'verse'|'refrain'|'common'}
+export interface LyricLine {id:string;text:string;trackId:TrackId;syllables:Syllable[];verse?:number;section?:string;kind?:'verse'|'refrain'|'common';sharedTextId?:string}
 export interface Project {
   id: string; schemaVersion: 2; title: string; author: string; composer: string;
   tonic: Tonic; timeSignature: Signature; tempo: number;
   createdAt: string; updatedAt: string; tracks: Track[]; lyrics: LyricLine[];
-  markers:Marker[];takes:RecordingTake[];tempoMap:TempoChange[];signatureMap:SignatureChange[];repeats:RepeatSection[];indications:MusicalIndication[];layout:PageSettings;
+  markers:Marker[];takes:RecordingTake[];tempoMap:TempoChange[];signatureMap:SignatureChange[];repeats:RepeatSection[];indications:MusicalIndication[];layout:PageSettings;sharedLyrics?:SharedLyricText[];links?:MusicLink[];
   settings: {countIn:0|1|2|4;quantization:QuantizationGrid;quantizationStrength:number;loopStart:number;loopEnd:number;tempoUnit:TempoUnit;recordMode:'overdub'|'replace';punchEnabled:boolean;punchStart:number;punchEnd:number;preRoll:0|1|2|4;loopRecording:boolean;latencyCompensationMs:number;pickupBeats:number;choirTemplate:ChoirTemplate;beatGroups:number[];snap:boolean;instrument:'piano'|'soft-piano'|'organ'|'vocal';masterVolume:number;rehearsalSpeed:number;rehearsalVoice:TrackId;rehearsalMix:'ensemble'|'solo'|'dominant';loopRepeats:number;measureCount?:number};
 }
 export const id = () => {
