@@ -1,6 +1,6 @@
 import { useEffect,useState } from 'react';
 import { ChevronLeft,ChevronRight,Link,Scissors,X } from 'lucide-react';
-import { id,noteStart,type Project } from '../music/model';
+import { id,type Project } from '../music/model';
 import { assignSequential,linkSyllable,noteForLyricBeat,resplitLyrics } from '../lyrics/lyrics';
 import { selectionIds,type Selection } from '../music/note-editing';
 import { audio } from '../audio/engine';

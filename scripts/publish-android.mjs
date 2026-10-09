@@ -34,5 +34,5 @@ const apk = 'tmp/release/SORATRO-' + version + '-debug.apk';
 copyFileSync(source, apk);
 const checksum = createHash('sha256').update(readFileSync(apk)).digest('hex');
 writeFileSync('tmp/release/SHA256SUMS.txt', checksum + '  SORATRO-' + version + '-debug.apk\n');
-gh('release', 'create', tag, apk, 'tmp/release/SHA256SUMS.txt', '--target', commit, '--title', 'SORATRO ' + version + ' — Web et APK de test', '--prerelease', '--latest=false', '--notes-file', 'docs/RELEASE-V0.2.md');
+gh('release', 'create', tag, apk, 'tmp/release/SHA256SUMS.txt', '--target', commit, '--title', 'SORATRO ' + version + ' — Web et APK de test', '--prerelease', '--latest=false', '--notes-file', 'docs/RELEASE-V'+version.split('.').slice(0,2).join('.')+'.md');
 console.log('APK de test publié pour ' + commit + ' — SHA-256 ' + checksum);

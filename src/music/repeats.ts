@@ -1,5 +1,5 @@
 import type { Project,RepeatSection } from './model.ts';
-import { measureAt,measureCount,secondsBetween,beatAfterSeconds,tempoAt } from './timeline.ts';
+import { measureAt,measureCount,secondsBetween,beatAfterSeconds } from './timeline.ts';
 export interface PlaybackChunk {songStart:number;songEnd:number;rawStart:number;rawEnd:number;secondsStart:number;secondsEnd:number}
 const cache=new WeakMap<Project,PlaybackChunk[]>();
 export function validateRepeats(repeats:RepeatSection[]){const sorted=repeats.slice().sort((a,b)=>a.startMeasure-b.startMeasure);for(let i=0;i<sorted.length;i++){const r=sorted[i];if(r.firstEndingStart!==undefined&&(!Number.isInteger(r.firstEndingStart)||r.firstEndingStart<r.startMeasure||r.firstEndingStart>r.endMeasure))throw new Error('Première fin invalide.');if(r.secondEndingEnd!==undefined&&(!Number.isInteger(r.secondEndingEnd)||r.secondEndingEnd<=r.endMeasure||r.firstEndingStart===undefined))throw new Error('Deuxième fin invalide.');if(i&&r.startMeasure<=(sorted[i-1].secondEndingEnd??sorted[i-1].endMeasure))throw new Error('Les reprises ne peuvent pas se chevaucher dans cette version.');}}

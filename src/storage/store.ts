@@ -3,6 +3,7 @@ import { ProjectRepository } from './repository.ts';
 import { migrateProject,validateProject } from './migrations.ts';
 import { cleanLyrics } from '../music/editing.ts';
 import { invalidateTimeline } from '../music/timeline.ts';
+import { assertLockedTracksUnchanged } from '../music/locks.ts';
 export type SaveStatus='saved'|'saving'|'error';
 export interface Snapshot {project:Project|null;projects:Project[];loading:boolean;saveStatus:SaveStatus;error:string;undoCount:number;redoCount:number}
 export class ProjectStore {
@@ -22,7 +23,7 @@ export class ProjectStore {
   async remove(key:string){await this.flush();await this.repository.delete(key);if(this.state.project?.id===key)this.emit({project:null});this.emit({projects:this.state.projects.filter(p=>p.id!==key)});}
   async duplicate(key:string){const p=await this.repository.get(key);if(!p)return;const date=new Date().toISOString();const copy={...structuredClone(p),id:id(),title:p.title+' — copie',createdAt:date,updatedAt:date};await this.repository.save(copy);this.emit({projects:[copy,...this.state.projects]});}
   async rename(key:string,title:string){const p=await this.repository.get(key);if(!p)return;p.title=title.trim()||p.title;p.updatedAt=new Date().toISOString();await this.repository.save(p);this.emit({projects:this.state.projects.map(x=>x.id===key?p:x)});}
-  update(fn:(p:Project)=>void,historyEntry=true){if(!this.state.project)return;const before=this.state.project;const p=structuredClone(before);fn(p);invalidateTimeline(p);if(p.lyrics.some(l=>l.syllables.length))cleanLyrics(p);if(JSON.stringify(p)===JSON.stringify(before))return;validateProject(p);p.updatedAt=new Date().toISOString();if(historyEntry){this.undoStack.push(before);if(this.undoStack.length>100)this.undoStack.shift();this.redoStack=[];}this.emit({project:p,undoCount:this.undoStack.length,redoCount:this.redoStack.length});this.persist(p);}
+  update(fn:(p:Project)=>void,historyEntry=true){if(!this.state.project)return;const before=this.state.project;const p=structuredClone(before);fn(p);assertLockedTracksUnchanged(before,p);invalidateTimeline(p);if(p.lyrics.some(l=>l.syllables.length))cleanLyrics(p);if(JSON.stringify(p)===JSON.stringify(before))return;validateProject(p);p.updatedAt=new Date().toISOString();if(historyEntry){this.undoStack.push(before);if(this.undoStack.length>100)this.undoStack.shift();this.redoStack=[];}this.emit({project:p,undoCount:this.undoStack.length,redoCount:this.redoStack.length});this.persist(p);}
   beginTake(){this.take=this.state.project?structuredClone(this.state.project):null;}
   endTake(){if(!this.take)return;if(this.state.project&&JSON.stringify(this.take.tracks)!==JSON.stringify(this.state.project.tracks)){this.undoStack.push(this.take);this.redoStack=[];this.emit({undoCount:this.undoStack.length,redoCount:0});}this.take=null;}
   undo(){const previous=this.undoStack.pop();if(!previous||!this.state.project)return;this.redoStack.push(this.state.project);previous.updatedAt=new Date().toISOString();this.emit({project:previous,undoCount:this.undoStack.length,redoCount:this.redoStack.length});this.persist(previous);}

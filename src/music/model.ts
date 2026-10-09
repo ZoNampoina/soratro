@@ -4,7 +4,7 @@ export type Tonic = 'C' | 'Db' | 'D' | 'Eb' | 'E' | 'F' | 'F#' | 'G' | 'Ab' | 'A
 export const TONICS: Tonic[] = ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
 export const SIGNATURES: Signature[] = ['2/4','3/4','4/4','5/4','6/8','7/8','9/8','12/8'];
 export const SCHEMA_VERSION = 2;
-export const APP_VERSION = '0.2.0';
+export const APP_VERSION = '0.3.0';
 export type TempoUnit = 'quarter' | 'dotted-quarter' | 'eighth';
 export type QuantizationGrid = 'none'|'1/2'|'1/4'|'1/8'|'1/16'|'1/32'|'triplet-quarter'|'triplet-eighth'|'triplet-sixteenth'|'compound'|'auto';
 export type ChoirTemplate = 'Solo'|'Unisson'|'SA'|'SAB'|'SATB'|'SSA'|'SSAA'|'TTB'|'TTBB'|'Personnalisé';
@@ -27,7 +27,7 @@ export interface NoteEvent {
 export interface Track {
   id: TrackId; name: string; shortName: string; color: string;
   volume: number; mute: boolean; solo: boolean; events: NoteEvent[];
-  pan?:number;
+  pan?:number;locked?:boolean;
 }
 export interface LyricLine {id:string;text:string;trackId:TrackId;syllables:Syllable[];verse?:number;section?:string;kind?:'verse'|'refrain'|'common'}
 export interface Project {

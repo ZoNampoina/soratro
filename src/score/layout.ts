@@ -1,4 +1,4 @@
-import { noteDuration, noteStart, signatureInfo, type Project } from '../music/model.ts';
+import { noteDuration, noteStart, type Project } from '../music/model.ts';
 import { measureAt } from '../music/timeline.ts';
 import { midiToSolfa } from '../solfa/converter.ts';
 export interface ScoreCell {beat:number;x:number;symbols:string[];kind:'note'|'hold'|'rest';noteIds:string[]}

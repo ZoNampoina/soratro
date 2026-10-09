@@ -1,6 +1,6 @@
 {
   "name": "soratro",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,8 @@
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "test": "node --experimental-strip-types --test tests/*.test.ts && npm run test:ui",
     "test:ui": "node scripts/test-ui.mjs",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "benchmark": "node --experimental-strip-types scripts/benchmark.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

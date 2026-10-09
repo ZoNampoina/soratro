@@ -1,4 +1,4 @@
-# SORATRO V0.2
+# SORATRO V0.3
 
 Atelier de composition chorale en notation Solfa : jouer au piano, enregistrer le timing, corriger, quantifier, lire les quatre voix et sauvegarder sur l’appareil.
 
@@ -77,7 +77,7 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-Les tests automatisés couvrent le cœur musical, le stockage et le cache hors ligne à la racine ainsi que sous `/soratro/`. Le [rapport V0.2](docs/RAPPORT-V0.2.md) détaille les nouveautés, tests et limites. Le [rapport V0.1 conservé](SORATRO_V0.1_Rapport.md) détaille les résultats initiaux et les essais qui nécessitent encore un téléphone ou un vrai clavier MIDI. Le banc de test navigateur est accessible en développement à `/tests/browser.html`.
+Les tests automatisés couvrent le cœur musical, le stockage et le cache hors ligne à la racine ainsi que sous `/soratro/`. Le [rapport V0.3](docs/RAPPORT-V0.3.md) détaille les nouveautés, tests et limites. Le [rapport V0.2](docs/RAPPORT-V0.2.md) est conservé pour le suivi des évolutions. Le [rapport V0.1 conservé](SORATRO_V0.1_Rapport.md) détaille les résultats initiaux et les essais qui nécessitent encore un téléphone ou un vrai clavier MIDI. Le banc de test navigateur est accessible en développement à `/tests/browser.html`.
 
 ## Fonctions V0.2
 
@@ -89,4 +89,19 @@ Les tests automatisés couvrent le cœur musical, le stockage et le cache hors l
 - **Répétition** : voix seule/dominante 100 % / 30 %/ensemble, 50–120 % sans changer la hauteur, boucle par mesures finie/infinie.
 - **Audio/MIDI** : quatre sons locaux légers, pan/master, sustain CC64, reconnexion et PANIC.
 
-Raccourcis ajoutés : R (REC), M (métronome), L dans le Piano Roll (boucle), Ctrl+C/X/V/D (copier/couper/coller/dupliquer), Ctrl+A dans le Piano Roll, flèches (déplacement). Les champs et dialogues suspendent les raccourcis musicaux. Les fonctions futures non implémentées sont détaillées dans le rapport.
+Raccourcis ajoutés : R (REC), M (métronome), L dans le Piano Roll (boucle), Ctrl+C/X/V/D (copier/couper/coller/dupliquer), Ctrl+A dans le Piano Roll, flèches (déplacement). Les champs et dialogues suspendent les raccourcis musicaux. F10 active Immersion et Échap restaure la disposition précédente. Les fonctions et limites de qualification sont détaillées dans le rapport.
+
+
+## Espace de travail V0.3
+
+Les vues Piano Roll et Solfa restent montées lorsque le mode change. Zoom, défilement, voix active et sélection sont mémorisés par projet ; les panneaux, dimensions, préréglages et préférences Solfa sont enregistrés séparément sur l’appareil.
+
+- **Disposition** : pistes ouvertes/réduites/masquées, ruban et clavier rabattables, inspecteur facultatif, séparateurs souris/tactile/clavier et cinq dispositions. F10 / Échap : Immersion avec restauration de la disposition. Le plein écran Partition possède sa propre commande et un repli interne.
+- **Navigation** : sélection commune par identifiant, synchronisation facultative, zoom sur la sélection, cadrages automatiques du Piano Roll et de la partition, navigateur pages/systèmes/mesures/repères. La navigation manuelle suspend le suivi de lecture pendant quatre secondes ; « Revenir à la lecture » le reprend immédiatement.
+- **Édition** : Ctrl/Cmd ajoute ou retire, Shift étend, glisser le fond trace un rectangle. Le bouton Multi remplace Ctrl au tactile. Flèches, copie/duplication/suppression, quantification et alignements s’appliquent au groupe en une opération Undo. Les cadenas bloquent l’édition et REC sans empêcher lecture, sélection ou mixer.
+- **Solfa** : silences masqués par défaut, prolongations et séparateurs réglables, trois préréglages. L’inspecteur change degré, altération, octave, MIDI, position et durée directement dans la partition en respectant le Do mobile. Une préécoute courte peut être désactivée ou réglée.
+- **Export** : fenêtre responsive à paramètres et aperçu indépendants, pied toujours accessible, redimensionnement PC, navigation et zoom multipage. Papier, orientation, marges, notes, paroles et pagination restent dans le projet. Format, fenêtre et cadrage d’aperçu restent sur l’appareil. PDF vectoriel, SVG, PNG et impression utilisent la même gravure ; les couleurs de voix sont facultatives à l’export, désactivées par défaut.
+
+« Réinitialiser la disposition » restaure les panneaux standard sans toucher à la musique. La sauvegarde `.soratro`, les projets V0.1/V0.2, les prises, les paroles et les timings originaux sont conservés. Voir [l’audit](docs/AUDIT-V0.3.md), [les notes de version](docs/RELEASE-V0.3.md) et [le rapport](docs/RAPPORT-V0.3.md).
+
+`npm run benchmark` mesure la gravure du scénario de 100 mesures SATB avec 2 400 notes et huit couplets. Les résultats dépendent du matériel et ne remplacent pas la qualification sur téléphone physique.

@@ -1,6 +1,6 @@
 # Android SORATRO
 
-Capacitor 8, appId `mg.soratro.app`, nom SORATRO, version 0.2.0 / versionCode 2. Android API 24 minimum, compilation/target API 36, Java 21, Gradle Wrapper fourni. Orientation libre, dispositions portrait/paysage et icône issue de l’identité existante. Les ressources Web, la police et les sons sont incorporés, sans serveur musical.
+Capacitor 8, appId `mg.soratro.app`, nom SORATRO, version 0.3.0 / versionCode 3. Android API 24 minimum, compilation/target API 36, Java 21, Gradle Wrapper fourni. Orientation libre, dispositions portrait/paysage et icône issue de l’identité existante. Les ressources Web, la police et les sons sont incorporés, sans serveur musical.
 
 ```sh
 npm ci

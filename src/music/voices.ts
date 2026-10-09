@@ -1,6 +1,7 @@
 import { id,type ChoirTemplate,type Project,type Track } from './model.ts';
 export const CHOIRS:ChoirTemplate[]=['Solo','Unisson','SA','SAB','SATB','SSA','SSAA','TTB','TTBB','Personnalisé'];
-const colors=['#b3a2ff','#78cdc1','#edbd7c','#92b9ef','#e6a3bb','#b2ca79'];
+export const VOICE_COLORS=['#b3a2ff','#78cdc1','#edbd7c','#92b9ef','#e6a3bb','#b2ca79'];
+const colors=VOICE_COLORS;
 const names:Record<string,string>={S:'Soprano',A:'Alto',T:'Ténor',B:'Basse',V:'Voix'};
 export function choirTracks(template:ChoirTemplate):Track[]{const letters=template==='Solo'||template==='Unisson'||template==='Personnalisé'?['V']:template.split('');const counts=new Map<string,number>();return letters.map((letter,index)=>{const number=(counts.get(letter)??0)+1;counts.set(letter,number);const multiple=letters.filter(l=>l===letter).length>1;const stable=template==='SATB'?['soprano','alto','tenor','bass'][index]:id();return {id:stable,name:template==='Unisson'?'Unisson':(names[letter]??'Voix')+(multiple?' '+number:''),shortName:letter+(multiple?number:''),color:colors[index%colors.length],volume:.72,mute:false,solo:false,pan:0,events:[]};});}
 export function addVoice(p:Project,name:string){if(p.tracks.length>=64)throw new Error('64 voix maximum.');p.tracks.push({id:id(),name:name.trim()||'Nouvelle voix',shortName:'V'+(p.tracks.length+1),color:colors[p.tracks.length%colors.length],volume:.72,mute:false,solo:false,pan:0,events:[]});p.settings.choirTemplate='Personnalisé';}

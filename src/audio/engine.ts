@@ -1,5 +1,5 @@
 import { audibleTracks,noteDuration,noteStart,signatureInfo,type NoteEvent,type Project,type TrackId } from '../music/model.ts';
-import { mapLoopBeat,measureForBeat,musicEnd,tempoAt,transportBeat,transportSeconds,type LoopRegion } from '../music/timeline.ts';
+import { mapLoopBeat,measureForBeat,musicEnd,transportBeat,transportSeconds,type LoopRegion } from '../music/timeline.ts';
 import { playbackBeat,playbackChunks,playbackSeconds,playbackSongBeat,songToPlaybackBeat } from '../music/repeats.ts';
 import { rehearsalVolumes } from '../music/rehearsal.ts';
 import { clickVoice,pianoVoice,type Voice } from './synth.ts';
@@ -11,6 +11,7 @@ export class AudioEngine {
   private project:Project|null=null;private mode:TransportMode='idle';private originTime=0;private originBeat=0;private cursor=0;private startBeat=0;private playbackStart=0;private pausedBeat=0;
   private timer:ReturnType<typeof setInterval>|undefined;private frame=0;private lastEmit=0;private nextClick=0;private scheduled=new Map<string,number>();private scheduledVoices=new Set<Voice>();private clicks=new Set<OscillatorNode>();private live=new Map<string,{pitch:number;voice:Voice}>();private listeners=new Set<(state:TransportState)=>void>();
   private recordOptions:RecordOptions|null=null;private recordCycle=0;private audition:Project|null=null;private auditionRehearsal=false;
+  private previewGeneration=0;private previewTimer:ReturnType<typeof setTimeout>|undefined;
   metronome=false;metronomeVolume=.6;loop=false;rehearsal=false;latency:'auto'|'low'|'stable'='auto';
   onRecordingStart:()=>void=()=>{};onRecordLoop:(rawBeat:number,time:number)=>void=()=>{};onStop:()=>void=()=>{};onEnded:()=>void=()=>{};
   subscribe(fn:(s:TransportState)=>void){this.listeners.add(fn);return ()=>this.listeners.delete(fn);}
@@ -67,7 +68,17 @@ export class AudioEngine {
   private scheduleHeldNotes(beat:number){if(!this.project||!this.context)return;const loop=this.loopRegion();for(const track of this.project.tracks)for(const n of track.events){const start=noteStart(n);if(loop&&(start<loop.start||start>=loop.end))continue;const chunkEnd=this.repeated()?playbackChunks(this.project).find(c=>this.rawBeat()>=c.rawStart&&this.rawBeat()<c.rawEnd)?.songEnd:undefined;const end=Math.min(start+noteDuration(n),loop?.end??Infinity,chunkEnd??Infinity);if(start<beat&&end>beat){const duration=transportSeconds(this.project,beat,end)/this.speed;const output=this.gains.get(track.id);if(!output)continue;const voice=pianoVoice(this.context,output,n.midiPitch,n.velocity,this.originTime,duration,this.project.settings.instrument);this.scheduledVoices.add(voice);setTimeout(()=>this.scheduledVoices.delete(voice),(Math.max(0,this.originTime-this.now)+duration+.3)*1000);}}}
   noteOn(key:string,pitch:number,velocity:number,track:TrackId){if(!this.context||this.live.has(key))return;const gain=this.gains.get(track);if(!gain)return;const voice=pianoVoice(this.context,gain,pitch,velocity,this.now,undefined,this.project?.settings.instrument);this.live.set(key,{pitch,voice});this.emit();}
   noteOff(key:string){this.live.get(key)?.voice.release();this.live.delete(key);this.emit();}
-  allNotesOff(){this.live.forEach(v=>v.voice.stop());this.live.clear();}
+  /** Short selection audition shares the live instrument and never opens a recording gate. */
+  async previewNote(pitch:number,track:TrackId,volume=.65,duration=.25){
+    if(this.mode!=='idle'&&this.mode!=='paused')return;
+    const generation=++this.previewGeneration;clearTimeout(this.previewTimer);this.noteOff('selection-preview');
+    await this.init();
+    if(generation!==this.previewGeneration||this.mode!=='idle'&&this.mode!=='paused')return;
+    this.noteOn('selection-preview',pitch,Math.round(127*Math.max(.05,Math.min(1,volume))),track);
+    this.previewTimer=setTimeout(()=>this.noteOff('selection-preview'),Math.max(.05,Math.min(1,duration))*1000);
+  }
+  cancelPreview(){this.previewGeneration++;clearTimeout(this.previewTimer);this.noteOff('selection-preview');}
+  allNotesOff(){this.previewGeneration++;clearTimeout(this.previewTimer);this.live.forEach(v=>v.voice.stop());this.live.clear();}
   private emit(){const beat=this.position(),p=this.project;const active=p?.tracks.map(t=>{const audible=audibleTracks(p.tracks).some(x=>x.id===t.id);return audible&&this.mode!=='idle'&&this.mode!=='paused'&&this.mode!=='countin'&&t.events.some(n=>noteStart(n)<=beat&&noteStart(n)+noteDuration(n)>beat)?t.volume:0;})??[];const pulse=p?measureForBeat(p,beat).pulse:1;this.listeners.forEach(fn=>fn({mode:this.mode,beat,rawBeat:this.rawBeat(),countRemaining:this.mode==='countin'?Math.max(1,Math.ceil((this.playbackStart-this.rawBeat())/pulse)):0,meter:active,activePitches:[...this.live.values()].map(v=>v.pitch)}));}
   get latencyMs(){return this.context?Math.round(((this.context.baseLatency||0)+(this.context.outputLatency||0))*1000):null;}
   dispose(){this.stop();void this.context?.close();this.listeners.clear();}
