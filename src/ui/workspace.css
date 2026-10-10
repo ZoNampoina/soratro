@@ -204,3 +204,69 @@ body.modal-open { overflow:hidden; }
 .input-source-control{display:grid;gap:3px;font-size:9px;letter-spacing:.08em}.input-source-control select{font-size:12px;min-width:104px}.vocal-panel{flex:none;padding:8px 16px;border-bottom:1px solid var(--border);background:var(--surface);max-height:38vh;overflow:auto;font-size:12px}.vocal-simple{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.vocal-simple label{display:flex;gap:6px;align-items:center}.vocal-simple meter{width:110px;height:18px}.vocal-simple output{min-width:140px;color:var(--accent)}.vocal-simple>span{margin-left:auto}.vocal-hint{margin:5px 0;font-size:11px;color:var(--muted)}.vocal-graphs{display:flex;gap:12px}.vocal-graphs svg{width:50%;height:65px;border:1px solid var(--border);border-radius:6px;color:var(--accent)}.vocal-settings{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));margin:8px 0}.vocal-processing{display:flex;flex-wrap:wrap;gap:12px}.vocal-panel>small{margin-left:12px;color:var(--muted)}.vocal-takes{margin-top:6px}.vocal-takes .take-list>div{flex-wrap:wrap}.vocal-takes .take-list button{min-height:32px}.original-player{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.original-player audio{max-width:100%;height:36px}.vocal-note-review{display:flex;gap:5px;align-items:center;color:#e6b971}.vocal-panel [role=alert]{color:#ef9898}@media(max-width:760px){.vocal-panel{padding:8px;max-height:30vh}.vocal-simple{gap:5px}.vocal-simple>span{margin-left:0}.vocal-simple output{min-width:110px}.vocal-simple meter{width:70px}.vocal-hint{font-size:10px}.input-source-control select{min-width:90px}}
 .roll-event[data-vocal-uncertain=true] .note-block{stroke:#e6ae55;stroke-dasharray:3 2;stroke-width:2}.score-panel [data-vocal-uncertain=true]{fill:#986522;text-decoration:underline dotted}.roll-event[data-provisional=true]{opacity:.6}.score-panel [data-provisional=true]{opacity:.5}
 .local-audio-manager>div{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 0}.local-audio-manager button{white-space:nowrap}@media(max-width:760px){.vocal-simple{display:grid;grid-template-columns:minmax(90px,1fr) minmax(110px,1fr) 34px;gap:4px 7px}.vocal-simple label{font-size:0}.vocal-simple label select{font-size:12px;width:110px}.vocal-simple>button:nth-child(2){grid-column:2;grid-row:1;padding:4px;font-size:11px}.vocal-simple>button:last-child{grid-column:3;grid-row:1;font-size:0;width:34px;min-height:32px;padding:4px}.vocal-simple>button:last-child:after{content:'⚙';font-size:18px}.vocal-simple meter{grid-column:1;grid-row:2;width:85px}.vocal-simple output{grid-column:2/4;grid-row:2;font-size:11px}.vocal-simple>span{display:none}.vocal-panel>small{display:block;margin:2px 0;font-size:9px}.local-audio-manager>div{align-items:flex-start;font-size:10px}.local-audio-manager>div>span{max-width:60%}}@media(max-width:760px) and (orientation:portrait){.transport{display:grid;grid-template-columns:minmax(90px,1fr) 38px 100px 90px;gap:6px;height:auto;min-height:96px;padding:8px}.transport-buttons{grid-column:1/4;grid-row:1;gap:6px}.tempo-control{grid-column:4;grid-row:1}.position-display{grid-column:1;grid-row:2}.tap-button{grid-column:2;grid-row:2;min-width:0;padding:3px;font-size:10px}.input-source-control{grid-column:3;grid-row:2}.input-source-control select{width:100px;min-width:0;font-size:11px}.count-in-control{grid-column:4;grid-row:2;min-width:0}.count-in-control select{width:85px;min-width:0;font-size:11px}.transport-state{display:none}}
+
+
+/* Keep the music canvas usable at laptop heights: toolbar options scroll sideways
+   instead of wrapping into a second full-height row. */
+@media (min-width:761px) {
+  .editor-app > .transport {
+    height:70px;
+    min-height:70px;
+    gap:14px;
+    padding:0 16px;
+  }
+  .editor-app .composition-toolbar {
+    flex-wrap:nowrap;
+    height:48px;
+    min-height:48px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scrollbar-width:thin;
+  }
+  .editor-app .composition-toolbar > * {
+    flex-shrink:0;
+  }
+}
+.editor-app .partition-toolbar {
+  flex-wrap:nowrap;
+  min-height:42px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:thin;
+}
+.editor-app .partition-toolbar > * {
+  flex-shrink:0;
+}
+/* There is nothing to inspect until a note is selected. */
+.editor-app .note-inspector:has(.empty-selection) {
+  display:none;
+}
+/* Microphone settings and archived takes belong in an opt-in drawer,
+   not in the permanently visible space above the piano roll. */
+.vocal-storage {
+  margin-top:3px;
+  font-size:11px;
+}
+.vocal-storage > summary {
+  cursor:pointer;
+  padding:4px 0;
+  color:var(--muted);
+  width:max-content;
+  max-width:100%;
+}
+.vocal-storage-content {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:6px 0;
+}
+.vocal-storage-content > small {
+  color:var(--muted);
+}
+.vocal-storage-content > .checkbox-label {
+  align-self:flex-start;
+}
+@media(max-width:760px) {
+  .vocal-storage > summary {padding:2px 0}
+  .editor-app .partition-toolbar {min-height:36px}
+}
