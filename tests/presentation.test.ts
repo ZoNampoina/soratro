@@ -18,3 +18,24 @@ test('Publication profiles modify presentation only and remain independent copie
 test('Library vector thumbnails use the same printed Segno/Coda/Fermata shapes; insertion and movement are musical',()=>{const p=score(),choice=SYMBOL_CHOICES.find(c=>c.key==='segno')!;insertLibrarySymbol(p,choice,{measure:2,beat:1,text:'Segno',targetId:'',trackIds:[],end:3,times:2,firstEnding:0,secondEnding:0,bpm:100,span:1},[]);let doc=engraveProject(p),printed=doc.pages.flatMap(p=>p.ops).filter(op=>op.objectId===p.indications[0].id);assert.deepEqual(printed.map(op=>op.kind),musicalSymbol('segno',0,0).map(op=>op.kind));moveIndication(p,p.indications[0].id,4,2);assert.equal(p.indications[0].measure,4);assert.equal(p.indications[0].beat,2);assert.equal(p.tracks[0].events.length,64);for(const symbol of ['segno','coda','fermata','breath','repeat','crescendo','diminuendo'])assert.ok(musicalSymbol(symbol,0,0).some(op=>op.kind!=='text'));});
 test('Presentation validation rejects invalid counts, numbering, labels and contributor identifiers before import',()=>{const p=score();for(const bad of [()=>{p.layout.measuresPerSystem=4.5;},()=>{p.layout.numbering!.start=-1;},()=>{p.credits=projectCredits(p);p.credits.contributors[1].id=p.credits.contributors[0].id;}]){const clone=structuredClone(p);bad();assert.throws(()=>validateProject(p));Object.assign(p,clone);}});
 test('Local system alignments follow inserted/deleted measures without altering credit metadata',()=>{const p=score();p.layout.systemAlignments={5:'center'};p.credits=projectCredits(p);const credits=structuredClone(p.credits);editMeasures(p,'insert-before',2,2,'all');assert.equal(p.layout.systemAlignments[6],'center');editMeasures(p,'delete',2,2,'all');assert.equal(p.layout.systemAlignments[5],'center');assert.deepEqual(p.credits,credits);});
+
+
+test('An explicit four measures per system cannot be reduced by natural widths',()=>{
+  const p=score(16);
+  // Deliberately exceed the natural page width: this used to wrap after 1-2 measures.
+  p.layout.measuresPerSystem=4;
+  p.layout.measureWidths={1:2.5,2:2.5,3:2.5,4:2.5};
+  let doc=engraveProject(p);
+  assert.equal(doc.systems[0].first,1);
+  assert.equal(doc.systems[0].last,4);
+  assert.equal(doc.systems[0].measures.length,4);
+  // A per-system override must be just as authoritative when the global mode is Auto.
+  p.layout.measuresPerSystem=0;
+  p.layout.systemCounts={'1':4};
+  doc=engraveProject(p);
+  assert.equal(doc.systems[0].measures.length,4);
+  // A deliberate manual break still takes precedence over the fixed count.
+  p.layout.systemBreaks=[2];
+  doc=engraveProject(p);
+  assert.equal(doc.systems[0].last,2);
+});

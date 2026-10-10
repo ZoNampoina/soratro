@@ -2,6 +2,8 @@ name: Validate SORATRO in Chromium
 on:
   push:
     branches: [main, work/v0.3, work/v0.4-traditional, work/v0.5-vocal]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -17,6 +19,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:pages
+      - run: npm test
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - uses: actions/upload-artifact@v4

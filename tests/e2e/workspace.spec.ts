@@ -78,3 +78,19 @@ for(const viewport of [{width:390,height:844},{width:740,height:390}])test('Expo
   if(viewport.width<680)await dialog.getByRole('button',{name:'Paramètres de l’export'}).click();
   await page.screenshot({path:info.outputPath('export-mobile.png')});await context.close();
 });
+
+
+test('Vocal source keeps optional audio controls collapsed and the Piano Roll usable',async({page})=>{
+  await page.setViewportSize({width:1440,height:800});
+  await page.goto('./');
+  await page.getByRole('button',{name:/^Ouvrir l’étude SATB/}).click();
+  await page.getByLabel('Source d’enregistrement').selectOption('vocal');
+  const extras=page.locator('.vocal-storage');
+  await expect(extras).toBeVisible();
+  await expect(extras).not.toHaveAttribute('open','');
+  const roll=page.locator('.roll-viewport');
+  await expect(roll).toBeVisible();
+  expect((await roll.boundingBox())!.height).toBeGreaterThan(200);
+  await page.locator('.vocal-storage > summary').click();
+  await expect(page.getByLabel('Conserver l’audio original')).toBeVisible();
+});
