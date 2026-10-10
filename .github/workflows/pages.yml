@@ -53,21 +53,3 @@ jobs:
       - name: Deploy site
         id: deployment
         uses: actions/deploy-pages@v4
-
-  android-release:
-    needs: deploy
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 12
-    permissions:
-      contents: write
-      actions: read
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-      - name: Publish the matching validated Android test APK
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: node scripts/publish-android.mjs

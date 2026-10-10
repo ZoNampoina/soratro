@@ -57,7 +57,7 @@ test('100-measure score: last page, responsive export, dynamic paper, page navig
   const preview=dialog.locator('.export-preview');expect((await preview.boundingBox())!.width).toBeGreaterThan(500);
   await dialog.getByLabel('Orientation',{exact:true}).selectOption('landscape');
   let svg=dialog.locator('.engraved-content svg').first();expect(Number(await svg.getAttribute('width'))).toBeGreaterThan(Number(await svg.getAttribute('height')));
-  await dialog.getByLabel('Papier',{exact:true}).selectOption('A5');await dialog.getByLabel('Marges (mm)').fill('10');await dialog.getByLabel('Mesures par système').selectOption('2');
+  await dialog.getByLabel('Papier',{exact:true}).selectOption('A5');await dialog.getByLabel('Marges (mm)').fill('10');await dialog.getByLabel('Mesures par ligne',{exact:true}).fill('2');
   await dialog.getByRole('button',{name:'Page suivante'}).click();await expect(dialog.locator('.page-count')).toContainText('Page 2');
   const waiting=page.waitForEvent('download');await dialog.getByRole('button',{name:'Exporter PDF'}).click();await (await waiting).saveAs(info.outputPath('100-mesures.pdf'));
   // Native CSS resize handles keep the footer outside both scrollable columns.
@@ -72,10 +72,10 @@ for(const viewport of [{width:390,height:844},{width:740,height:390}])test('Expo
   const context=await browser.newContext({viewport,isMobile:true,hasTouch:true});const page=await context.newPage();
   await page.goto('http://127.0.0.1:4176/soratro/');await page.getByRole('button',{name:/^Ouvrir l’étude SATB/}).click();await page.getByRole('button',{name:'PDF / Export'}).click();
   const dialog=page.locator('dialog');await expect(dialog.getByRole('button',{name:'Exporter PDF'})).toBeInViewport();
-  if(viewport.width<680){await expect(dialog.locator('.export-preview')).toBeVisible();await dialog.getByRole('button',{name:'Paramètres de l’export'}).click();}
+  if(viewport.width<=760){await expect(dialog.locator('.export-preview')).toBeVisible();await dialog.getByRole('button',{name:'Paramètres de l’export'}).click();}
   await dialog.getByLabel('Papier').selectOption('A5');await dialog.getByLabel('Orientation').selectOption('landscape');
   await dialog.locator('.export-settings').evaluate(el=>{el.scrollTop=el.scrollHeight;});await expect(dialog.getByRole('button',{name:'Exporter PDF'})).toBeInViewport();
-  if(viewport.width<680)await dialog.getByRole('button',{name:'Paramètres de l’export'}).click();
+  if(viewport.width<=760)await dialog.getByRole('button',{name:'Paramètres de l’export'}).click();
   await page.screenshot({path:info.outputPath('export-mobile.png')});await context.close();
 });
 

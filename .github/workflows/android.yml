@@ -1,7 +1,6 @@
 name: Build SORATRO Android APK
 on:
-  push:
-    branches: [main, work/v0.3, work/v0.4-traditional, work/v0.5-vocal]
+  # Native packaging remains available manually after Web qualification.
   workflow_dispatch:
 permissions:
   contents: read

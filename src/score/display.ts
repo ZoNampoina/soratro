@@ -23,7 +23,8 @@ export const SOLFA_PRESETS: Record<string, SolfaDisplay> = {
 export function displayLayout(layout: PageSettings, display: SolfaDisplay): PageSettings {
   const factor = display.density === 'compact' ? .85 : display.density === 'airy' ? 1.2 : 1;
   return { ...layout,
-    noteSize: Math.max(10, Math.min(32, layout.noteSize * display.noteScale)),
+    // Legacy noteScale stays readable in preferences; document type is set in PageLayout.
+    noteSize: layout.noteSize,
     voiceGap: Math.max(20, Math.min(70, layout.voiceGap * factor)),
     systemGap: Math.max(8, Math.min(80, layout.systemGap * factor)),
   };

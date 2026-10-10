@@ -1,7 +1,7 @@
 import {noteDuration,noteStart,type Project,type PageDecoration} from '../music/model.ts';
 import {measureAt,measureCount,tempoLabel,unitBeats} from '../music/timeline.ts';
 import {beatToScoreX,layoutMeasure,measureGeometry,type MeasureGeometry} from './layout.ts';
-import {convertSolfa,midiToSolfa} from '../solfa/converter.ts';
+import {convertSolfa} from '../solfa/converter.ts';
 import {textWidth} from './font-metrics.ts';
 import {DEFAULT_SOLFA,displayLayout,type SolfaDisplay} from './display.ts';
 import {lyricPlacements} from '../lyrics/shared.ts';
@@ -13,7 +13,8 @@ export type DrawOp=OpMeta&({kind:'text';x:number;y:number;text:string;size:numbe
 export interface EngravedMeasure {number:number;x:number;y:number;width:number;height:number;geometry:MeasureGeometry;scale:number;inset:number}
 export interface ScoreSystem {index:number;page:number;first:number;last:number;x:number;y:number;width:number;height:number;measures:EngravedMeasure[];ops:DrawOp[]}
 export interface ScorePage {index:number;width:number;height:number;widthMm:number;heightMm:number;ops:DrawOp[];systems:ScoreSystem[]}
-export interface ScoreDocument {pages:ScorePage[];systems:ScoreSystem[];measureCount:number}
+export interface EngravingWarning {first:number;last:number;requiredWidth:number;availableWidth:number;message:string}
+export interface ScoreDocument {pages:ScorePage[];systems:ScoreSystem[];measureCount:number;warnings?:EngravingWarning[]}
 export type ScoreFonts=Record<string,string>;
 export const PX_PER_MM=96/25.4;
 export function paperSize(p:Project){const sizes={A4:[210,297],A5:[148,210],Letter:[215.9,279.4]},[a,b]=sizes[p.layout.paper];const [widthMm,heightMm]=p.layout.orientation==='portrait'?[a,b]:[b,a];return {widthMm,heightMm,width:widthMm*PX_PER_MM,height:heightMm*PX_PER_MM};}
@@ -21,20 +22,24 @@ function text(ops:DrawOp[],value:string,x:number,y:number,size:number,meta:OpMet
 function line(ops:DrawOp[],x:number,y:number,x2:number,y2:number,width=1,color='#37333e',meta:OpMeta={}){ops.push({kind:'line',x,y,x2,y2,width,color,...meta});}
 function curve(ops:DrawOp[],x:number,y:number,cx1:number,cy1:number,cx2:number,cy2:number,x2:number,y2:number,width=1,meta:OpMeta={}){ops.push({kind:'curve',x,y,cx1,cy1,cx2,cy2,x2,y2,width,...meta});}
 function wrap(value:string,width:number,size:number,font?:FontKey):string[]{if(value.includes('\n'))return value.split('\n').flatMap(v=>wrap(v,width,size,font));const measure=(s:string)=>font?decorationWidth(s,size,font):textWidth(s,size);const result:string[]=[];let current='';for(const word of value.split(/\s+/).filter(Boolean)){const chunks:string[]=[];let chunk='';for(const char of Array.from(word)){if(chunk&&measure(chunk+char)>width){chunks.push(chunk);chunk='';}chunk+=char;}if(chunk)chunks.push(chunk);for(const token of chunks){const next=current?current+' '+token:token;if(current&&measure(next)>width){result.push(current);current=token;}else current=next;}}if(current)result.push(current);return result;}
+function solfaWidth(pitch:number,p:Project,size:number){const s=convertSolfa(pitch,p.tonic);return textWidth(s.syllable,size)+textWidth((s.octave>0?"'":',').repeat(Math.abs(s.octave)),size*.7);}
 /** Shared rhythmic anchors, with width proportional to time in regular justification. */
-function geometryFor(p:Project,bar:number,spacing:number,maxWidth:number):MeasureGeometry{
-  const g=measureGeometry(p,bar-1,1,1,true),notes=p.tracks.flatMap(t=>t.events),index=new Map(notes.map(n=>[n.id,n])),ends=[...g.anchors.slice(1).map(a=>a.beat),g.end],needs:number[]=[];
+function geometryFor(p:Project,bar:number,spacing:number):MeasureGeometry{
+  const g=measureGeometry(p,bar-1,1,1,true),notes=p.tracks.flatMap(t=>t.events),index=new Map(notes.map(n=>[n.id,n])),ends=[...g.anchors.slice(1).map(a=>a.beat),g.end],needs:number[]=[],minimum:number[]=[];
   for(const [i,a] of g.anchors.entries()){
-    const groups=p.tracks.map(t=>t.events.filter(n=>Math.abs(noteStart(n)-a.beat)<1e-4).map(n=>midiToSolfa(n.midiPitch,p.tonic)).join('/'));
-    const words=p.lyrics.flatMap(l=>l.syllables.filter(s=>{const n=index.get(s.noteIds?.[0]??s.noteId??'');return n&&Math.abs(noteStart(n)-a.beat)<1e-4;}).map(s=>textWidth(s.text+(s.hyphenAfter?'-':''),p.layout.lyricSize)+12));
-    const width=Math.max(p.layout.noteSize*1.55,...groups.map(s=>textWidth(s,p.layout.noteSize)+16),...words)*spacing;
-    needs.push(width);if(ends[i]<=a.beat)throw new Error('Grille rythmique invalide.');
+    const groups=p.tracks.map(t=>{const notes=t.events.filter(n=>Math.abs(noteStart(n)-a.beat)<1e-4);return notes.reduce((width,n)=>width+solfaWidth(n.midiPitch,p,p.layout.noteSize),0)+Math.max(0,notes.length-1)*textWidth('/',p.layout.noteSize);});
+    const words=p.lyrics.flatMap(l=>l.syllables.filter(s=>{const n=index.get(s.noteIds?.[0]??s.noteId??'');return n&&Math.abs(noteStart(n)-a.beat)<1e-4;}).map(s=>textWidth(s.text+(s.hyphenAfter?'-':''),p.layout.lyricSize)));
+    const glyph=Math.max(p.layout.noteSize*.9,...groups,...words),min=glyph+Math.max(4,p.layout.noteSize*.25);
+    minimum.push(min);needs.push(Math.max(min,Math.max(p.layout.noteSize*1.55,glyph+16)*spacing));
+    if(ends[i]<=a.beat)throw new Error('Grille rythmique invalide.');
   }
-  if(p.layout.justification==='adaptive'){let x=0;g.anchors=g.anchors.map((a,i)=>{const next={...a,x};x+=needs[i];return next;});g.width=Math.max(40,x);}
-  else {const rate=Math.max(p.layout.noteSize*1.55,...needs.map((n,i)=>n/(ends[i]-g.anchors[i].beat)));g.anchors=g.anchors.map(a=>({...a,x:(a.beat-g.begin)*rate}));g.width=Math.max(40,(g.end-g.begin)*rate);}
-  // Very close mixed subdivisions must not inflate every beat of a regular bar.
-  // Keep the shared grid, but distribute minimum widths locally in this dense case.
-  if(g.width>maxWidth){let x=0;g.anchors=g.anchors.map((a,i)=>{const next={...a,x};x+=Math.max(needs[i],(ends[i]-a.beat)*p.layout.noteSize*1.55*spacing);return next;});g.width=Math.max(40,x);}
+  if(p.layout.measureAlignment==='adaptive'||p.layout.justification==='adaptive'){
+    let x=0;g.anchors=g.anchors.map((a,i)=>{const next={...a,x};x+=needs[i];return next;});g.width=Math.max(40,x);
+    g.minimumWidth=g.width*Math.max(...minimum.map((n,i)=>n/needs[i]));
+  }else {
+    const rate=Math.max(...needs.map((n,i)=>n/(ends[i]-g.anchors[i].beat))),minRate=Math.max(...minimum.map((n,i)=>n/(ends[i]-g.anchors[i].beat)));
+    g.anchors=g.anchors.map(a=>({...a,x:(a.beat-g.begin)*rate}));g.width=Math.max(40,(g.end-g.begin)*rate);g.minimumWidth=Math.max(40,(g.end-g.begin)*minRate);
+  }
   return g;
 }
 function noteX(g:MeasureGeometry,beat:number){const a=beatToScoreX(g,beat),next=g.anchors.find(v=>v.beat>beat+1e-5);return a+((next?.x??g.width)-a)/2;}
@@ -54,21 +59,37 @@ function drawSymbol(ops:DrawOp[],symbol:string,x:number,y:number,meta:OpMeta,siz
 export function engraveProject(source:Project,selection?:{first:number;last:number},display:SolfaDisplay=DEFAULT_SOLFA,voiceColors=false):ScoreDocument{
   const project={...source,layout:displayLayout(source.layout,display)},layout=project.layout,size=paperSize(project),margin=layout.margin*PX_PER_MM,gutter=54,available=size.width-margin*2-gutter,first=selection?.first??1,last=selection?.last??measureCount(project),count=last-first+1;
   if(count<=0||count>10000)throw new Error('Sélection de partition invalide.');
-  const doc:ScoreDocument={pages:[],systems:[],measureCount:count},notes=project.tracks.flatMap(t=>t.events),noteIndex=new Map(notes.map(n=>[n.id,n])),placements=lyricPlacements(project),geometries=new Map<number,MeasureGeometry>();
-  for(let bar=first;bar<=last;bar++)geometries.set(bar,geometryFor(project,bar,display.spacing,available-40));
-  const comparable=new Map<string,number>();for(const [bar,g] of geometries){const m=measureAt(project,bar),key=m.signature+':'+m.barBeats;comparable.set(key,Math.max(comparable.get(key)??0,g.width));}
+  const doc:ScoreDocument={pages:[],systems:[],measureCount:count,warnings:[]},notes=project.tracks.flatMap(t=>t.events),noteIndex=new Map(notes.map(n=>[n.id,n])),placements=lyricPlacements(project),geometries=new Map<number,MeasureGeometry>();
+  for(let bar=first;bar<=last;bar++)geometries.set(bar,geometryFor(project,bar,display.spacing));
   const above=project.tracks.map(t=>project.indications.some(i=>(['breath','fermata','accent','tenuto'].includes(i.kind)||i.trackId||i.trackIds?.length)&&(!i.trackId&&!i.trackIds?.length||i.trackId===t.id||i.trackIds?.includes(t.id)))?14:0);
   const voiceHeights=project.tracks.map((t,i)=>Math.max(layout.voiceGap,layout.noteSize+18+above[i]+(t.events.some(n=>convertSolfa(n.midiPitch,project.tonic).octave<0)?5:0)+placements.filter(l=>l.trackIndex===i).length*(layout.lyricSize+7))),voiceY=voiceHeights.map((_,i)=>voiceHeights.slice(0,i).reduce((a,b)=>a+b,0)),musicHeight=voiceHeights.reduce((a,b)=>a+b,0);
   const header=layout.header??defaultHeader(project),footer=layout.footer??defaultFooter(project);let pageY=0,pageBottom=0;
   function newPage(){const page:ScorePage={index:doc.pages.length,...size,ops:[],systems:[]};doc.pages.push(page);const head=showDecoration(layout.headerOn??'first',page.index)?decorationOps(project,header,page.index,0,size.width,margin,'header'):{ops:[],height:0};page.ops.push(...head.ops.map(op=>({...op,y:op.y+margin})));const foot=showDecoration(layout.footerOn??'all',page.index)?decorationOps(project,footer,page.index,0,size.width,margin,'footer'):{ops:[],height:0};pageY=margin+head.height+(head.height?(layout.headerGap??16):0);pageBottom=size.height-margin-foot.height-(layout.footerGap??16);return page;}
   const padding=(bar:number)=>[project.repeats.some(r=>r.startMeasure===bar)?20:8,project.repeats.some(r=>r.endMeasure===bar)?20:8];
-  const barWidth=(bar:number)=>{const m=measureAt(project,bar),g=geometries.get(bar)!,[a,b]=padding(bar),base=layout.justification==='adaptive'?g.width:comparable.get(m.signature+':'+m.barBeats)!;return base*(layout.measureWidths?.[bar]??1)+a+b;};
+  const barWidth=(bar:number,minimum=false)=>{const g=geometries.get(bar)!,[a,b]=padding(bar),factor=layout.measureWidths?.[bar]??1,min=g.minimumWidth!*Math.max(1,factor);return (minimum?min:Math.max(min,g.width*factor))+a+b;};
+  // Plan the real measures first. Empty grid slots never become musical measures or draw operations.
+  const plans:{group:number[];requested:number;next:number;columns:number}[]=[];let number=first;
+  while(number<=last){const group:number[]=[],configured=layout.systemCounts?.[number]??layout.measuresPerSystem,requested=configured>0?Math.max(1,Math.trunc(configured)):12;let minimum=0;
+    while(number<=last&&group.length<requested){const width=barWidth(number,true);if(!configured&&group.length&&minimum+width>available)break;group.push(number);minimum+=width;number++;if(layout.systemBreaks.includes(number-1)||layout.pageBreaks?.includes(number-1))break;}
+    plans.push({group,requested,next:number,columns:Math.max(layout.measuresPerSystem,configured,group.length)});
+  }
+  if(!layout.measuresPerSystem){const autoColumns=Math.max(...plans.map(p=>p.group.length));for(const plan of plans)plan.columns=Math.max(autoColumns,layout.systemCounts?.[plan.group[0]]??0);}
+  const grid=layout.measureAlignment===undefined||layout.measureAlignment==='grid',families=new Map<number,{preferred:number[];minimum:number[]}>();
+  if(grid)for(const plan of plans){let family=families.get(plan.columns);if(!family){family={preferred:Array(plan.columns).fill(0),minimum:Array(plan.columns).fill(0)};families.set(plan.columns,family);}plan.group.forEach((bar,col)=>{family!.preferred[col]=Math.max(family!.preferred[col],barWidth(bar));family!.minimum[col]=Math.max(family!.minimum[col],barWidth(bar,true));});}
+  for(const family of families.values()){const preferred=Math.min(...family.preferred.filter(n=>n>0)),minimum=Math.min(...family.minimum.filter(n=>n>0));family.preferred=family.preferred.map(n=>n||preferred);family.minimum=family.minimum.map(n=>n||minimum);}
+  function fitWidths(preferred:number[],minimum:number[],fill:boolean){
+    const natural=preferred.reduce((a,b)=>a+b,0),needed=minimum.reduce((a,b)=>a+b,0);
+    if(needed>available)return minimum;
+    if(natural>available){const ratio=(available-needed)/(natural-needed);return preferred.map((n,i)=>minimum[i]+(n-minimum[i])*ratio);}
+    return fill?preferred.map(n=>n*available/natural):preferred;
+  }
   const annotation=(bar:number)=>[...(display.markers?project.markers.filter(m=>m.measure===bar).map(m=>m.label):[]),...project.tempoMap.filter(t=>t.measure===bar).map(t=>tempoLabel(project.settings.tempoUnit)+' = '+Number((t.bpm/unitBeats(project.settings.tempoUnit)).toFixed(2))),...project.signatureMap.filter(s=>s.measure===bar).map(s=>s.signature)].filter(Boolean).join(' · ');
-  let page=newPage(),number=first;
-  while(number<=last){if(layout.pageBreaks?.includes(number-1)&&page.systems.length)page=newPage();const group:number[]=[],configured=layout.systemCounts?.[number]??layout.measuresPerSystem,forced=configured>0,requested=forced?Math.max(1,Math.trunc(configured)):12;let natural=0;
-    while(number<=last&&group.length<requested){const width=barWidth(number);if(!forced&&group.length&&natural+width>available)break;group.push(number);natural+=width;number++;if(layout.systemBreaks.includes(number-1)||layout.pageBreaks?.includes(number-1))break;}
-    const shrink=Math.min(1,available/natural);if(shrink<.5&&!forced)throw new Error('Mesure trop dense pour cette page. Réduisez la taille ou choisissez le paysage.');
-    const alignment=layout.systemAlignments?.[group[0]]??layout.systemAlignment;const justify=number<=last||group.length===requested;const factor=alignment==='full'?available/natural:alignment==='natural'||alignment==='center'?shrink:alignment==='auto'?justify?Math.min(1.8,available/natural):shrink:justify?available/natural:shrink;const widths=group.map(bar=>barWidth(bar)*factor),offset=alignment==='center'?(available-widths.reduce((a,b)=>a+b,0))/2:0;
+  let page=newPage();
+  for(const plan of plans){const {group,requested,next}=plan;if(layout.pageBreaks?.includes(group[0]-1)&&page.systems.length)page=newPage();
+    const alignment=layout.systemAlignments?.[group[0]]??layout.systemAlignment??'auto',family=grid?families.get(plan.columns):undefined;
+    const preferred=family?.preferred??group.map(bar=>barWidth(bar)),minimum=family?.minimum??group.map(bar=>barWidth(bar,true));
+    const fill=alignment==='full'||alignment==='auto'&&(grid||next<=last||group.length===requested),fitted=fitWidths(preferred,minimum,fill),widths=fitted.slice(0,group.length),total=fitted.reduce((a,b)=>a+b,0),offset=alignment==='center'?Math.max(0,(available-total)/2):0;
+    if(total>available+.01)doc.warnings!.push({first:group[0],last:group.at(-1)!,requiredWidth:total,availableWidth:available,message:'Cette ligne ('+group.length+' mesures'+(grid?' sur une grille de '+plan.columns:'')+') est trop dense pour cette largeur de page avec une taille Solfa de '+layout.noteSize+'. La taille des caractères est conservée.'});
     const annotations=group.map((bar,i)=>wrap(annotation(bar),widths[i]-12,10)),top=Math.max(35,Math.max(0,...annotations.map((a,index)=>a.length+project.indications.filter(i=>i.measure===group[index]&&!i.trackId&&!i.trackIds?.length&&!['breath','fermata','crescendo','diminuendo','accent','tenuto','final'].includes(i.kind)).length))*15+26),height=top+musicHeight+(layout.numbering?.position==='below'?layout.numbering.size+layout.numbering.gap:0);
     if(pageY+height>pageBottom){if(!page.systems.length)throw new Error('Les voix, textes et couplets ne tiennent pas sur cette page. Réduisez les tailles ou choisissez un format plus grand.');page=newPage();if(pageY+height>pageBottom)throw new Error('Les voix et textes ne tiennent pas sur ce format.');}
     const system:ScoreSystem={index:doc.systems.length,page:page.index,first:group[0],last:group.at(-1)!,x:margin+offset,y:pageY,width:gutter+widths.reduce((a,b)=>a+b,0),height,measures:[],ops:[]};const ops=system.ops;
@@ -81,10 +102,10 @@ export function engraveProject(source:Project,selection?:{first:number;last:numb
       if(display.measureNumbers&&showNumber){const value=(num?.prefix??'')+String(bar+(num?.start??1)-1-(num?.pickupZero&&project.settings.pickupBeats?1:0))+(bar===1&&project.settings.pickupBeats?' · levée':'');text(ops,value,num?.position==='left'?x-10:x+3,num?.position==='below'?y+barHeight+(num.gap??8)+num.size:pageY+top-(num?.gap??8),num?.size??9,{role:'number',measure:bar,beat:m.start},num?.color??'#77717d');}
       if(display.separators!=='none')line(ops,x,y,x,y+barHeight,.9,'#37333e',{measure:bar});annotations[bi].forEach((s,i)=>text(ops,s,x+3,pageY+11+i*15,10,{measure:bar}));
       for(const [ti,track] of project.tracks.entries()){
-        const baseline=y+voiceY[ti]+above[ti]+layout.noteSize,fontSize=layout.noteSize*Math.min(1,shrink),cells=layoutMeasure(project,ti,bar-1,geometry.width,geometry);
+        const baseline=y+voiceY[ti]+above[ti]+layout.noteSize,fontSize=layout.noteSize,cells=layoutMeasure(project,ti,bar-1,geometry.width,geometry);
         for(const cell of cells){const meta:OpMeta={role:'note',trackId:track.id,measure:bar,beat:cell.beat};if(cell.kind==='rest'&&!display.rests||cell.kind==='hold'&&!display.holds)continue;
-          const value=cell.symbols.join('/').replaceAll('–','-'),px=at(cell.beat,true)-textWidth(value,fontSize)/2,color=cell.kind==='rest'?'#96909b':voiceColors?track.color:'#26232d';
-          if(cell.kind==='note'){let prefix='';cell.symbols.forEach((symbol,i)=>{const n=noteIndex.get(cell.noteIds[i])!,solfa=convertSolfa(n.midiPitch,project.tonic);text(ops,symbol,px+textWidth(prefix,fontSize),baseline,fontSize,{...meta,uncertain:n.vocal?.uncertain&&!n.vocal.reviewed,provisional:n.id==='vocal-preview'},color,{noteIds:[n.id],baseText:solfa.syllable,octave:solfa.octave});prefix+=symbol;if(i<cell.symbols.length-1){text(ops,'/',px+textWidth(prefix,fontSize),baseline,fontSize,meta,color);prefix+='/';}});}else text(ops,value,px,baseline,fontSize,meta,color);
+          const value=cell.symbols.join('/').replaceAll('–','-'),visualWidth=cell.kind==='note'?cell.noteIds.reduce((width,key)=>width+solfaWidth(noteIndex.get(key)!.midiPitch,project,fontSize),0)+Math.max(0,cell.noteIds.length-1)*textWidth('/',fontSize):textWidth(value,fontSize),px=at(cell.beat,true)-visualWidth/2,color=cell.kind==='rest'?'#96909b':voiceColors?track.color:'#26232d';
+          if(cell.kind==='note'){let advance=0;cell.symbols.forEach((symbol,i)=>{const n=noteIndex.get(cell.noteIds[i])!,solfa=convertSolfa(n.midiPitch,project.tonic);text(ops,symbol,px+advance,baseline,fontSize,{...meta,uncertain:n.vocal?.uncertain&&!n.vocal.reviewed,provisional:n.id==='vocal-preview'},color,{noteIds:[n.id],baseText:solfa.syllable,octave:solfa.octave});advance+=solfaWidth(n.midiPitch,project,fontSize);if(i<cell.symbols.length-1){text(ops,'/',px+advance,baseline,fontSize,meta,color);advance+=textWidth('/',fontSize);}});}else text(ops,value,px,baseline,fontSize,meta,color);
         }
         if(display.separators==='standard')for(const boundary of geometry.rhythm??[]){const bx=at(boundary.beat),meta:OpMeta={role:'rhythm',measure:bar,trackId:track.id,beat:boundary.beat};
           if(boundary.kind==='third')curve(ops,bx-1.8,baseline-fontSize*.62,bx+2,baseline-fontSize*.9,bx+3,baseline-fontSize*.58,bx-.5,baseline-fontSize*.46,1.1,meta);
@@ -117,7 +138,7 @@ export function engraveProject(source:Project,selection?:{first:number;last:numb
       const position=(beat:number,center:boolean)=>{const bar=system.measures.find(m=>beat>=m.geometry.begin&&beat<m.geometry.end)??(beat<firstBar.geometry.begin?firstBar:lastBar);return bar.x+bar.inset+(center?noteX(bar.geometry,beat):beatToScoreX(bar.geometry,beat))*bar.scale;};const sx=position(Math.max(start,firstBar.geometry.begin),start>=firstBar.geometry.begin),ex=position(Math.min(noteStart(linked.at(-1)!),lastBar.geometry.end),noteStart(linked.at(-1)!)<lastBar.geometry.end),ly=pageY+top+voiceY[ti]+above[ti]+(link.kind==='melisma'?layout.noteSize+7:-7),depth=link.kind==='tie'?5:9;
       if(ex>sx)curve(ops,sx,ly,sx+(ex-sx)*.25,ly-depth,ex-(ex-sx)*.25,ly-depth,ex,ly,link.kind==='tie'?1.1:.7,{role:'link',trackId:link.trackId,objectId:link.id});
     }
-    page.ops.push(...ops);page.systems.push(system);doc.systems.push(system);pageY+=height+(layout.systemGaps?.[system.last]??layout.systemGap);
+    page.ops.push(...ops);page.systems.push(system);doc.systems.push(system);pageY+=height+(layout.systemGaps?.[system.first]??layout.systemGaps?.[system.last]??layout.systemGap);
   }
   for(const p of doc.pages){p.ops=p.ops.filter(op=>op.role!=='header');if(showDecoration(layout.headerOn??'first',p.index)){const head=decorationOps(project,header,p.index,doc.pages.length,size.width,margin,'header');p.ops.unshift(...head.ops.map(op=>({...op,y:op.y+margin})));}if(showDecoration(layout.footerOn??'all',p.index)){const foot=decorationOps(project,footer,p.index,doc.pages.length,size.width,margin,'footer');p.ops.push(...foot.ops.map(op=>({...op,y:op.y+size.height-margin-foot.height})));}}
   return doc;

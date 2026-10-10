@@ -1,0 +1,18 @@
+{
+  "from": "0.5.0",
+  "to": "0.6.0",
+  "projectCount": 1,
+  "noteCount": 96,
+  "projectsAndMarkerPreserved": true,
+  "rollZoomPreserved": true,
+  "oldCaches": [
+    "soratro-%2Fsoratro%2F-cd2db8aca136"
+  ],
+  "newCaches": [
+    "soratro-%2Fsoratro%2F-cd2db8aca136",
+    "soratro-%2Fsoratro%2F-9af93f72c86c"
+  ],
+  "coldOfflineRestart": true,
+  "offlinePdf": true,
+  "pageErrors": []
+}

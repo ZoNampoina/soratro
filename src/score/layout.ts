@@ -3,7 +3,7 @@ import { measureAt } from '../music/timeline.ts';
 import { midiToSolfa } from '../solfa/converter.ts';
 import {rhythmBoundaries,principalPulses} from '../solfa/rhythm.ts';
 export interface ScoreCell {beat:number;x:number;symbols:string[];kind:'note'|'hold'|'rest';noteIds:string[]}
-export interface MeasureGeometry {begin:number;end:number;width:number;anchors:{beat:number;x:number}[];rhythm?:ReturnType<typeof rhythmBoundaries>}
+export interface MeasureGeometry {begin:number;end:number;width:number;minimumWidth?:number;anchors:{beat:number;x:number}[];rhythm?:ReturnType<typeof rhythmBoundaries>}
 export function measureGeometry(project:Project,barIndex:number,width=216,minGap=36,traditional=false):MeasureGeometry {
   const info=measureAt(project,barIndex+1),begin=info.start,end=info.end;
   const notes=project.tracks.flatMap(t=>t.events);const onsets=notes.map(noteStart).filter(b=>b>begin&&b<end);

@@ -5,7 +5,7 @@ export type Tonic = 'C' | 'Db' | 'D' | 'Eb' | 'E' | 'F' | 'F#' | 'G' | 'Ab' | 'A
 export const TONICS: Tonic[] = ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
 export const SIGNATURES: Signature[] = ['2/4','3/4','4/4','5/4','6/8','7/8','9/8','12/8'];
 export const SCHEMA_VERSION = 2;
-export const APP_VERSION = '0.5.0';
+export const APP_VERSION = '0.6.0';
 export type TempoUnit = 'quarter' | 'dotted-quarter' | 'eighth';
 export type QuantizationGrid = 'none'|'1/2'|'1/4'|'1/8'|'1/16'|'1/32'|'triplet-quarter'|'triplet-eighth'|'triplet-sixteenth'|'compound'|'auto';
 export type ChoirTemplate = 'Solo'|'Unisson'|'SA'|'SAB'|'SATB'|'SSA'|'SSAA'|'TTB'|'TTBB'|'Personnalisé';
@@ -23,11 +23,12 @@ export type DocumentLanguage='fr'|'mg'|'custom';
 export interface Contributor {id:string;name:string;role:CreditRole;label:string;order:number;visible:boolean}
 export interface CreditSettings {language:DocumentLanguage;preset:'fr'|'mg'|'short'|'custom';labels:Partial<Record<CreditRole,string>>;contributors:Contributor[];grouped:boolean}
 export type SystemAlignment='full'|'natural'|'center'|'auto';
+export type MeasureAlignment='grid'|'independent'|'adaptive';
 export interface MeasureNumbering {mode:'measure'|'system'|'page'|'none';size:number;position:'above'|'below'|'left';color:string;gap:number;start:number;prefix:string;pickupZero:boolean}
 export type DecorationField='custom'|'title'|'author'|'composer'|'credits'|'tonic'|'tempo'|'signature'|'date'|'page'|'pages'|'logo';
 export interface PageDecoration {id:string;field:DecorationField;text:string;align:'left'|'center'|'right';size:number;bold:boolean;italic:boolean;color:string;font:'sans'|'serif'|'mono';visible:boolean;row:number;offsetX:number;offsetY:number;logo?:string}
 export interface RecordingTake {id:string;name:string;trackId:TrackId;startBeat:number;endBeat:number;createdAt:string;events:NoteEvent[];selected:boolean;mode?:'overdub'|'replace';source?:InputSource;audio?:TakeAudio;replacedEvents?:NoteEvent[];replacementFragments?:string[];replacedLyrics?:LyricLine[];replacedLinks?:MusicLink[]}
-export interface PageSettings {paper:'A4'|'A5'|'Letter';orientation:'portrait'|'landscape';margin:number;measuresPerSystem:number;noteSize:number;lyricSize:number;voiceGap:number;systemGap:number;titleSize:number;pageNumbers:boolean;systemBreaks:number[];pageBreaks?:number[];systemCounts?:Record<string,number>;measureWidths?:Record<string,number>;systemGaps?:Record<string,number>;justification?:'regular'|'adaptive';voiceLabels?:'first'|'page'|'always'|'never';lyricPlacement?:'auto'|'common'|'group'|'voice';compoundPulse?:boolean;header?:PageDecoration[];footer?:PageDecoration[];headerOn?:'first'|'all'|'following'|'none';footerOn?:'first'|'all'|'following'|'none';headerGap?:number;footerGap?:number;numbering?:MeasureNumbering;systemAlignment?:SystemAlignment;systemAlignments?:Record<string,SystemAlignment>}
+export interface PageSettings {paper:'A4'|'A5'|'Letter';orientation:'portrait'|'landscape';margin:number;measuresPerSystem:number;noteSize:number;lyricSize:number;voiceGap:number;systemGap:number;titleSize:number;pageNumbers:boolean;systemBreaks:number[];pageBreaks?:number[];systemCounts?:Record<string,number>;measureWidths?:Record<string,number>;systemGaps?:Record<string,number>;justification?:'regular'|'adaptive';measureAlignment?:MeasureAlignment;voiceLabels?:'first'|'page'|'always'|'never';lyricPlacement?:'auto'|'common'|'group'|'voice';compoundPulse?:boolean;header?:PageDecoration[];footer?:PageDecoration[];headerOn?:'first'|'all'|'following'|'none';footerOn?:'first'|'all'|'following'|'none';headerGap?:number;footerGap?:number;numbering?:MeasureNumbering;systemAlignment?:SystemAlignment;systemAlignments?:Record<string,SystemAlignment>}
 export interface NoteEvent {
   id: string; trackId: TrackId; midiPitch: number; velocity: number;
   originalStart: number; originalDuration: number;
@@ -66,7 +67,7 @@ export function projectEnd(project: Project) {const bar=signatureInfo(project.ti
 export function createProject(values: Partial<Pick<Project,'title'|'author'|'composer'|'tonic'|'timeSignature'|'tempo'>> = {}): Project {
   const date=new Date().toISOString();
   return {id:id(),schemaVersion:2,title:values.title?.trim()||'Sans titre',author:values.author||'',composer:values.composer||'',tonic:values.tonic||'Db',timeSignature:values.timeSignature||'6/8',tempo:values.tempo||72,createdAt:date,updatedAt:date,lyrics:[],markers:[],takes:[],tempoMap:[],signatureMap:[],repeats:[],indications:[],
-    layout:{paper:'A4',orientation:'portrait',margin:15,measuresPerSystem:4,noteSize:17,lyricSize:11,voiceGap:30,systemGap:24,titleSize:24,pageNumbers:true,systemBreaks:[],systemAlignment:'auto',numbering:{mode:'system',size:9,position:'above',color:'#77717d',gap:8,start:1,prefix:'',pickupZero:true}},
+    layout:{paper:'A4',orientation:'portrait',margin:15,measuresPerSystem:4,noteSize:17,lyricSize:11,voiceGap:30,systemGap:24,titleSize:24,pageNumbers:true,systemBreaks:[],measureAlignment:'grid',systemAlignment:'auto',numbering:{mode:'system',size:9,position:'above',color:'#77717d',gap:8,start:1,prefix:'',pickupZero:true}},
     tracks:[{id:'soprano',name:'Soprano',shortName:'S',color:'#b3a2ff'},{id:'alto',name:'Alto',shortName:'A',color:'#78cdc1'},{id:'tenor',name:'Ténor',shortName:'T',color:'#edbd7c'},{id:'bass',name:'Basse',shortName:'B',color:'#92b9ef'}].map(t=>({...t,id:t.id as TrackId,volume:0.72,mute:false,solo:false,events:[]})),
     settings:{countIn:1,quantization:'1/8',quantizationStrength:100,loopStart:0,loopEnd:12,tempoUnit:'quarter',recordMode:'overdub',punchEnabled:false,punchStart:0,punchEnd:12,preRoll:1,loopRecording:false,latencyCompensationMs:0,pickupBeats:0,choirTemplate:'SATB',beatGroups:[],snap:true,instrument:'piano',masterVolume:.72,rehearsalSpeed:100,rehearsalVoice:'soprano',rehearsalMix:'ensemble',loopRepeats:0}};
 }

@@ -12,6 +12,7 @@ import {DEFAULT_SCORE,normalizeScore,clamp} from '../storage/ui-preferences';
 import {usePreference,flushPreferences} from './usePreference';
 import {SolfaScore} from './SolfaScore';
 import {Dialog} from './Dialog';
+import {ScoreDensityWarning} from './ScoreDensityWarning';
 interface ExportPreferences {
   format:'pdf'|'png'|'svg';scope:'document'|'page'|'system'|'measures';
   page:number;system:number;first:number;last:number;colors:boolean;params:boolean;width:number;height:number;
@@ -37,11 +38,12 @@ export function PrintPreview({project,notice,onClose,display=DEFAULT_SOLFA}:{pro
       let doc=full;
       if(settings.scope==='measures')doc=engraveProject(previewProject,{first:settings.first,last:settings.last},display,settings.colors);
       if(settings.scope==='page'){const page=full.pages[Math.min(settings.page,full.pages.length-1)];doc={...full,pages:[page],systems:page.systems};}
-      if(settings.scope==='system'){const s=full.systems[Math.min(settings.system,full.systems.length-1)],page=systemPage(full.pages[s.page],s);doc={pages:[page],systems:[s],measureCount:s.last-s.first+1};}
+      if(settings.scope==='system'){const s=full.systems[Math.min(settings.system,full.systems.length-1)],page=systemPage(full.pages[s.page],s);doc={pages:[page],systems:[s],measureCount:s.last-s.first+1,warnings:full.warnings?.filter(w=>w.first===s.first)};}
       return {full,doc,error:''};
     } catch(e){return {full:null,doc:null,error:e instanceof Error?e.message:'Mise en page impossible.'};}
   },[fullResult,settings.scope,settings.page,settings.system,settings.first,settings.last]);
   const doc=result.doc;
+  const canExport=!!doc&&!doc.warnings?.length;
   const issues=useMemo(()=>checkScore(previewProject,fullResult.full??undefined),[previewProject,fullResult.full]),[ignored,setIgnored]=useState(false);
   useEffect(()=>setIgnored(false),[previewProject]);
   useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
@@ -52,7 +54,7 @@ export function PrintPreview({project,notice,onClose,display=DEFAULT_SOLFA}:{pro
     return ()=>dialog.removeEventListener('pointerup',remember);
   },[setSettings]);
   function setting<K extends keyof PageSettings>(key:K,value:PageSettings[K]){setDraft(d=>({...d,[key]:value,...(key==='pageNumbers'&&d.footer?{footer:d.footer.map(f=>f.field==='page'||f.field==='pages'?{...f,visible:value as boolean}:f)}:{}),...(key==='titleSize'&&d.header?{header:d.header.map(f=>f.field==='title'?{...f,size:value as number}:f)}:{})}));}
-  function applyLayout(){if(!doc)return;store.update(p=>{p.layout=structuredClone(draft);});}
+  function applyLayout(){if(!canExport)return;store.update(p=>{p.layout=structuredClone(draft);});}
   function close(){void flushPreferences().catch(()=>{});onClose();}
   async function run(fn:()=>Promise<void>){
     if(busy)return;setBusy(true);setError('');
@@ -64,18 +66,19 @@ export function PrintPreview({project,notice,onClose,display=DEFAULT_SOLFA}:{pro
   }
   const base=project.title.replace(/[<>:"/\\|?*]/g,'_').slice(0,80)||'partition';
   async function exportFile(format:ExportPreferences['format'],share=false){
-    if(!doc)throw new Error(result.error);
+    if(!doc)throw new Error(result.error);if(doc.warnings?.length)throw new Error('Corrigez les lignes trop denses avant l’export.');
     const {pdfBytes,scoreFonts,svgPNG}=await import('../score/export');
     const font=await scoreFonts(doc);if(!alive.current)return;
     let blob:Blob;
     if(format==='pdf')blob=new Blob([await pdfBytes(doc,font,previewProject)],{type:'application/pdf'});
     else {const svg=pageSVG(imagePage(),font);blob=format==='svg'?new Blob([svg],{type:'image/svg+xml'}):await svgPNG(svg);}
     if(!alive.current)return;
-    await (share?shareFile:saveFile)(base+'.'+format,blob);
+    if(share){const outcome=await shareFile(base+'.'+format,blob);if(outcome==='cancelled'){if(alive.current)notice('Partage annulé.');return;}}
+    else await saveFile(base+'.'+format,blob);
     applyLayout();if(alive.current)notice(format.toUpperCase()+' exporté'+(format==='pdf'?' : '+doc.pages.length+' page(s).':'.'));
   }
   async function print(){
-    if(!doc)return;const {printPages,pdfBytes,scoreFonts}=await import('../score/export');const font=await scoreFonts(doc);if(!alive.current)return;
+    if(!doc||!canExport)return;const {printPages,pdfBytes,scoreFonts}=await import('../score/export');const font=await scoreFonts(doc);if(!alive.current)return;
     if(isAndroid()){const bytes=await pdfBytes(doc,font,previewProject);if(alive.current)await AndroidFiles.print({name:base+'.pdf',base64:await blobBase64(new Blob([bytes],{type:'application/pdf'}))});}
     else await printPages(doc,font);
     applyLayout();
@@ -84,10 +87,12 @@ export function PrintPreview({project,notice,onClose,display=DEFAULT_SOLFA}:{pro
     <div className={'export-body '+(settings.params?'params-open':'')} ref={root} style={{'--export-width':settings.width+'px','--export-height':settings.height+'px'} as React.CSSProperties}>
       <div className="export-settings-toggle"><button aria-label="Paramètres de l’export" aria-expanded={settings.params} onClick={()=>setSettings(s=>({...s,params:!s.params}))}><Settings2 size={15}/>Paramètres</button><span>{doc?.pages.length??0} page(s) · aperçu fidèle</span></div>
       <aside className="export-settings" aria-label="Réglages de l’export">
+        <ScoreDensityWarning document={doc} layout={draft} change={patch=>setDraft(d=>({...d,...patch}))}/>
         <details className="export-check"><summary>Vérification : {issues.filter(i=>i.severity==='error').length} erreur(s), {issues.filter(i=>i.severity==='warning').length} avertissement(s)</summary><ul>{issues.filter(i=>i.severity!=='info').map(i=><li key={i.id}>M. {i.measure} · {i.message}<small>{i.recommendation}</small></li>)}</ul>{!issues.some(i=>i.severity!=='info')&&<p>Aucune erreur ou collision détectée.</p>}<label className="checkbox-label"><input type="checkbox" checked={ignored} onChange={e=>setIgnored(e.target.checked)}/>J’ai vérifié les avertissements</label><p>Les indications imprimées peuvent être exportées même si elles n’agissent pas sur l’audio.</p></details>
         <label>Format d’export<select value={settings.format} onChange={e=>setSettings(s=>({...s,format:e.target.value as typeof s.format}))}><option value="pdf">PDF vectoriel</option><option value="png">PNG</option><option value="svg">SVG</option></select></label>
         <div className="form-grid"><label>Papier<select aria-label="Papier" value={draft.paper} onChange={e=>setting('paper',e.target.value as PageSettings['paper'])}>{['A4','A5','Letter'].map(s=><option key={s}>{s}</option>)}</select></label><label>Orientation<select aria-label="Orientation" value={draft.orientation} onChange={e=>setting('orientation',e.target.value as PageSettings['orientation'])}><option value="portrait">Portrait</option><option value="landscape">Paysage</option></select></label></div>
-        <div className="form-grid"><label>Marges (mm)<input aria-label="Marges (mm)" type="number" min={5} max={50} value={draft.margin} onChange={e=>{const n=+e.target.value;if(n>=5&&n<=50)setting('margin',n);}}/></label><label>Mesures par système<select aria-label="Mesures par système" value={draft.measuresPerSystem} onChange={e=>setting('measuresPerSystem',+e.target.value)}><option value={0}>Auto</option>{[1,2,3,4,5,6,8,12].map(n=><option key={n} value={n}>{n}</option>)}</select></label></div>
+        <div className="form-grid"><label>Marges (mm)<input aria-label="Marges (mm)" type="number" min={5} max={50} value={draft.margin} onChange={e=>{const n=+e.target.value;if(n>=5&&n<=50)setting('margin',n);}}/></label><label>Mesures par ligne<input aria-label="Mesures par ligne" type="number" min={0} max={12} step={1} list="export-measure-counts" value={draft.measuresPerSystem} onChange={e=>{const n=+e.target.value;if(Number.isInteger(n)&&n>=0&&n<=12)setting('measuresPerSystem',n);}}/><datalist id="export-measure-counts"><option value="0" label="Auto"/>{Array.from({length:12},(_,i)=><option key={i+1} value={i+1}/>)}</datalist><small>0 = Automatique · 1 à 12</small></label></div>
+        <label>Alignement des mesures<select aria-label="Alignement des mesures" value={draft.measureAlignment??'grid'} onChange={e=>setting('measureAlignment',e.target.value as PageSettings['measureAlignment'])}><option value="grid">Grille alignée</option><option value="independent">Justification indépendante</option><option value="adaptive">Adaptative</option></select></label>
         <div className="form-grid">{([['noteSize','Taille Solfa',10,32],['lyricSize','Taille paroles',8,24]] as const).map(([key,label,min,max])=><label key={key}>{label}<input type="number" min={min} max={max} value={draft[key]} onChange={e=>{const n=+e.target.value;if(n>=min&&n<=max)setting(key,n);}}/></label>)}</div>
         <label>Portée de l’export<select value={settings.scope} onChange={e=>setSettings(s=>({...s,scope:e.target.value as typeof s.scope}))}><option value="document">Toute la partition</option><option value="page">Une page</option><option value="system">Un système</option><option value="measures">Plage de mesures</option></select></label>
         {settings.scope==='page'&&<label>Page à exporter<input type="number" min={1} max={result.full?.pages.length??1} value={Math.min(settings.page+1,result.full?.pages.length??1)} onChange={e=>setSettings(s=>({...s,page:clamp(+e.target.value-1,0,(result.full?.pages.length??1)-1)}))}/></label>}
@@ -101,8 +106,8 @@ export function PrintPreview({project,notice,onClose,display=DEFAULT_SOLFA}:{pro
     </div>
     <footer className="export-footer">
       {error&&<p role="alert" className="export-error">{error}</p>}
-      <div><button disabled={busy||!doc} onClick={()=>void run(print)}><Printer size={15}/>Imprimer</button><button disabled={busy||!doc} onClick={()=>void run(()=>exportFile('svg'))}>SVG</button><button disabled={busy||!doc} onClick={()=>void run(()=>exportFile('png'))}>PNG</button>{isAndroid()&&<button disabled={busy||!doc} onClick={()=>void run(()=>exportFile(settings.format,true))}>Partager</button>}</div>
-<div><button disabled={busy||!doc} onClick={()=>{try{applyLayout();notice("Réglages de page appliqués.");}catch(e){setError(String(e));}}}>Appliquer les réglages</button><button onClick={close}>Annuler</button><button className="primary-button" disabled={busy||!doc} onClick={()=>void run(()=>exportFile(settings.format))}><Download size={15}/>{busy?'Export…':'Exporter '+settings.format.toUpperCase()}</button></div>
+      <div><button disabled={busy||!canExport} onClick={()=>void run(print)}><Printer size={15}/>Imprimer</button><button disabled={busy||!canExport} onClick={()=>void run(()=>exportFile('svg'))}>SVG</button><button disabled={busy||!canExport} onClick={()=>void run(()=>exportFile('png'))}>PNG</button><button disabled={busy||!canExport} onClick={()=>void run(()=>exportFile(settings.format,true))}>Partager</button></div>
+<div><button disabled={busy||!canExport} onClick={()=>{try{applyLayout();notice("Réglages de page appliqués.");}catch(e){setError(String(e));}}}>Appliquer les réglages</button><button onClick={close}>Annuler</button><button className="primary-button" disabled={busy||!canExport} onClick={()=>void run(()=>exportFile(settings.format))}><Download size={15}/>{busy?'Export…':'Exporter '+settings.format.toUpperCase()}</button></div>
     </footer>
   </Dialog>;
 }

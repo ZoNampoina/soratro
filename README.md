@@ -1,5 +1,7 @@
 # SORATRO
-## Version 0.5.0
+## Version 0.6.0
+
+Les mesures partagent une grille de colonnes, y compris la dernière ligne incomplète. La taille Solfa reste celle du document ; les lignes impossibles à composer sont signalées sans réduction de police. Mise en page sépare les réglages, les favoris et l’aperçu, avec un éditeur plein écran sur téléphone. Le zoom tactile, les menus, l’espace musical et le partage Web sont adaptés aux petits écrans. Voir [le guide Web](docs/WEB-LAYOUT-V0.6.md) et [l’audit](docs/AUDIT-V0.6.md).
 
 Les crédits multilingues et multiples, la numérotation, la justification et les symboles par clic complètent la gravure traditionnelle. Le Tap Tempo et la source Vocal utilisent le transport, le Recorder et les prises existants. L’analyse de hauteur et les audios originaux facultatifs restent locaux. Voir [le guide](docs/VOCAL-TAP-PRESENTATION.md), [le rapport](docs/RAPPORT-V0.5.md), [l’audit](docs/AUDIT-V0.5.md) et [les notes de version](docs/RELEASE-V0.5.md).
 
@@ -70,7 +72,7 @@ Exporter régulièrement un fichier `.soratro` protège contre l’effacement de
 - `src/ui/` : interface React, piano tactile, Piano Roll et partition SVG.
 - `scripts/generate-sw.mjs` : cache de tous les fichiers locaux de la version compilée.
 
-Le projet Capacitor 8 est dans `android/`, avec sélecteur de fichiers, partage, impression et MIDI natif. Le workflow Android compile un APK de test ; voir [Android](docs/ANDROID.md). La PWA reste installable et hors ligne. Une mise à jour attend la sauvegarde avant activation. Pour le premier passage V0.1 → V0.2, fermez tous les onglets SORATRO et la PWA, puis rouvrez le site : la V0.1 ne possède pas encore le bouton de mise à jour. Ne supprimez pas les données du navigateur.
+Le projet Capacitor 8 est dans `android/`, avec sélecteur de fichiers, partage, impression et MIDI natif. Le workflow Android est désormais manuel ; la publication Web ne produit ni ne publie d’APK. Voir [Android](docs/ANDROID.md) pour les travaux natifs antérieurs. La PWA reste installable et hors ligne. Une mise à jour attend la sauvegarde avant activation. Pour le premier passage V0.1 → V0.2, fermez tous les onglets SORATRO et la PWA, puis rouvrez le site : la V0.1 ne possède pas encore le bouton de mise à jour. Ne supprimez pas les données du navigateur.
 
 ## Vérification
 

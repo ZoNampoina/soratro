@@ -4,6 +4,15 @@ export interface ScoreStyle {id:string;name:string;layout:PageSettings}
 export function createScoreStyle(name:string,layout:PageSettings):ScoreStyle{return {id:id(),name:name.trim()||'Style de partition',layout:structuredClone(layout)};}
 export function applyScoreStyle(p:Project,style:ScoreStyle){const copy=structuredClone(p);copy.layout=structuredClone(style.layout);validateProject(copy);p.layout=copy.layout;}
 export function automaticLayout(layout:PageSettings):PageSettings{return {...layout,systemBreaks:[],pageBreaks:[],systemCounts:{},measureWidths:{},systemGaps:{},systemAlignments:{}};}
+/** Restore only one engraved line; applying the staged layout is one project Undo operation. */
+export function resetLineLayout(layout:PageSettings,first:number,last:number):PageSettings {
+ const next=structuredClone(layout);
+ for(const key of ['systemCounts','measureWidths','systemGaps','systemAlignments'] as const)if(next[key])
+  next[key]=Object.fromEntries(Object.entries(next[key]!).filter(([bar])=>+bar<first||+bar>last)) as never;
+ next.systemBreaks=next.systemBreaks.filter(bar=>bar<first||bar>last);
+ next.pageBreaks=next.pageBreaks?.filter(bar=>bar<first||bar>last);
+ return next;
+}
 export function publicationProfiles():ScoreStyle[]{const base=createProject().layout;const profiles:ScoreStyle[]=[
  {id:'profile-clean',name:'Épuré',layout:{...base,numbering:{...base.numbering!,mode:'none'},voiceLabels:'first',noteSize:18,systemAlignment:'natural'}},
  {id:'profile-rehearsal',name:'Répétition chorale',layout:{...base,numbering:{...base.numbering!,mode:'measure',size:12,color:'#3c306c'},voiceLabels:'page',voiceGap:40,systemGap:32}},
