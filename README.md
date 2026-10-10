@@ -1,7 +1,7 @@
 # SORATRO
 ## Version 0.6.0
 
-Les mesures partagent une grille de colonnes, y compris la dernière ligne incomplète. La taille Solfa reste celle du document ; les lignes impossibles à composer sont signalées sans réduction de police. Mise en page sépare les réglages, les favoris et l’aperçu, avec un éditeur plein écran sur téléphone. Le zoom tactile, les menus, l’espace musical et le partage Web sont adaptés aux petits écrans. Voir [le guide Web](docs/WEB-LAYOUT-V0.6.md) et [l’audit](docs/AUDIT-V0.6.md).
+Les mesures partagent une grille de colonnes, y compris la dernière ligne incomplète. La taille Solfa reste celle du document ; les lignes impossibles à composer sont signalées sans réduction de police. Mise en page sépare les réglages, les favoris et l’aperçu, avec un éditeur plein écran sur téléphone. Le zoom tactile, les menus, l’espace musical et le partage Web sont adaptés aux petits écrans. Voir [le guide Web](docs/WEB-LAYOUT-V0.6.md), [l’audit](docs/AUDIT-V0.6.md) et [le rapport de livraison](docs/RAPPORT-V0.6.md).
 
 Les crédits multilingues et multiples, la numérotation, la justification et les symboles par clic complètent la gravure traditionnelle. Le Tap Tempo et la source Vocal utilisent le transport, le Recorder et les prises existants. L’analyse de hauteur et les audios originaux facultatifs restent locaux. Voir [le guide](docs/VOCAL-TAP-PRESENTATION.md), [le rapport](docs/RAPPORT-V0.5.md), [l’audit](docs/AUDIT-V0.5.md) et [les notes de version](docs/RELEASE-V0.5.md).
 

@@ -1,0 +1,57 @@
+{
+  "url": "https://zonampoina.github.io/soratro/",
+  "version": {
+    "version": "0.6.0",
+    "schemaVersion": 2,
+    "commit": "7ea7b66f9c757571eef7932a110125ea1016bae8",
+    "builtAt": "2026-10-10T18:10:42.100Z"
+  },
+  "measures": 7,
+  "notes": 112,
+  "noteSize": 20,
+  "columns": [
+    {
+      "measure": 1,
+      "x": 110.693,
+      "width": 156.579
+    },
+    {
+      "measure": 2,
+      "x": 267.272,
+      "width": 156.579
+    },
+    {
+      "measure": 3,
+      "x": 423.85,
+      "width": 156.579
+    },
+    {
+      "measure": 4,
+      "x": 580.429,
+      "width": 156.579
+    },
+    {
+      "measure": 5,
+      "x": 110.693,
+      "width": 156.579
+    },
+    {
+      "measure": 6,
+      "x": 267.272,
+      "width": 156.579
+    },
+    {
+      "measure": 7,
+      "x": 423.85,
+      "width": 156.579
+    }
+  ],
+  "screenZoomDoesNotChangeProject": true,
+  "publicPdf": true,
+  "publicColdOfflineRestart": true,
+  "publicOfflinePdf": true,
+  "cacheNames": [
+    "soratro-%2Fsoratro%2F-0c1a478920ce"
+  ],
+  "pageErrors": []
+}
