@@ -10,6 +10,8 @@ import {selectionIds,type Selection} from '../music/note-editing';
 import {DEFAULT_SCORE,normalizeScore,clamp,type ScoreFit} from '../storage/ui-preferences';
 import {usePreference} from './usePreference';
 export interface FocusRequest {id:number;beat:number;noteId?:string}
+export interface EditorialTarget {role:'header'|'footer'|'number'|'system'|'symbol';objectId?:string;measure?:number}
+export interface MusicalPosition {measure:number;beat:number}
 interface Props {
   project:Project;beat:number;running:boolean;compact?:boolean;visible?:boolean;
   display?:SolfaDisplay;follow?:boolean;document?:ScoreDocument;preferenceKey?:string;preview?:boolean;
@@ -17,12 +19,15 @@ interface Props {
   onNoteClick?:(note:NoteEvent,modifiers:{add:boolean;range:boolean})=>void;
   onMeasureClick?:(number:number)=>void;onObjectClick?:(id:string)=>void;
   seek?:(beat:number)=>void;
+  editorial?:boolean;onEditorialClick?:(target:EditorialTarget)=>void;
+  placement?:boolean;onPlace?:(position:MusicalPosition)=>void;onMoveObject?:(id:string,position:MusicalPosition)=>void;
 }
 const Paper=memo(function Paper({html,width,height}:{html:string;width:number;height:number}){
   return <div className="engraved-content" style={{width,height}} dangerouslySetInnerHTML={{__html:html}}/>;
 });
-export function SolfaScore({project,beat,running,compact,visible=true,display=DEFAULT_SOLFA,follow=true,document:provided,preferenceKey,preview=false,selected,focusRequest,onFullscreen,onNoteClick,seek,onMeasureClick,onObjectClick}:Props){
+export function SolfaScore({project,beat,running,compact,visible=true,display=DEFAULT_SOLFA,follow=true,document:provided,preferenceKey,preview=false,selected,focusRequest,onFullscreen,onNoteClick,seek,onMeasureClick,onObjectClick,editorial=false,onEditorialClick,placement=false,onPlace,onMoveObject}:Props){
   const ref=useRef<HTMLDivElement>(null);
+  const dragObject=useRef<{id:string;x:number;y:number}|null>(null),ignoreClick=useRef(false);
   const [viewport,setViewport,ready]=usePreference(preferenceKey??'score:'+project.id,DEFAULT_SCORE,normalizeScore);
   const [bounds,setBounds]=useState({width:0,height:0}),[suspended,setSuspended]=useState(false),[measure,setMeasure]=useState(1),[multi,setMulti]=useState(false);
   const timer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),appliedFocus=useRef(-1);
@@ -30,7 +35,7 @@ export function SolfaScore({project,beat,running,compact,visible=true,display=DE
   const previousZoom=useRef(1);
   const result=useMemo(()=>{try{return {doc:provided??engraveProject(project,undefined,display),error:''};}catch(e){return {doc:null,error:e instanceof Error?e.message:'Rendu indisponible.'};}},[project,provided,display]);
   const doc=result.doc,current=measureForBeat(project,beat).number,system=doc?.systems.find(s=>s.first<=current&&s.last>=current),position=system?.measures.find(m=>m.number===current);
-  const pages=useMemo(()=>doc?.pages.map(p=>pageSVG(p,undefined,!preview))??[],[doc,preview]);
+  const pages=useMemo(()=>doc?.pages.map(p=>pageSVG(p,undefined,!preview||editorial))??[],[doc,preview,editorial]);
   const noteIndex=useMemo(()=>new Map(project.tracks.flatMap(t=>t.events.map(n=>[n.id,n] as const))),[project.tracks]);
   const chosen=selectionIds(selected??null),paper=doc?.pages[clamp(viewport.page,0,(doc?.pages.length??1)-1)]??doc?.pages[0];
   const fitWidth=paper?(bounds.width-32)/paper.width:1,fitHeight=paper?(bounds.height-32)/paper.height:1;
@@ -75,10 +80,15 @@ export function SolfaScore({project,beat,running,compact,visible=true,display=DE
     setViewport(v=>({...v,page:next}));
   }
   function selectElement(el:Element,modifiers:{add:boolean;range:boolean}){
+    if(ignoreClick.current){ignoreClick.current=false;return;}
+    if(editorial){const op=el.closest('[data-score-role]'),role=op?.getAttribute('data-score-role'),number=el.closest('[data-measure]')?.getAttribute('data-measure');if(role&&['header','footer','number','system','symbol'].includes(role)){onEditorialClick?.({role:role as EditorialTarget['role'],objectId:op?.getAttribute('data-object-id')??undefined,measure:number?+number:undefined});return;}if(number){const s=doc?.systems.find(s=>s.first<=+number&&s.last>=+number);onEditorialClick?.({role:'system',measure:s?.first??+number});return;}return;}
     const key=el.closest('[data-note-id]')?.getAttribute('data-note-id');
     if(key){const note=noteIndex.get(key);if(note)onNoteClick?.(note,modifiers);return;}const object=el.closest('[data-object-id][data-score-role="symbol"]')?.getAttribute('data-object-id');if(object){onObjectClick?.(object);return;}const number=el.closest('[data-measure]')?.getAttribute('data-measure');if(number)onMeasureClick?.(+number);
   }
-  return <section hidden={!visible} className={'score-panel '+(compact?'compact-score':'')+(preview?' export-score':'')} aria-label={preview?'Aperçu de l’export':'Partition Solfa'}>
+  function positionAt(index:number,e:{clientX:number;clientY:number;currentTarget:HTMLElement}):MusicalPosition|undefined{
+    const page=doc?.pages[index];if(!page)return;const rect=e.currentTarget.getBoundingClientRect(),x=(e.clientX-rect.left)/zoom,y=(e.clientY-rect.top)/zoom,sys=page.systems.find(s=>y>=s.y&&y<=s.y+s.height);if(!sys)return;const m=sys.measures.find(m=>x>=m.x&&x<=m.x+m.width)??(x<sys.measures[0].x?sys.measures[0]:sys.measures.at(-1)!);const local=Math.max(0,Math.min(m.geometry.width,(x-m.x-m.inset)/m.scale)),points=[...m.geometry.anchors,{beat:m.geometry.end,x:m.geometry.width}],right=points.findIndex(a=>a.x>=local),b=points[Math.max(0,right)],a=points[Math.max(0,right-1)],absolute=a.beat+(b.beat-a.beat)*(b.x===a.x?0:(local-a.x)/(b.x-a.x)),metric=measureAt(project,m.number);return {measure:m.number,beat:Math.max(0,Math.min(metric.barBeats-.001,Math.round((absolute-metric.start)*8)/8))};
+  }
+  return <section hidden={!visible} className={'score-panel '+(compact?'compact-score':'')+(preview?' export-score':'')+(editorial?' editorial-score':'')+(placement?' placing-symbol':'')} aria-label={preview?'Aperçu de l’export':'Partition Solfa'}>
     <div className="panel-bar score-bar"><span className="panel-eyebrow"><Music2 size={14}/>{preview?'APERÇU':'PARTITION SOLFA'}</span>
       <div className="score-zoom"><button aria-label="Réduire la partition" onClick={()=>changeZoom(zoom/1.2)}><Minus size={14}/></button><span>{Math.round(zoom*100)} %</span><button aria-label="Agrandir la partition" onClick={()=>changeZoom(zoom*1.2)}><Plus size={14}/></button>
         <select aria-label="Cadrage de la partition" value={viewport.fit} onChange={e=>e.target.value==='manual'?changeZoom(1):changeZoom(e.target.value as ScoreFit)}><option value="width">Largeur</option><option value="height">Hauteur</option><option value="page">Page entière</option><option value="two">Deux pages</option><option value="manual">Zoom manuel</option></select>
@@ -95,7 +105,10 @@ export function SolfaScore({project,beat,running,compact,visible=true,display=DE
       for(const page of Array.from(el.querySelectorAll<HTMLElement>('[data-page]'))){if(page.offsetTop<=el.scrollTop+el.clientHeight*.35)index=Number(page.dataset.page);}
       setViewport(v=>({...v,top:el.scrollTop,left:el.scrollLeft,page:index}));
     }}>{result.error&&<p role="alert" className="score-error">{result.error}</p>}{doc?.pages.map((page,index)=><div className="engraved-page" data-page={index} key={index} style={{width:page.width*zoom,height:page.height*zoom,contentVisibility:'auto',containIntrinsicSize:(page.width*zoom)+'px '+(page.height*zoom)+'px'}}
-      onClick={e=>selectElement(e.target as Element,{add:e.ctrlKey||e.metaKey||multi,range:e.shiftKey})} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();selectElement(e.target as Element,{add:e.ctrlKey||e.metaKey||multi,range:e.shiftKey});}}}>
+      onPointerDown={e=>{const id=(e.target as Element).closest('[data-score-role="symbol"][data-object-id]')?.getAttribute('data-object-id');if(id&&onMoveObject&&!placement){dragObject.current={id,x:e.clientX,y:e.clientY};e.currentTarget.setPointerCapture(e.pointerId);}}}
+      onPointerCancel={()=>{dragObject.current=null;}}
+      onPointerUp={e=>{const drag=dragObject.current;dragObject.current=null;if(drag&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>7){const position=positionAt(index,e);if(position){ignoreClick.current=true;onMoveObject?.(drag.id,position);}}else if(drag){ignoreClick.current=true;if(editorial)onEditorialClick?.({role:'symbol',objectId:drag.id});else onObjectClick?.(drag.id);}}}
+      onClick={e=>{if(placement){const op=(e.target as Element).closest('[data-score-beat][data-measure]'),bar=op?.getAttribute('data-measure'),at=op?.getAttribute('data-score-beat'),position=bar&&at?{measure:+bar,beat:Math.max(0,+at-measureAt(project,+bar).start)}:positionAt(index,e);if(position)onPlace?.(position);return;}selectElement(e.target as Element,{add:e.ctrlKey||e.metaKey||multi,range:e.shiftKey});}} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();if(placement){const number=(e.target as Element).closest('[data-measure]')?.getAttribute('data-measure');if(number)onPlace?.({measure:+number,beat:0});}else selectElement(e.target as Element,{add:e.ctrlKey||e.metaKey||multi,range:e.shiftKey});}}}>
       <div className="engraved-scale" style={{width:page.width,height:page.height,transform:'scale('+zoom+')'}}><Paper html={pages[index]} width={page.width} height={page.height}/>
         {!preview&&<svg className="score-cursor" width={page.width} height={page.height} aria-hidden="true">
           {page.ops.filter(op=>op.kind==='text'&&op.noteIds?.some(key=>chosen.has(key)||running&&noteIndex.has(key)&&noteStart(noteIndex.get(key)!)<=beat&&noteStart(noteIndex.get(key)!)+noteDuration(noteIndex.get(key)!)>beat)).map((op,i)=>op.kind==='text'?<rect key={i} data-selected-note={op.noteIds?.find(key=>chosen.has(key))} x={op.x-3} y={op.y-op.size} width={textWidth(op.text,op.size)+6} height={op.size+5} rx={3} fill={op.noteIds?.some(key=>chosen.has(key))?'#8063cd25':'#60b59f25'} stroke={project.tracks.find(t=>t.id===noteIndex.get(op.noteIds?.[0]??'')?.trackId)?.color??'#8063cd'} strokeWidth={1.2}/>:null)}

@@ -8,7 +8,7 @@ export function assertTracksUnlocked(project:Project,ids:Iterable<TrackId>){
 export function assertLockedTracksUnchanged(before:Project,after:Project){
   for(const track of before.tracks.filter(t=>t.locked)){
     const next=after.tracks.find(t=>t.id===track.id);
-    if(!next||JSON.stringify(track.events)!==JSON.stringify(next.events)||JSON.stringify(before.links?.filter(l=>l.trackId===track.id))!==JSON.stringify(after.links?.filter(l=>l.trackId===track.id))||JSON.stringify(before.takes.filter(t=>t.trackId===track.id))!==JSON.stringify(after.takes.filter(t=>t.trackId===track.id))){
+    if(!next||JSON.stringify(track.events)!==JSON.stringify(next.events)||JSON.stringify(before.links?.filter(l=>l.trackId===track.id))!==JSON.stringify(after.links?.filter(l=>l.trackId===track.id))||JSON.stringify(before.takes.filter(t=>t.trackId===track.id).map(({audio,...t})=>t))!==JSON.stringify(after.takes.filter(t=>t.trackId===track.id).map(({audio,...t})=>t))){
       assertTracksUnlocked(before,[track.id]);
     }
   }

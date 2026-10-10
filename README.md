@@ -1,7 +1,7 @@
-# SORATRO V0.3
-## Version 0.4.0
+# SORATRO
+## Version 0.5.0
 
-La gravure traditionnelle, les paroles communes, les renvois de lecture et les styles de page complètent l’atelier existant. Voir [le rapport](docs/RAPPORT-V0.4.md), [la reprise auditée](docs/AUDIT-REPRISE-V0.4.md), [les conventions](docs/GRAVURE-TRADITIONNELLE.md) et [les notes de version](docs/RELEASE-V0.4.md).
+Les crédits multilingues et multiples, la numérotation, la justification et les symboles par clic complètent la gravure traditionnelle. Le Tap Tempo et la source Vocal utilisent le transport, le Recorder et les prises existants. L’analyse de hauteur et les audios originaux facultatifs restent locaux. Voir [le guide](docs/VOCAL-TAP-PRESENTATION.md), [le rapport](docs/RAPPORT-V0.5.md), [l’audit](docs/AUDIT-V0.5.md) et [les notes de version](docs/RELEASE-V0.5.md).
 
 
 Atelier de composition chorale en notation Solfa : jouer au piano, enregistrer le timing, corriger, quantifier, lire les quatre voix et sauvegarder sur l’appareil.
@@ -42,7 +42,7 @@ Le service worker est activé dans la version compilée. La PWA demande HTTPS, o
 4. Arrêter, quantifier, puis déplacer une note ou modifier sa durée.
 5. Lire, sélectionner Alto et enregistrer une seconde voix.
 
-Clavier PC : A W S E D F T G Y H U J K O L P ;. Z / X changent l’octave. Espace lit ou met en pause ; pendant REC, Espace arrête. Ctrl+Z annule, Ctrl+Shift+Z ou Ctrl+Y rétablit, Suppr supprime la note sélectionnée.
+Clavier PC : A W S E D F T G Y H U J K O L P ;. Z / X changent l’octave. Espace lit ou met en pause ; pendant REC, Espace arrête. B ouvre le Tap Tempo ; R lance ou arrête REC. Ctrl+Z annule, Ctrl+Shift+Z ou Ctrl+Y rétablit, Suppr supprime la note sélectionnée.
 
 ## Convention musicale
 

@@ -10,5 +10,5 @@ export async function loadScore(page:Page,project:Project){
 
 export async function currentProject(page:Page){
   await expect(page.locator('.save-state')).toContainText('Sauvegardé');
-  return page.evaluate(()=>new Promise<any>((resolve,reject)=>{const request=indexedDB.open('soratro',2);request.onerror=()=>reject(request.error);request.onsuccess=()=>{const db=request.result,read=db.transaction('projects').objectStore('projects').getAll();read.onsuccess=()=>{resolve(read.result[0]);db.close();};read.onerror=()=>reject(read.error);};}));
+  return page.evaluate(()=>new Promise<any>((resolve,reject)=>{const request=indexedDB.open('soratro',2);request.onerror=()=>reject(request.error);request.onsuccess=()=>{const db=request.result,read=db.transaction('projects').objectStore('projects').get(decodeURIComponent(location.hash.slice(9)));read.onsuccess=()=>{resolve(read.result);db.close();};read.onerror=()=>reject(read.error);};}));
 }

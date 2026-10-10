@@ -1,0 +1,24 @@
+import {id,type Project,type MusicalIndication,type NavigationSymbol} from '../music/model.ts';
+import {NAVIGATION_LABELS} from '../music/navigation.ts';
+import {addMusicLink} from '../music/links.ts';
+import {measureAt} from '../music/timeline.ts';
+export interface SymbolChoice {key:string;label:string;category:string;kind:MusicalIndication['kind']|'repeat'|'tie'|'phrase'|'melisma';symbol?:NavigationSymbol;audio:boolean;description:string}
+export const SYMBOL_CHOICES:SymbolChoice[]=[
+ ...Object.entries(NAVIGATION_LABELS).map(([symbol,label])=>({key:symbol,label,category:'Navigation',kind:'navigation' as const,symbol:symbol as NavigationSymbol,audio:true,description:symbol==='segno'||symbol==='coda'?'Destination d’un renvoi. Le trajet utilise la mesure entière.':'Renvoi de lecture : configurez sa destination et vérifiez le trajet avant de jouer.'})),
+ {key:'repeat',label:'Reprise et fins alternatives',category:'Reprises',kind:'repeat',audio:true,description:'Définit une plage répétée et, si besoin, les fins de premier et second passage.'},{key:'final',label:'Barre finale',category:'Reprises',kind:'final',audio:false,description:'Marque la fin visuelle de la partition.'},
+ ...['Tempo chiffré','a tempo','rit.','rall.','accel.'].map(label=>({key:label,label,category:'Tempo',kind:'tempo' as const,audio:label==='Tempo chiffré'||label==='a tempo',description:label==='Tempo chiffré'||label==='a tempo'?'Change le tempo à partir de cette mesure.':'Indication de changement progressif de tempo, imprimée sans variation audio automatique.'})),
+ ...['pp','p','mp','mf','f','ff'].map(label=>({key:label,label,category:'Expression',kind:'dynamic' as const,audio:false,description:'Nuance imprimée. Le volume audible se règle avec le mixeur.'})),
+ ...(['crescendo','diminuendo','accent','tenuto'] as const).map(kind=>({key:kind,label:{crescendo:'Crescendo',diminuendo:'Diminuendo',accent:'Accent',tenuto:'Tenuto'}[kind],category:'Expression',kind,audio:false,description:kind==='crescendo'||kind==='diminuendo'?'Soufflet vectoriel avec une étendue en temps, pouvant continuer sur plusieurs systèmes.':'Articulation imprimée au-dessus des notes des voix sélectionnées.'})),
+ {key:'breath',label:'Respiration',category:'Chant',kind:'breath',audio:false,description:'Place une respiration à la position choisie, pour les voix sélectionnées.'},{key:'fermata',label:'Point d’orgue',category:'Chant',kind:'fermata',audio:false,description:'Point d’orgue imprimé ; la durée n’est pas prolongée automatiquement.'},
+ ...(['tie','phrase','melisma'] as const).map(kind=>({key:kind,label:{tie:'Liaison de durée',phrase:'Liaison de phrasé',melisma:'Liaison de mélisme'}[kind],category:'Chant',kind,audio:kind==='tie',description:kind==='tie'?'Relie au moins deux notes contiguës de même hauteur et de même voix, sans réattaque.':'Relie les notes sélectionnées d’une même voix. Les liens de paroles restent indépendants.'})),
+ ...['Introduction','Couplet','Refrain','Pont','Texte libre'].map(label=>({key:label,label,category:'Structure',kind:'text' as const,audio:false,description:'Texte éditorial placé au-dessus de la musique.'}))
+];
+export interface SymbolValues {measure:number;beat:number;text:string;targetId:string;trackIds:string[];end:number;times:number;firstEnding:number;secondEnding:number;bpm:number;span:number}
+export function insertLibrarySymbol(p:Project,choice:SymbolChoice,v:SymbolValues,selected:string[],initialId?:string){
+ if(choice.kind==='tie'||choice.kind==='phrase'||choice.kind==='melisma'){addMusicLink(p,choice.kind,selected);return;}
+ if(choice.kind==='repeat'){p.repeats.push({id:id(),startMeasure:v.measure,endMeasure:Math.max(v.measure,v.end),times:v.times,firstEndingStart:v.firstEnding||undefined,secondEndingEnd:v.secondEnding||undefined});return;}
+ if(choice.kind==='tempo'&&choice.audio){p.tempoMap=p.tempoMap.filter(t=>t.measure!==v.measure);p.tempoMap.push({measure:v.measure,bpm:choice.key==='a tempo'?p.tempo:v.bpm});return;}
+ const object:MusicalIndication={id:initialId??id(),measure:v.measure,beat:v.beat,kind:choice.kind,text:v.text||choice.label,symbol:choice.symbol,targetId:v.targetId||undefined,trackIds:choice.category==='Chant'||choice.category==='Expression'?v.trackIds:undefined,endBeat:choice.kind==='crescendo'||choice.kind==='diminuendo'?measureAt(p,v.measure).start+v.beat+v.span:undefined};
+ if(initialId)p.indications=p.indications.map(i=>i.id===initialId?object:i);else p.indications.push(object);
+}
+export function moveIndication(p:Project,key:string,measure:number,beat:number){const i=p.indications.find(i=>i.id===key);if(!i)return;const old=measureAt(p,i.measure).start+(i.beat??0),metric=measureAt(p,measure),relative=Math.max(0,Math.min(metric.barBeats-.001,beat));i.measure=measure;i.beat=relative;if(i.endBeat!==undefined)i.endBeat+=metric.start+relative-old;}

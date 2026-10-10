@@ -1,6 +1,6 @@
 {
   "name": "soratro",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +11,8 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts && npm run test:ui",
     "test:ui": "node scripts/test-ui.mjs",
     "test:browser": "playwright test",
-    "benchmark": "node --experimental-strip-types scripts/benchmark.mjs"
+    "benchmark": "node --experimental-strip-types scripts/benchmark.mjs",
+    "benchmark:vocal": "node --experimental-strip-types scripts/benchmark-vocal.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
@@ -21,8 +22,10 @@
     "@capacitor/share": "^8.0.3",
     "@capacitor/splash-screen": "^8.0.2",
     "@capacitor/status-bar": "^8.0.4",
+    "fflate": "0.8.2",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.31.0",
+    "pitchy": "4.1.0",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },

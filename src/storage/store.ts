@@ -1,3 +1,6 @@
+import {audioRepository} from './audio-repository.ts';
+import type {FinishedRecording} from '../recording/session.ts';
+import type {CapturedAudio} from '../vocal/capture.ts';
 import { createProject, id, type Project } from '../music/model.ts';
 import { ProjectRepository } from './repository.ts';
 import { migrateProject,validateProject } from './migrations.ts';
@@ -25,11 +28,14 @@ export class ProjectStore {
   async rename(key:string,title:string){const p=await this.repository.get(key);if(!p)return;p.title=title.trim()||p.title;p.updatedAt=new Date().toISOString();await this.repository.save(p);this.emit({projects:this.state.projects.map(x=>x.id===key?p:x)});}
   update(fn:(p:Project)=>void,historyEntry=true){if(!this.state.project)return;const before=this.state.project;const p=structuredClone(before);fn(p);assertLockedTracksUnchanged(before,p);invalidateTimeline(p);if(p.lyrics.some(l=>l.syllables.length)||p.links?.length||p.sharedLyrics?.length||p.indications.some(i=>i.trackId||i.trackIds))cleanLyrics(p);if(JSON.stringify(p)===JSON.stringify(before))return;validateProject(p);p.updatedAt=new Date().toISOString();if(historyEntry){this.undoStack.push(before);if(this.undoStack.length>100)this.undoStack.shift();this.redoStack=[];}this.emit({project:p,undoCount:this.undoStack.length,redoCount:this.redoStack.length});this.persist(p);}
   beginTake(){this.take=this.state.project?structuredClone(this.state.project):null;}
-  endTake(){if(!this.take)return;if(this.state.project&&JSON.stringify(this.take.tracks)!==JSON.stringify(this.state.project.tracks)){this.undoStack.push(this.take);this.redoStack=[];this.emit({undoCount:this.undoStack.length,redoCount:0});}this.take=null;}
+  endTake(){if(!this.take)return;if(this.state.project&&(JSON.stringify(this.take.tracks)!==JSON.stringify(this.state.project.tracks)||JSON.stringify(this.take.takes)!==JSON.stringify(this.state.project.takes))){this.undoStack.push(this.take);this.redoStack=[];this.emit({undoCount:this.undoStack.length,redoCount:0});}this.take=null;}
   undo(){const previous=this.undoStack.pop();if(!previous||!this.state.project)return;this.redoStack.push(this.state.project);previous.updatedAt=new Date().toISOString();this.emit({project:previous,undoCount:this.undoStack.length,redoCount:this.redoStack.length});this.persist(previous);}
   redo(){const next=this.redoStack.pop();if(!next||!this.state.project)return;this.undoStack.push(this.state.project);next.updatedAt=new Date().toISOString();this.emit({project:next,undoCount:this.undoStack.length,redoCount:this.redoStack.length});this.persist(next);}
   private persist(p:Project){const rev=++this.revision;this.emit({saveStatus:'saving'});this.pending=this.pending.catch(()=>{}).then(()=>this.repository.save(p)).then(()=>{if(rev===this.revision)this.emit({saveStatus:'saved',error:'',projects:[p,...this.state.projects.filter(x=>x.id!==p.id)]});},error=>{this.emit({saveStatus:'error',error:'La sauvegarde a échoué. Exportez un fichier .soratro et réessayez.'});throw error;});void this.pending.catch(()=>{});}
   async flush(){await this.pending;}
+  async attachAudio(report:FinishedRecording,data:CapturedAudio){if(!report.takes.length)return;const row=await audioRepository.put(report.projectId,data.blob,data.duration);const apply=(p:Project)=>{for(const part of report.takes){const take=p.takes.find(t=>t.id===part.id);if(take)take.audio={id:row.id,mime:row.mime,bytes:row.bytes,duration:row.duration,capturedAt:row.createdAt,offset:Math.max(0,part.startTime-data.startTime),length:Math.max(0,part.endTime-part.startTime)};}};
+    if(this.state.project?.id===report.projectId)this.update(apply,false);else {await this.flush();const p=await this.repository.get(report.projectId);if(p){apply(p);await this.repository.save(p);this.emit({projects:this.state.projects.map(x=>x.id===p.id?p:x)});}}
+  }
   async saveNow(){if(this.state.project)this.persist(this.state.project);await this.flush();}
 }
 export const store=new ProjectStore();

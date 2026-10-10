@@ -1,5 +1,5 @@
 import { audibleTracks,noteDuration,noteStart,signatureInfo,type NoteEvent,type Project,type TrackId } from '../music/model.ts';
-import { mapLoopBeat,measureForBeat,musicEnd,transportBeat,transportSeconds,type LoopRegion } from '../music/timeline.ts';
+import { mapLoopBeat,measureForBeat,musicEnd,transportBeat,transportSeconds,type LoopRegion,type Measure,unitBeats } from '../music/timeline.ts';
 import { playbackBeat,playbackChunks,playbackSeconds,playbackSongBeat,songToPlaybackBeat } from '../music/repeats.ts';
 import { rehearsalVolumes } from '../music/rehearsal.ts';
 import {playbackNotes} from '../music/links.ts';
@@ -28,6 +28,9 @@ export class AudioEngine {
   private clockBeat(start:number,seconds:number){return this.repeated()?playbackBeat(this.project!,start,seconds):transportBeat(this.project!,start,seconds,this.loopRegion());}
   private clockSeconds(start:number,end:number){return this.repeated()?playbackSeconds(this.project!,start,end):transportSeconds(this.project!,start,end,this.loopRegion());}
   rawBeat(){if(this.mode==='idle'||this.mode==='paused')return this.pausedBeat;if(!this.context||!this.project)return 0;return Math.max(this.originBeat,this.clockBeat(this.originBeat,Math.max(0,this.context.currentTime-this.originTime)*this.speed));}
+  /** Convert a captured audio-frame timestamp with the same transport clock. */
+  rawBeatAtTime(time:number){if(!this.project)return 0;return this.clockBeat(this.originBeat,(time-this.originTime)*this.speed);}
+  timeAtRawBeat(raw:number){return this.timeAt(raw);}
   position(){return Math.max(0,this.repeated()?playbackSongBeat(this.project!,this.rawBeat()):mapLoopBeat(this.rawBeat(),this.loopRegion()));}
   private timeAt(raw:number){return this.originTime+this.clockSeconds(this.originBeat,raw)/this.speed;}
   async play(from?:number){if(this.project&&!this.loop&&!this.audition)playbackChunks(this.project);await this.init();if(!this.project)return;this.stopInternal();this.recordOptions=null;const start=from??this.pausedBeat;this.originBeat=(this.loop||this.audition)?Math.max(this.project.settings.loopStart,Math.min(start,this.project.settings.loopEnd-.001)):start;this.pausedBeat=this.originBeat;if((this.project.repeats.length||this.project.indications.some(i=>i.kind==='navigation'))&&!this.loop&&!this.audition)this.originBeat=songToPlaybackBeat(this.project,this.originBeat);this.originTime=this.now+.04;this.startBeat=this.playbackStart=this.originBeat;this.cursor=this.originBeat;this.mode='playing';this.startScheduler();this.scheduleHeldNotes(this.position());}
@@ -36,7 +39,8 @@ export class AudioEngine {
   stop(){this.synchronizeInput();this.onStop();this.mode='idle';this.pausedBeat=0;this.recordOptions=null;this.stopInternal();if(this.audition){this.project=this.audition;this.audition=null;this.rehearsal=this.auditionRehearsal;this.applyMixer(this.project);}this.emit();}
   seek(beat:number){if(this.mode==='playing'){void this.play(beat);return;}if(this.mode==='idle'||this.mode==='paused'){this.pausedBeat=Math.max(0,beat);this.emit();}}
   async auditionTake(project:Project,trackId:string,events:NoteEvent[],start:number,end:number){this.stop();this.audition=project;this.auditionRehearsal=this.rehearsal;this.rehearsal=false;this.project={...project,tracks:project.tracks.map(t=>({...t,mute:t.id!==trackId,solo:false,events:t.id===trackId?events:t.events})),settings:{...project.settings,loopStart:start,loopEnd:end,loopRepeats:1}};this.applyMixer(this.project);await this.play(start);}
-  private startScheduler(){this.scheduled.clear();const m=measureForBeat(this.project!,Math.max(0,this.cursor));this.nextClick=this.cursor<0?Math.ceil(this.cursor/m.pulse)*m.pulse:m.start+Math.ceil((this.cursor-m.start)/m.pulse)*m.pulse;this.tick();this.timer=setInterval(()=>this.tick(),25);const render=(time:number)=>{if(time-this.lastEmit>32){this.lastEmit=time;this.emit();}if(this.mode!=='idle'&&this.mode!=='paused')this.frame=requestAnimationFrame(render);};this.frame=requestAnimationFrame(render);}
+  private clickPulse(m:Measure){return this.project?.settings.metronomePulse==='tempo'?Math.min(unitBeats(this.project.settings.tempoUnit),m.barBeats):m.pulse;}
+  private startScheduler(){this.scheduled.clear();const m=measureForBeat(this.project!,Math.max(0,this.cursor));const pulse=this.clickPulse(m);this.nextClick=this.cursor<0?Math.ceil(this.cursor/pulse)*pulse:m.start+Math.ceil((this.cursor-m.start)/pulse)*pulse;this.tick();this.timer=setInterval(()=>this.tick(),25);const render=(time:number)=>{if(time-this.lastEmit>32){this.lastEmit=time;this.emit();}if(this.mode!=='idle'&&this.mode!=='paused')this.frame=requestAnimationFrame(render);};this.frame=requestAnimationFrame(render);}
   private stopInternal(){if(this.timer)clearInterval(this.timer);this.timer=undefined;cancelAnimationFrame(this.frame);this.cancelScheduled();this.allNotesOff();}
   private cancelScheduled(){for(const voice of this.scheduledVoices)voice.stop();this.scheduledVoices.clear();for(const click of this.clicks){try{click.stop();}catch{}}this.clicks.clear();this.scheduled.clear();}
   private tick(){if(!this.context||!this.project)return;const p=this.project,now=this.now,raw=this.rawBeat();
@@ -45,7 +49,7 @@ export class AudioEngine {
     if(this.metronome||this.mode==='countin'||this.mode==='preroll'||this.mode==='recording'){
       while(this.nextClick<hi){const beat=this.nextClick,song=this.repeated()?playbackSongBeat(p,beat):mapLoopBeat(beat,loop),m=measureForBeat(p,Math.max(0,song));const index=beat<0?((Math.round(beat/m.pulse)%m.numerator)+m.numerator)%m.numerator:Math.round((song-m.start)/m.pulse);const groupStarts=m.groups.slice(0,-1).reduce<number[]>((result,n)=>[...result,(result.at(-1)??0)+n],[]);const accent:2|1|0=index===0?2:groupStarts.includes(index)?1:0,at=this.timeAt(beat);
         if(at>=now-.02){const click=clickVoice(this.context,this.clickOutput!,Math.max(at,now),accent,this.metronomeVolume);this.clicks.add(click);const cleanup=click.onended;click.onended=e=>{cleanup?.call(click,e);this.clicks.delete(click);};}
-        const remaining=m.end-song;this.nextClick+=beat<0?m.pulse:Math.min(m.pulse,remaining>1e-7?remaining:m.pulse);
+        const remaining=m.end-song;const pulse=this.clickPulse(m);this.nextClick+=beat<0?pulse:Math.min(pulse,remaining>1e-7?remaining:pulse);
       }
     }else this.nextClick=hi;
     if(this.repeated()){
@@ -80,7 +84,7 @@ export class AudioEngine {
   }
   cancelPreview(){this.previewGeneration++;clearTimeout(this.previewTimer);this.noteOff('selection-preview');}
   allNotesOff(){this.previewGeneration++;clearTimeout(this.previewTimer);this.live.forEach(v=>v.voice.stop());this.live.clear();}
-  private emit(){const beat=this.position(),p=this.project;const active=p?.tracks.map(t=>{const audible=audibleTracks(p.tracks).some(x=>x.id===t.id);return audible&&this.mode!=='idle'&&this.mode!=='paused'&&this.mode!=='countin'&&t.events.some(n=>noteStart(n)<=beat&&noteStart(n)+noteDuration(n)>beat)?t.volume:0;})??[];const pulse=p?measureForBeat(p,beat).pulse:1;this.listeners.forEach(fn=>fn({mode:this.mode,beat,rawBeat:this.rawBeat(),countRemaining:this.mode==='countin'?Math.max(1,Math.ceil((this.playbackStart-this.rawBeat())/pulse)):0,meter:active,activePitches:[...this.live.values()].map(v=>v.pitch)}));}
+  private emit(){const beat=this.position(),p=this.project;const active=p?.tracks.map(t=>{const audible=audibleTracks(p.tracks).some(x=>x.id===t.id);return audible&&this.mode!=='idle'&&this.mode!=='paused'&&this.mode!=='countin'&&t.events.some(n=>noteStart(n)<=beat&&noteStart(n)+noteDuration(n)>beat)?t.volume:0;})??[];const pulse=p?this.clickPulse(measureForBeat(p,beat)):1;this.listeners.forEach(fn=>fn({mode:this.mode,beat,rawBeat:this.rawBeat(),countRemaining:this.mode==='countin'?Math.max(1,Math.ceil((this.playbackStart-this.rawBeat())/pulse)):0,meter:active,activePitches:[...this.live.values()].map(v=>v.pitch)}));}
   get latencyMs(){return this.context?Math.round(((this.context.baseLatency||0)+(this.context.outputLatency||0))*1000):null;}
   dispose(){this.stop();void this.context?.close();this.listeners.clear();}
 }
