@@ -91,6 +91,6 @@ test('Vocal source keeps optional audio controls collapsed and the Piano Roll us
   const roll=page.locator('.roll-viewport');
   await expect(roll).toBeVisible();
   expect((await roll.boundingBox())!.height).toBeGreaterThan(200);
-  await extras.locator('summary').click();
+  await page.locator('.vocal-storage > summary').click();
   await expect(page.getByLabel('Conserver l’audio original')).toBeVisible();
 });
