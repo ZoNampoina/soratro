@@ -1,0 +1,804 @@
+﻿2026-10-11T06:22:44.3367339Z Current runner version: '2.337.0'
+2026-10-11T06:22:44.3393428Z ##[group]Runner Image Provisioner
+2026-10-11T06:22:44.3394289Z Hosted Compute Agent
+2026-10-11T06:22:44.3394878Z Version: 20261002.596
+2026-10-11T06:22:44.3395872Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-11T06:22:44.3396677Z Build Date: 2026-10-02T22:28:27Z
+2026-10-11T06:22:44.3397411Z Worker ID: {30936210-1fa6-4f39-8d2a-0ed19602e108}
+2026-10-11T06:22:44.3398143Z Region: centralus
+2026-10-11T06:22:44.3398700Z Cloud: Azure
+2026-10-11T06:22:44.3399358Z ##[endgroup]
+2026-10-11T06:22:44.3401270Z ##[group]Operating System
+2026-10-11T06:22:44.3401993Z Ubuntu
+2026-10-11T06:22:44.3402544Z 24.04.5
+2026-10-11T06:22:44.3403069Z LTS
+2026-10-11T06:22:44.3403681Z ##[endgroup]
+2026-10-11T06:22:44.3404243Z ##[group]Runner Image
+2026-10-11T06:22:44.3404906Z Image: ubuntu-24.04
+2026-10-11T06:22:44.3406057Z Version: 20261004.327.1
+2026-10-11T06:22:44.3407396Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-11T06:22:44.3409040Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-11T06:22:44.3410340Z ##[endgroup]
+2026-10-11T06:22:44.3411633Z ##[group]GITHUB_TOKEN Permissions
+2026-10-11T06:22:44.3413801Z Contents: read
+2026-10-11T06:22:44.3414555Z Metadata: read
+2026-10-11T06:22:44.3415469Z ##[endgroup]
+2026-10-11T06:22:44.3417730Z Secret source: Actions
+2026-10-11T06:22:44.3418761Z Cache mode: write
+2026-10-11T06:22:44.3419854Z Prepare workflow directory
+2026-10-11T06:22:44.3768570Z Prepare all required actions
+2026-10-11T06:22:44.3819434Z Getting action download info
+2026-10-11T06:22:44.6709772Z Download action repository 'actions/checkout@v6' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-10-11T06:22:44.7653788Z Download action repository 'actions/setup-node@v6' (SHA:249970729cb0ef3589644e2896645e5dc5ba9c38)
+2026-10-11T06:22:44.8471453Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-11T06:22:45.0613253Z Complete job name: browser
+2026-10-11T06:22:45.1392800Z ##[group]Run actions/checkout@v6
+2026-10-11T06:22:45.1393827Z with:
+2026-10-11T06:22:45.1394293Z   repository: ZoNampoina/soratro
+2026-10-11T06:22:45.1398267Z   token: ***
+2026-10-11T06:22:45.1398707Z   ssh-strict: true
+2026-10-11T06:22:45.1399150Z   ssh-user: git
+2026-10-11T06:22:45.1399592Z   persist-credentials: true
+2026-10-11T06:22:45.1400083Z   clean: true
+2026-10-11T06:22:45.1400528Z   sparse-checkout-cone-mode: true
+2026-10-11T06:22:45.1401054Z   fetch-depth: 1
+2026-10-11T06:22:45.1401493Z   fetch-tags: false
+2026-10-11T06:22:45.1401944Z   show-progress: true
+2026-10-11T06:22:45.1402393Z   lfs: false
+2026-10-11T06:22:45.1402802Z   submodules: false
+2026-10-11T06:22:45.1403255Z   set-safe-directory: true
+2026-10-11T06:22:45.1403769Z   allow-unsafe-pr-checkout: false
+2026-10-11T06:22:45.1404576Z ##[endgroup]
+2026-10-11T06:22:45.2443483Z Syncing repository: ZoNampoina/soratro
+2026-10-11T06:22:45.2446038Z ##[group]Getting Git version info
+2026-10-11T06:22:45.2447045Z Working directory is '/home/runner/work/soratro/soratro'
+2026-10-11T06:22:45.2448360Z [command]/usr/bin/git version
+2026-10-11T06:22:45.2531608Z git version 2.55.0
+2026-10-11T06:22:45.2557121Z ##[endgroup]
+2026-10-11T06:22:45.2574065Z Temporarily overriding HOME='/home/runner/work/_temp/5f768e98-264a-40b0-821b-cf6f36443bbd' before making global git config changes
+2026-10-11T06:22:45.2576965Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-11T06:22:45.2580311Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/soratro/soratro
+2026-10-11T06:22:45.2633142Z Deleting the contents of '/home/runner/work/soratro/soratro'
+2026-10-11T06:22:45.2638066Z ##[group]Determining repository object format
+2026-10-11T06:22:45.2640361Z ##[endgroup]
+2026-10-11T06:22:45.2641684Z ##[group]Initializing the repository
+2026-10-11T06:22:45.2644591Z [command]/usr/bin/git init /home/runner/work/soratro/soratro
+2026-10-11T06:22:45.2754579Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-11T06:22:45.2756815Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-11T06:22:45.2758786Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-11T06:22:45.2760094Z hint: call:
+2026-10-11T06:22:45.2764794Z hint:
+2026-10-11T06:22:45.2766078Z hint: 	git config --global init.defaultBranch <name>
+2026-10-11T06:22:45.2767585Z hint:
+2026-10-11T06:22:45.2768691Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-11T06:22:45.2770371Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-11T06:22:45.2771834Z hint:
+2026-10-11T06:22:45.2772655Z hint: 	git branch -m <name>
+2026-10-11T06:22:45.2773553Z hint:
+2026-10-11T06:22:45.2774700Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-11T06:22:45.2776753Z Initialized empty Git repository in /home/runner/work/soratro/soratro/.git/
+2026-10-11T06:22:45.2779477Z [command]/usr/bin/git remote add origin https://github.com/ZoNampoina/soratro
+2026-10-11T06:22:45.2837262Z ##[endgroup]
+2026-10-11T06:22:45.2839084Z ##[group]Disabling automatic garbage collection
+2026-10-11T06:22:45.2842230Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-11T06:22:45.2880637Z ##[endgroup]
+2026-10-11T06:22:45.2882889Z ##[group]Setting up auth
+2026-10-11T06:22:45.2884692Z Removing SSH command configuration
+2026-10-11T06:22:45.2889972Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-11T06:22:45.2925519Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-11T06:22:45.3302160Z Removing HTTP extra header
+2026-10-11T06:22:45.3309899Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-11T06:22:45.3363802Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-11T06:22:45.3607679Z Removing includeIf entries pointing to credentials config files
+2026-10-11T06:22:45.3609485Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T06:22:45.3648628Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-11T06:22:45.3901442Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-11T06:22:45.3946097Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/soratro/soratro/.git.path /home/runner/work/_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:22:45.3984710Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/soratro/soratro/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:22:45.4031745Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:22:45.4074228Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:22:45.4113408Z ##[endgroup]
+2026-10-11T06:22:45.4114279Z ##[group]Fetching the repository
+2026-10-11T06:22:45.4125795Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +5d736d51b68c3419d6edcc4a87771ae8591a4425:refs/remotes/origin/main
+2026-10-11T06:22:46.4855650Z From https://github.com/ZoNampoina/soratro
+2026-10-11T06:22:46.4858387Z  * [new ref]         5d736d51b68c3419d6edcc4a87771ae8591a4425 -> origin/main
+2026-10-11T06:22:46.4870172Z [command]/usr/bin/git branch --list --remote origin/main
+2026-10-11T06:22:46.4900411Z   origin/main
+2026-10-11T06:22:46.4910110Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+2026-10-11T06:22:46.4936873Z 5d736d51b68c3419d6edcc4a87771ae8591a4425
+2026-10-11T06:22:46.4943082Z ##[endgroup]
+2026-10-11T06:22:46.4945440Z ##[group]Determining the checkout info
+2026-10-11T06:22:46.4950013Z ##[endgroup]
+2026-10-11T06:22:46.4957012Z [command]/usr/bin/git sparse-checkout disable
+2026-10-11T06:22:46.5002920Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-11T06:22:46.5035779Z ##[group]Checking out the ref
+2026-10-11T06:22:46.5038418Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-10-11T06:22:46.5676999Z Switched to a new branch 'main'
+2026-10-11T06:22:46.5682614Z branch 'main' set up to track 'origin/main'.
+2026-10-11T06:22:46.5692476Z ##[endgroup]
+2026-10-11T06:22:46.5737004Z [command]/usr/bin/git log -1 --format=%H
+2026-10-11T06:22:46.5764837Z 5d736d51b68c3419d6edcc4a87771ae8591a4425
+2026-10-11T06:22:46.6233385Z ##[group]Run actions/setup-node@v6
+2026-10-11T06:22:46.6234666Z with:
+2026-10-11T06:22:46.6235907Z   node-version: 24
+2026-10-11T06:22:46.6236861Z   cache: npm
+2026-10-11T06:22:46.6237767Z   check-latest: false
+2026-10-11T06:22:46.6247857Z   token: ***
+2026-10-11T06:22:46.6248845Z   package-manager-cache: true
+2026-10-11T06:22:46.6249970Z ##[endgroup]
+2026-10-11T06:22:46.7678682Z Found in cache @ /opt/hostedtoolcache/node/24.21.0/x64
+2026-10-11T06:22:46.7682476Z ##[group]Environment details
+2026-10-11T06:22:47.1369097Z node: v24.21.0
+2026-10-11T06:22:47.1369560Z npm: 11.19.0
+2026-10-11T06:22:47.1369877Z yarn: 1.22.22
+2026-10-11T06:22:47.1370604Z ##[endgroup]
+2026-10-11T06:22:47.1389958Z [command]/opt/hostedtoolcache/node/24.21.0/x64/bin/npm config get cache
+2026-10-11T06:22:47.2600527Z /home/runner/.npm
+2026-10-11T06:22:47.4057083Z Cache hit for: node-cache-Linux-x64-npm-60b6c3f9b34c21c904b09c96f2ca879b12784b57e3e431bd7792fb7dda4e2385
+2026-10-11T06:22:48.5634441Z Received 59257384 of 63451688 (93.4%), 56.5 MBs/sec
+2026-10-11T06:22:49.5631087Z Received 59257384 of 63451688 (93.4%), 28.3 MBs/sec
+2026-10-11T06:22:50.1665454Z Received 63451688 of 63451688 (100.0%), 23.2 MBs/sec
+2026-10-11T06:22:50.1666426Z Cache Size: ~61 MB (63451688 B)
+2026-10-11T06:22:50.1706961Z [command]/usr/bin/tar -xf /home/runner/work/_temp/d9449f63-676a-4be3-89ff-70d98ade15ea/cache.tzst -P -C /home/runner/work/soratro/soratro --use-compress-program unzstd
+2026-10-11T06:22:50.3034410Z Cache restored successfully
+2026-10-11T06:22:50.3071799Z Cache restored from key: node-cache-Linux-x64-npm-60b6c3f9b34c21c904b09c96f2ca879b12784b57e3e431bd7792fb7dda4e2385
+2026-10-11T06:22:50.3239258Z ##[group]Run npm ci
+2026-10-11T06:22:50.3239586Z [36;1mnpm ci[0m
+2026-10-11T06:22:50.3499245Z shell: /usr/bin/bash -e {0}
+2026-10-11T06:22:50.3499569Z ##[endgroup]
+2026-10-11T06:22:52.8910545Z npm warn deprecated uuid@7.0.3: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+2026-10-11T06:22:56.4373844Z
+2026-10-11T06:22:56.4375189Z added 210 packages, and audited 211 packages in 6s
+2026-10-11T06:22:56.4375753Z
+2026-10-11T06:22:56.4406191Z 31 packages are looking for funding
+2026-10-11T06:22:56.4426100Z   run `npm fund` for details
+2026-10-11T06:22:56.4732322Z
+2026-10-11T06:22:56.4733046Z 5 vulnerabilities (4 moderate, 1 high)
+2026-10-11T06:22:56.4733436Z
+2026-10-11T06:22:56.4733871Z To address all issues (including breaking changes), run:
+2026-10-11T06:22:56.4734813Z   npm audit fix --force
+2026-10-11T06:22:56.4735109Z
+2026-10-11T06:22:56.4735525Z Run `npm audit` for details.
+2026-10-11T06:22:56.4748025Z npm warn install-scripts 2 packages have install scripts not yet covered by allowScripts:
+2026-10-11T06:22:56.4749984Z npm warn install-scripts   core-js@3.50.0 (postinstall: node -e "try{require('./postinstall')}catch(e){}")
+2026-10-11T06:22:56.4752422Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+2026-10-11T06:22:56.4753542Z npm warn install-scripts
+2026-10-11T06:22:56.4755447Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+2026-10-11T06:22:56.5563974Z ##[group]Run npm run build:pages
+2026-10-11T06:22:56.5564341Z [36;1mnpm run build:pages[0m
+2026-10-11T06:22:56.5637367Z shell: /usr/bin/bash -e {0}
+2026-10-11T06:22:56.5637660Z ##[endgroup]
+2026-10-11T06:22:56.6819841Z
+2026-10-11T06:22:56.6820458Z > soratro@0.8.0 build:pages
+2026-10-11T06:22:56.6821504Z > tsc -b && vite build --base=/soratro/ && node scripts/generate-sw.mjs
+2026-10-11T06:22:56.6822221Z
+2026-10-11T06:23:02.5014780Z [36mvite v8.0.13 [32mbuilding client environment for production...[36m[39m
+2026-10-11T06:23:02.5164026Z [2K
+2026-10-11T06:23:02.8457038Z transforming...✓ 2197 modules transformed.
+2026-10-11T06:23:02.9344451Z rendering chunks...
+2026-10-11T06:23:03.0741965Z computing gzip size...
+2026-10-11T06:23:03.0876580Z dist/index.html                                  1.20 kB │ gzip:   0.65 kB
+2026-10-11T06:23:03.0877862Z dist/assets/pitch.worker-xeo_iIQf.js             9.65 kB
+2026-10-11T06:23:03.0879278Z dist/assets/mono-regular-bOJjcBKD.ttf           53.05 kB
+2026-10-11T06:23:03.0880407Z dist/assets/mono-bold-BvCB19xT.ttf              54.54 kB
+2026-10-11T06:23:03.0881467Z dist/assets/serif-bold-BvvUr21O.ttf             69.42 kB
+2026-10-11T06:23:03.0882497Z dist/assets/serif-regular-B8i7--kB.ttf          72.07 kB
+2026-10-11T06:23:03.0883559Z dist/assets/sans-bold-y5lX63rr.ttf              72.94 kB
+2026-10-11T06:23:03.0884612Z dist/assets/sans-regular-9oWxZHdj.ttf           77.09 kB
+2026-10-11T06:23:03.0885771Z dist/assets/mono-regular-italic-Er2NYBt5.ttf    81.00 kB
+2026-10-11T06:23:03.0886631Z dist/assets/mono-bold-italic-DB4MxXmL.ttf       82.30 kB
+2026-10-11T06:23:03.0887610Z dist/assets/sans-bold-italic-BuQaYXlZ.ttf      103.84 kB
+2026-10-11T06:23:03.0888492Z dist/assets/serif-bold-italic-BVcvi9Hs.ttf     105.95 kB
+2026-10-11T06:23:03.0889365Z dist/assets/sans-regular-italic-ByH8-cKX.ttf   106.76 kB
+2026-10-11T06:23:03.0890234Z dist/assets/serif-regular-italic-sHnGwSnE.ttf  108.82 kB
+2026-10-11T06:23:03.0891104Z dist/assets/ScoreFont-uCh15Ap1.ttf             759.72 kB
+2026-10-11T06:23:03.0892303Z dist/assets/index-BH0FG6Br.css                  79.31 kB │ gzip:  15.67 kB
+2026-10-11T06:23:03.0893505Z dist/assets/typeof-DPf5JpRP.js                   0.27 kB │ gzip:   0.16 kB
+2026-10-11T06:23:03.0894701Z dist/assets/esm-hssopP5H.js                      0.32 kB │ gzip:   0.23 kB
+2026-10-11T06:23:03.0896177Z dist/assets/esm-DSzUcKBU.js                      0.33 kB │ gzip:   0.23 kB
+2026-10-11T06:23:03.0897328Z dist/assets/web-CJDter4x.js                      0.36 kB │ gzip:   0.24 kB
+2026-10-11T06:23:03.0898442Z dist/assets/midi-sA5_fO1y.js                     0.68 kB │ gzip:   0.40 kB
+2026-10-11T06:23:03.0899659Z dist/assets/web-DRD2cXhw.js                      0.84 kB │ gzip:   0.40 kB
+2026-10-11T06:23:03.0901172Z dist/assets/esm-B-M-La2y.js                      1.32 kB │ gzip:   0.69 kB
+2026-10-11T06:23:03.0902476Z dist/assets/export-jE4P8bGa.js                   4.69 kB │ gzip:   2.26 kB
+2026-10-11T06:23:03.0903768Z dist/assets/web-DGaD3BUl.js                      8.49 kB │ gzip:   2.85 kB
+2026-10-11T06:23:03.0905306Z dist/assets/purify.es-Xwike-BU.js               28.07 kB │ gzip:  11.08 kB
+2026-10-11T06:23:03.0906359Z dist/assets/index.es-Ck3otpg_.js               151.55 kB │ gzip:  48.92 kB
+2026-10-11T06:23:03.0907391Z dist/assets/html2canvas-r79pMAuW.js            199.56 kB │ gzip:  46.78 kB
+2026-10-11T06:23:03.0908417Z dist/assets/jspdf.es.min-CcmA7oPy.js           392.87 kB │ gzip: 126.51 kB
+2026-10-11T06:23:03.0909634Z dist/assets/index-B210LSdQ.js                  697.46 kB │ gzip: 201.19 kB
+2026-10-11T06:23:03.0910195Z
+2026-10-11T06:23:03.0910656Z [33m[plugin builtin:vite-reporter]
+2026-10-11T06:23:03.0911877Z (!) Some chunks are larger than 500 kB after minification. Consider:
+2026-10-11T06:23:03.0912801Z - Using dynamic import() to code-split the application
+2026-10-11T06:23:03.0914325Z - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+2026-10-11T06:23:03.0916736Z - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+2026-10-11T06:23:03.0917759Z [32m✓ built in 586ms[39m
+2026-10-11T06:23:03.1523518Z SORATRO offline shell: 37 assets, revision 01e3b0bf8e01
+2026-10-11T06:23:03.1689864Z ##[group]Run npm test
+2026-10-11T06:23:03.1690304Z [36;1mnpm test[0m
+2026-10-11T06:23:03.1771121Z shell: /usr/bin/bash -e {0}
+2026-10-11T06:23:03.1771619Z ##[endgroup]
+2026-10-11T06:23:03.2978347Z
+2026-10-11T06:23:03.2979026Z > soratro@0.8.0 test
+2026-10-11T06:23:03.2979627Z > node --experimental-strip-types --test tests/*.test.ts && npm run test:ui
+2026-10-11T06:23:03.2980011Z
+2026-10-11T06:23:03.9007301Z ✔ Notes 1, 4, 7 move together, preserve raw performance and undo/redo in one transaction (50.351389ms)
+2026-10-11T06:23:03.9194570Z ✔ Every alignment preserves pitches and raw timing, and cross-voice edits remain one undo operation (21.756514ms)
+2026-10-11T06:23:03.9343952Z ✔ Locked tracks reject all grouped mutations, old tools, take changes and REC without partial history (7.448401ms)
+2026-10-11T06:23:03.9346281Z ✔ Do mobile direct Solfa editing is reversible for every MIDI pitch and key; bounds reject invalid edits (3.789913ms)
+2026-10-11T06:23:03.9596020Z ✔ Portable old/new projects retain music, locks, colors and raw timing; chord notes have individual source IDs (28.081545ms)
+2026-10-11T06:23:03.9624347Z ✔ A stopped or superseded async prelisten never starts a dangling note; playback suppresses it (0.752687ms)
+2026-10-11T06:23:04.6889536Z ✔ 5 bars on a four-column grid leave real blank slots and aligned boundaries (38.904932ms)
+2026-10-11T06:23:04.6907026Z ✔ 6 bars on a four-column grid leave real blank slots and aligned boundaries (35.464311ms)
+2026-10-11T06:23:04.7003925Z ✔ 7 bars on a four-column grid leave real blank slots and aligned boundaries (13.874616ms)
+2026-10-11T06:23:04.7019205Z ✔ 9 bars on a four-column grid leave real blank slots and aligned boundaries (18.42759ms)
+2026-10-11T06:23:04.7046519Z ✔ 11 bars on a four-column grid leave real blank slots and aligned boundaries (16.599922ms)
+2026-10-11T06:23:04.7076476Z ✔ 12 bars on a four-column grid leave real blank slots and aligned boundaries (20.711185ms)
+2026-10-11T06:23:04.7126153Z ✔ Shared columns remain exact with 1 measures per line (5.045537ms)
+2026-10-11T06:23:04.7137148Z ✔ Shared columns remain exact with 2 measures per line (8.312785ms)
+2026-10-11T06:23:04.7196848Z ✔ Shared columns remain exact with 3 measures per line (4.432443ms)
+2026-10-11T06:23:04.7266221Z ✔ Shared columns remain exact with 5 measures per line (7.590656ms)
+2026-10-11T06:23:04.7273167Z ✔ Shared columns remain exact with 6 measures per line (13.842562ms)
+2026-10-11T06:23:04.7295954Z ✔ Shared columns remain exact with 7 measures per line (13.850126ms)
+2026-10-11T06:23:04.7332414Z ✔ Shared columns remain exact with 8 measures per line (13.320296ms)
+2026-10-11T06:23:04.7360636Z ✔ Shared columns remain exact with 9 measures per line (16.374985ms)
+2026-10-11T06:23:04.7399971Z ✔ Shared columns remain exact with 10 measures per line (19.119565ms)
+2026-10-11T06:23:04.7401622Z ✔ Shared columns remain exact with 11 measures per line (30.65757ms)
+2026-10-11T06:23:04.7417580Z ✔ Shared columns remain exact with 12 measures per line (23.419732ms)
+2026-10-11T06:23:04.7456696Z ✔ Uneven density, lyrics, repeats, page breaks and local counts still share a reference grid (31.075661ms)
+2026-10-11T06:23:04.7476589Z ✔ Document type stays 12 px on all pages even when forced lines cannot fit (196.025668ms)
+2026-10-11T06:23:04.7480859Z ✔ Document type stays 17 px on all pages even when forced lines cannot fit (176.661737ms)
+2026-10-11T06:23:04.7482477Z ✔ Document type stays 20 px on all pages even when forced lines cannot fit (106.881458ms)
+2026-10-11T06:23:04.7484425Z ✔ Document type stays 24 px on all pages even when forced lines cannot fit (105.466751ms)
+2026-10-11T06:23:04.7516460Z ✔ Auto, independent and adaptive modes keep notes, octave signs and rhythmic thirds (32.383533ms)
+2026-10-11T06:23:04.7526487Z ✔ Reset one line preserves music, global settings and all exceptions outside that line (1.847803ms)
+2026-10-11T06:23:05.0588377Z ✔ SVG and vector PDF share exact columns and explicit pixel-to-point conversion (393.461395ms)
+2026-10-11T06:23:05.1147756Z ✔ Cell centring A: whole times (23.996978ms)
+2026-10-11T06:23:05.1196212Z ✔ Cell centring B: halves (7.555661ms)
+2026-10-11T06:23:05.1205997Z ✔ Cell centring C: quarters (4.880789ms)
+2026-10-11T06:23:05.1236162Z ✔ Cell centring D: thirds (3.698423ms)
+2026-10-11T06:23:05.1255605Z ✔ E: alterations and both octave directions remain attached, centred as complete ink shapes (8.751594ms)
+2026-10-11T06:23:05.1266944Z ✔ Irregular attacks, holds, rests, compound cells and SATB subdivisions preserve each voice’s own space (7.328558ms)
+2026-10-11T06:23:05.1293659Z ✔ Chords centre the combined ink, while syllables follow a note with an irregular end near a pulse (4.658925ms)
+2026-10-11T06:23:05.1337130Z ✔ Measure 7 time 3 and measure 12 second half of time 3 have exact independent addresses (20.082435ms)
+2026-10-11T06:23:05.1353354Z ✔ Cursor addresses and keys follow pickups, signature changes and exact thirds (1.09111ms)
+2026-10-11T06:23:05.1451380Z ✔ Snapping includes the active grid and real irregular attacks without altering notes (3.356593ms)
+2026-10-11T06:23:05.1466820Z ✔ Navigation restores a finite work cursor separately from selection and ignores damaged preferences (0.395729ms)
+2026-10-11T06:23:05.1496932Z ✔ A mid-piece repeat path starts there, skips preceding sections initially and keeps future written returns (11.871288ms)
+2026-10-11T06:23:05.1516731Z ✔ Starting after an earlier Fine still reaches the requested measure, with later navigation evaluated afresh (1.195524ms)
+2026-10-11T06:23:05.1526467Z ✔ Audio starts on the chosen beat and resumes the same repeat occurrence after pause (1.7601ms)
+2026-10-11T06:23:05.1550979Z ✔ Metronome next pulse is calculated in the song measure when the repeat clock starts at raw zero (1.054441ms)
+2026-10-11T06:23:05.1559211Z ✔ The cursor cannot enter a phantom measure after the score or during its last keyboard step (1.06475ms)
+2026-10-11T06:23:05.1561076Z ✔ Hidden rests retain identical temporal geometry, note coordinates and musical data (23.360902ms)
+2026-10-11T06:23:05.1617633Z ✔ Ctrl toggles arbitrary cross-track notes, removes the primary safely and Shift extends a temporal range (0.96329ms)
+2026-10-11T06:23:05.1626876Z ✔ Compound tempo units change the expression, not beat positions or speed (13.046494ms)
+2026-10-11T06:23:05.1657186Z ✔ Pickup and signature changes share a measure map, including custom 7/8 grouping (4.85311ms)
+2026-10-11T06:23:05.1658974Z ✔ Tempo-map beat/time transforms and repeated-loop clock remain inverse (1.326549ms)
+2026-10-11T06:23:05.1661023Z ✔ Multi-voice measure copying creates unique notes and remaps syllables without touching raw timing (9.35251ms)
+2026-10-11T06:23:05.1662834Z ✔ Delete and move a block preserve outside passages and all voices consistently (4.943811ms)
+2026-10-11T06:23:05.1664781Z ✔ Clipping a sustained note preserves both outside fragments and transposition refuses overflow atomically (1.11338ms)
+2026-10-11T06:23:05.1667054Z ✔ Auto quantize chooses a credible coarse grid, triplets work, and edits survive restoration (3.198308ms)
+2026-10-11T06:23:05.1668824Z ✔ Quarter quantization respects a half-beat pickup and the off-center downbeats of 7/8 (1.021961ms)
+2026-10-11T06:23:05.1670709Z ✔ Latency calibration rejects erratic taps and robustly compensates regular delayed taps (3.757953ms)
+2026-10-11T06:23:05.1672584Z ✔ Moving a passage preserves changing signatures, tempos, markers, endings and take selection (11.82159ms)
+2026-10-11T06:23:05.1674455Z ✔ A coarse grid retains pickup and irregular final downbeats instead of snapping across the bar (0.471251ms)
+2026-10-11T06:23:05.8958443Z ✔ Solfa pages share vertical anchors, aligned verses, melismas, dynamic widths and forced system breaks (38.976458ms)
+2026-10-11T06:23:05.8967189Z ✔ A4/A5/Letter orientations use physical dimensions, SVG escapes text, and duration semantics are independent (7.102495ms)
+2026-10-11T06:23:05.8969331Z ✔ Long title, credits and musical annotations wrap inside margins and repeat dots leave space for notes (8.701583ms)
+2026-10-11T06:23:06.4253674Z ✔ 100-measure SATB composition paginates without missing measures and produces a real Unicode vector PDF (1744.615537ms)
+2026-10-11T06:23:06.5271986Z ✔ Hundreds of autosaves retain current state without hundreds of snapshots, then save a changed checkpoint (106.69688ms)
+2026-10-11T06:23:06.5304849Z ✔ Export → delete local data → import in another repository is exact (17.149523ms)
+2026-10-11T06:23:06.5306616Z ✔ History retention is bounded and removes obsolete checkpoints (4.95436ms)
+2026-10-11T06:23:06.5337775Z ✔ Manual word and hyphen syllabification is robust to whitespace, Unicode hyphens and punctuation (14.231339ms)
+2026-10-11T06:23:06.5386553Z ✔ Syllables bind to temporal attacks and melismas, survive edits, and do not target another voice (7.956792ms)
+2026-10-11T06:23:06.5417463Z ✔ Several verses and refrain reuse music and remain portable; deleting a measure removes stale links (21.969902ms)
+2026-10-11T06:23:06.5459128Z ✔ MIDI packet decoder handles USB fragments, running status, clock and ignored SysEx (2.133487ms)
+2026-10-11T06:23:06.5494726Z ✔ CC64 sustains until pedal-up, panic releases all notes, and disconnected device reconnects automatically (1.23617ms)
+2026-10-11T06:23:06.5527289Z ✔ A — IRAKA Db, 6/8, 72 BPM and four independently initialized voices (9.673751ms)
+2026-10-11T06:23:06.5556241Z ✔ D / E — mobile Do in C and Db, including octave and all chromatic pitches (0.680573ms)
+2026-10-11T06:23:06.5557652Z ✔ C — five recorded notes preserve actual NOTE ON/OFF pitch and timings (0.810815ms)
+2026-10-11T06:23:06.5586315Z ✔ Multitouch/polyphony and stopping held notes create distinct complete events (0.637932ms)
+2026-10-11T06:23:06.5646632Z ✔ F — 6/8 is six eighth-note pulses in two dotted-quarter groups (1.579593ms)
+2026-10-11T06:23:06.5668433Z ✔ G — quantization strength preserves original performance, even across repeated applications (0.628875ms)
+2026-10-11T06:23:06.5697023Z ✔ H / I — SATB lines differ and mute/solo obey combined rules (1.00058ms)
+2026-10-11T06:23:06.5726665Z ✔ Score layout shares timing anchors and represents rests, holds, chords and bar-crossing ties (0.864236ms)
+2026-10-11T06:23:06.5756280Z ✔ Tempo changes retain beat positions and raw recording seconds (3.945326ms)
+2026-10-11T06:23:06.5786158Z ✔ L — cold offline restart and precached resources at / (88.886645ms)
+2026-10-11T06:23:06.5856566Z ✔ L — cold offline restart and precached resources at /soratro/ (38.065766ms)
+2026-10-11T06:23:06.5876322Z ✔ PWA identity, icons and navigation remain inside the application directory (1.726316ms)
+2026-10-11T06:23:06.5906582Z ✔ Credit languages and custom labels preserve contributor identities and group multiple names (39.248397ms)
+2026-10-11T06:23:06.6097029Z ✔ New projects have four bars per line and system numbering; old settings still render (111.361521ms)
+2026-10-11T06:23:06.6197208Z ✔ All numbering modes remain correct after manual lines, pages, pickup and collection prefix (101.433703ms)
+2026-10-11T06:23:06.6215505Z ✔ Full, natural, centered and automatic systems keep all notes and SATB timing anchors (21.665503ms)
+2026-10-11T06:23:06.6246522Z ✔ Publication profiles modify presentation only and remain independent copies (90.614437ms)
+2026-10-11T06:23:06.6256796Z ✔ Library vector thumbnails use the same printed Segno/Coda/Fermata shapes; insertion and movement are musical (16.621085ms)
+2026-10-11T06:23:06.6259014Z ✔ Presentation validation rejects invalid counts, numbering, labels and contributor identifiers before import (3.72926ms)
+2026-10-11T06:23:06.6261475Z ✔ Local system alignments follow inserted/deleted measures without altering credit metadata (15.31793ms)
+2026-10-11T06:23:06.6263102Z ✔ An explicit four measures per system cannot be reduced by natural widths (66.547403ms)
+2026-10-11T06:23:06.6264960Z ✔ A portable .soratro preserves voices, raw and quantized data, linked lyrics, loop, markers, takes and layout (40.750076ms)
+2026-10-11T06:23:06.6267142Z ✔ V0.1 migration preserves exact performances and quarter BPM while adding schema defaults (5.87468ms)
+2026-10-11T06:23:06.6269332Z ✔ Future schemas, non-finite values, duplicate notes and broken syllable links are refused before import (4.2532ms)
+2026-10-11T06:23:06.6271202Z ✔ A held attack crosses a loop before NOTE OFF without waiting for the next scheduler tick (32.920139ms)
+2026-10-11T06:23:06.6273054Z ✔ Negative latency compensation crosses a tempo change using seconds, while diagnostic beats stay untouched (1.399666ms)
+2026-10-11T06:23:06.6274988Z ✔ Latency shifts musical positions, preserves raw timestamps, and clips only at the recording gate (0.414996ms)
+2026-10-11T06:23:06.6277210Z ✔ Punch pre-roll ignores early attacks and REPLACE preserves both outside passages and other voices (13.725553ms)
+2026-10-11T06:23:06.6279370Z ✔ Three loop passages remain separate, choose another take replaces the selected layer, and held notes are split at boundaries (8.856974ms)
+2026-10-11T06:23:06.6281435Z ✔ Rehearsal selected voice is dominant 100/30, solo works, and original mixer and pitches remain unchanged (10.211428ms)
+2026-10-11T06:23:06.6283215Z ✔ Repeat start/end and first/second endings create the expected musical traversal (9.483465ms)
+2026-10-11T06:23:06.6284849Z ✔ Expanded repeat clock respects tempo changes and is invertible over discontinuities (9.217107ms)
+2026-10-11T06:23:06.7461581Z ✔ J / K — add, edit, undo/redo, recording take and new repository session round trip (63.118513ms)
+2026-10-11T06:23:06.7516203Z ✔ Preferences are durable in IndexedDB (3.295379ms)
+2026-10-11T06:23:06.7742279Z ✔ Restore previews a checkpoint, duplicates current composition, and remains undoable (22.744289ms)
+2026-10-11T06:23:06.7779012Z ✔ A failed autosave cannot be reported as a successful flush, and retry recovers (5.541477ms)
+2026-10-11T06:23:06.7936695Z ✔ Four monotone taps at 500 ms stabilize to 120 BPM; two taps are insufficient (1.71157ms)
+2026-10-11T06:23:06.7966688Z ✔ Tap median rejects bounces and an outlier, resets after a long pause and respects configured limits (0.915732ms)
+2026-10-11T06:23:06.7996612Z ✔ 6/8 dotted-quarter Tap maps 120 pulses to 180 quarter BPM, and changes a musical tempo map correctly (11.393074ms)
+2026-10-11T06:23:07.2287111Z ✔ Note attacks retain affine distances with changing subdivisions in grid (30.534841ms)
+2026-10-11T06:23:07.2306535Z ✔ Note attacks retain affine distances with changing subdivisions in independent (7.450585ms)
+2026-10-11T06:23:07.2350366Z ✔ Note attacks retain affine distances with changing subdivisions in adaptive (9.717743ms)
+2026-10-11T06:23:07.2352591Z ✔ Thirds retain their exact musical times and one third of the graphic pulse (29.691675ms)
+2026-10-11T06:23:07.2354535Z ✔ Rounded and unquantized subdivision times keep their real anchors without artificial close cells (33.69662ms)
+2026-10-11T06:23:07.2356634Z ✔ Hiding every voice name frees its reserve while preserving shared columns (14.47795ms)
+2026-10-11T06:23:07.2358353Z ✔ Principal separators use one musical reference for different SATB rhythms in 2/4 (7.867144ms)
+2026-10-11T06:23:07.2360101Z ✔ Principal separators use one musical reference for different SATB rhythms in 3/4 (7.308089ms)
+2026-10-11T06:23:07.2361827Z ✔ Principal separators use one musical reference for different SATB rhythms in 4/4 (10.790828ms)
+2026-10-11T06:23:07.2363537Z ✔ Principal separators use one musical reference for different SATB rhythms in 6/8 (3.676942ms)
+2026-10-11T06:23:07.2365552Z ✔ Principal separators use one musical reference for different SATB rhythms in 9/8 (10.832707ms)
+2026-10-11T06:23:07.2367835Z ✔ Principal separators use one musical reference for different SATB rhythms in 12/8 (5.689203ms)
+2026-10-11T06:23:07.2369692Z ✔ normal punctuation at 12 px keeps temporal fractions, octaves and collision-free lanes (13.105104ms)
+2026-10-11T06:23:07.2371542Z ✔ reinforced punctuation at 12 px keeps temporal fractions, octaves and collision-free lanes (8.801631ms)
+2026-10-11T06:23:07.2373477Z ✔ custom punctuation at 12 px keeps temporal fractions, octaves and collision-free lanes (13.121645ms)
+2026-10-11T06:23:07.2375851Z ✔ normal punctuation at 17 px keeps temporal fractions, octaves and collision-free lanes (7.701655ms)
+2026-10-11T06:23:07.2377778Z ✔ reinforced punctuation at 17 px keeps temporal fractions, octaves and collision-free lanes (8.602057ms)
+2026-10-11T06:23:07.2379748Z ✔ custom punctuation at 17 px keeps temporal fractions, octaves and collision-free lanes (9.053502ms)
+2026-10-11T06:23:07.2381731Z ✔ normal punctuation at 20 px keeps temporal fractions, octaves and collision-free lanes (6.165664ms)
+2026-10-11T06:23:07.2383865Z ✔ reinforced punctuation at 20 px keeps temporal fractions, octaves and collision-free lanes (9.099438ms)
+2026-10-11T06:23:07.2386158Z ✔ custom punctuation at 20 px keeps temporal fractions, octaves and collision-free lanes (5.931636ms)
+2026-10-11T06:23:07.2389807Z ✔ normal punctuation at 24 px keeps temporal fractions, octaves and collision-free lanes (7.16983ms)
+2026-10-11T06:23:07.2391765Z ✔ reinforced punctuation at 24 px keeps temporal fractions, octaves and collision-free lanes (11.621661ms)
+2026-10-11T06:23:07.2393654Z ✔ custom punctuation at 24 px keeps temporal fractions, octaves and collision-free lanes (12.619676ms)
+2026-10-11T06:23:07.2456876Z ✔ Natural no-label grids center the complete reference row, leaving the incomplete row in its first columns (4.617881ms)
+2026-10-11T06:23:07.2466676Z ✔ Long renamed labels, every label mode, lyrics and page breaks retain one origin and safe margins (48.465403ms)
+2026-10-11T06:23:07.2501629Z ✔ Compound secondary pulses, custom groups and a pickup preserve affine time (11.12895ms)
+2026-10-11T06:23:07.2689886Z ✔ Legacy layouts and customized punctuation round-trip without changing any musical field (48.817031ms)
+2026-10-11T06:23:07.5607138Z ✔ Vector PDF and cropped SVG keep the same strengthened punctuation, octave sizes and anchors (307.420573ms)
+2026-10-11T06:23:07.7672617Z ✔ Traditional principal pulses and exact colon count in 4/4 (27.068702ms)
+2026-10-11T06:23:07.7673891Z ✔ Traditional principal pulses and exact colon count in 3/4 (5.107075ms)
+2026-10-11T06:23:07.7675268Z ✔ Traditional principal pulses and exact colon count in 2/4 (2.603647ms)
+2026-10-11T06:23:07.7676411Z ✔ Traditional principal pulses and exact colon count in 6/8 (3.333641ms)
+2026-10-11T06:23:07.7677071Z ✔ Traditional principal pulses and exact colon count in 9/8 (2.58957ms)
+2026-10-11T06:23:07.7677718Z ✔ Traditional principal pulses and exact colon count in 12/8 (5.033147ms)
+2026-10-11T06:23:07.7678452Z ✔ Compound secondary pulses, custom 3+2 and a pickup retain quarter-note timing (4.367182ms)
+2026-10-11T06:23:07.7679232Z ✔ Halves, quarters and thirds use distinct centered separators across SATB (37.215708ms)
+2026-10-11T06:23:07.7680035Z ✔ Mixed syncopation, holds, rests, sixteenths and triplets keep a shared temporal grid (9.522829ms)
+2026-10-11T06:23:07.7680948Z ✔ Octaves stay attached as one or two apostrophes/commas; they cannot become rhythm separators (5.90162ms)
+2026-10-11T06:23:07.7681954Z ✔ Regular justification is proportional and equal for comparable bars; manual widths and breaks remain musical (36.238371ms)
+2026-10-11T06:23:07.7682928Z ✔ SATB labels appear only once by default, with first-per-page, always and never alternatives (9.825862ms)
+2026-10-11T06:23:07.7683876Z ✔ Common SATB lyrics print once; editing from Alto updates canonical text without losing note links (20.099477ms)
+2026-10-11T06:23:07.7684913Z ✔ Different rhythms preserve links per voice and fall back to separate rows; text insertions retain existing melismas (7.631163ms)
+2026-10-11T06:23:07.7687066Z ✔ A shared SA group, refrains and verses coexist; deletion cleans links while duplication retains canonical texts (12.535901ms)
+2026-10-11T06:23:07.7688199Z ✔ Duration, phrase and melisma links are distinct and ties suppress a second audio attack without altering recorded events (4.249663ms)
+2026-10-11T06:23:07.7689325Z ✔ D.C., D.C. al Fine, D.S. and D.S. al Coda resolve exact paths and playback clocks (3.7131ms)
+2026-10-11T06:23:07.7690739Z ✔ Navigation with repeats, standalone Fine and invalid destinations cannot create an endless loop (0.502058ms)
+2026-10-11T06:23:07.7692080Z ✔ Breaths are beat-positioned for one or all voices; Segno/Coda are vectors and uninterpreted expression is explicitly reported (8.700351ms)
+2026-10-11T06:23:07.7693078Z ✔ Page count 1, centered title, numbered footer and stable SVG/PDF decorations (297.073373ms)
+2026-10-11T06:23:07.7693880Z ✔ Page count 5, centered title, numbered footer and stable SVG/PDF decorations (84.916694ms)
+2026-10-11T06:23:07.7694664Z ✔ Page count 10, centered title, numbered footer and stable SVG/PDF decorations (101.144823ms)
+2026-10-11T06:23:07.7810136Z ✔ Styles copy layout only, preview and cancellation are pure; old/new project export retains all fields (7.360254ms)
+2026-10-11T06:23:07.7813425Z ✔ Verifier reports position, orphan lyrics, bad ties and collisions without automatic correction (6.930342ms)
+2026-10-11T06:23:07.7817863Z ✔ D.S. al Fine and D.C. al Coda respect their destinations and reject an unreachable To Coda (0.273651ms)
+2026-10-11T06:23:07.7821059Z ✔ Spanning hairpins use selected voices, continue over a system break and keep their full extent (2.401133ms)
+2026-10-11T06:23:07.7824373Z ✔ Removing a voice cleans its group membership, music links and scoped symbols while keeping remaining voices intact (0.756273ms)
+2026-10-11T06:23:07.8030549Z ✔ Playback position never retreats while audio scheduling starts in the future (5.950853ms)
+2026-10-11T06:23:07.8032080Z ✔ A 6/8 one-bar count-in starts at six pulses, without a phantom seventh pulse (0.327633ms)
+2026-10-11T06:23:07.8033408Z ✔ Changing tempo inside a repeated loop resumes held notes at the visible beat (0.961197ms)
+2026-10-11T06:23:07.8034707Z ✔ McLeod detector identifies synthetic low/middle/high monophonic harmonics, rejects noise/silence and preserves chromatic pitch (70.139682ms)
+2026-10-11T06:23:07.8036784Z ✔ Segmentation retains one long vibrato note, repeated same pitch after silence and chromatic notes (6.30985ms)
+2026-10-11T06:23:07.8038208Z ✔ Glissandi avoid note floods and a voiced amplitude valley identifies a new same-pitch attack (1.355762ms)
+2026-10-11T06:23:07.8039291Z ✔ Minimum note duration discards clicks; uncertain pitches stay available for manual review (1.830888ms)
+2026-10-11T06:23:07.8040446Z ✔ Delayed vocal notes split at their audio timestamps across loop cycles using the same Recorder and quantizer (50.820763ms)
+2026-10-11T06:23:07.8041624Z ✔ Vocal Punch clips the gate, retains raw/corrected/quantized data and Restore recovers previous music (9.166926ms)
+2026-10-11T06:23:07.8042855Z ✔ Local audio survives repository reopen; portable bundles validate audio hashes and preserve score compatibility (12.910449ms)
+2026-10-11T06:23:07.8043562Z ℹ tests 177
+2026-10-11T06:23:07.8043790Z ℹ suites 0
+2026-10-11T06:23:07.8044009Z ℹ pass 177
+2026-10-11T06:23:07.8044238Z ℹ fail 0
+2026-10-11T06:23:07.8044461Z ℹ cancelled 0
+2026-10-11T06:23:07.8044683Z ℹ skipped 0
+2026-10-11T06:23:07.8044903Z ℹ todo 0
+2026-10-11T06:23:07.8045544Z ℹ duration_ms 4472.502132
+2026-10-11T06:23:07.9043349Z
+2026-10-11T06:23:07.9043877Z > soratro@0.8.0 test:ui
+2026-10-11T06:23:07.9063092Z > node scripts/test-ui.mjs
+2026-10-11T06:23:07.9063389Z
+2026-10-11T06:23:10.6433496Z ✔ UI: new Solo score stores dotted-quarter BPM, flexible voices, lyrics links, layout and durable save (1786.775483ms)
+2026-10-11T06:23:12.6463126Z ✔ UI: existing study opens, virtual piano releases, multi-note clipboard shortcuts work, history previews and restore (1999.416566ms)
+2026-10-11T06:23:12.8189408Z ✔ UI: .soratro import validates before writing and never overwrites an existing composition (177.837002ms)
+2026-10-11T06:23:13.7632478Z ✔ UI: selected notes retain their intervals at timeline boundaries and rehearsal starts at the chosen measure (956.63015ms)
+2026-10-11T06:23:13.8092741Z ℹ tests 4
+2026-10-11T06:23:13.8093096Z ℹ suites 0
+2026-10-11T06:23:13.8096421Z ℹ pass 4
+2026-10-11T06:23:13.8106422Z ℹ fail 0
+2026-10-11T06:23:13.8106838Z ℹ cancelled 0
+2026-10-11T06:23:13.8107224Z ℹ skipped 0
+2026-10-11T06:23:13.8107459Z ℹ todo 0
+2026-10-11T06:23:13.8107735Z ℹ duration_ms 5775.475691
+2026-10-11T06:23:13.8332891Z ##[group]Run npx playwright install --with-deps chromium
+2026-10-11T06:23:13.8333371Z [36;1mnpx playwright install --with-deps chromium[0m
+2026-10-11T06:23:13.8397931Z shell: /usr/bin/bash -e {0}
+2026-10-11T06:23:13.8398214Z ##[endgroup]
+2026-10-11T06:23:14.6103693Z Installing dependencies...
+2026-10-11T06:23:14.6191010Z Switching to root user to install dependencies...
+2026-10-11T06:23:14.7172060Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-11T06:23:14.7489372Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-10-11T06:23:14.7490812Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-10-11T06:23:14.7503699Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-10-11T06:23:14.7565333Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-10-11T06:23:14.7596133Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-10-11T06:23:14.8743644Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [492 kB]
+2026-10-11T06:23:14.8875273Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [548 kB]
+2026-10-11T06:23:14.8956851Z Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main all Packages [640 B]
+2026-10-11T06:23:14.9007760Z Get:10 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [12.3 kB]
+2026-10-11T06:23:14.9247508Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1375 kB]
+2026-10-11T06:23:14.9326385Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [306 kB]
+2026-10-11T06:23:14.9336729Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1702 kB]
+2026-10-11T06:23:14.9426595Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [342 kB]
+2026-10-11T06:23:14.9452356Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1761 kB]
+2026-10-11T06:23:14.9546750Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [401 kB]
+2026-10-11T06:23:14.9577647Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [55.0 kB]
+2026-10-11T06:23:14.9597028Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+2026-10-11T06:23:15.0597731Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1121 kB]
+2026-10-11T06:23:15.0676112Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [228 kB]
+2026-10-11T06:23:15.1114366Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1220 kB]
+2026-10-11T06:23:15.1184350Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [245 kB]
+2026-10-11T06:23:15.1203565Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1669 kB]
+2026-10-11T06:23:15.1279200Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [383 kB]
+2026-10-11T06:23:15.1302474Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [49.8 kB]
+2026-10-11T06:23:15.1312565Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+2026-10-11T06:23:17.9721594Z Fetched 12.3 MB in 1s (9869 kB/s)
+2026-10-11T06:23:18.8058082Z Reading package lists...
+2026-10-11T06:23:18.8290678Z Reading package lists...
+2026-10-11T06:23:19.0114350Z Building dependency tree...
+2026-10-11T06:23:19.0121860Z Reading state information...
+2026-10-11T06:23:19.1507935Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+2026-10-11T06:23:19.1508671Z libasound2t64 set to manually installed.
+2026-10-11T06:23:19.1509359Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-11T06:23:19.1510059Z libatk-bridge2.0-0t64 set to manually installed.
+2026-10-11T06:23:19.1511678Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-11T06:23:19.1512624Z libatk1.0-0t64 set to manually installed.
+2026-10-11T06:23:19.1513575Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-11T06:23:19.1514196Z libatspi2.0-0t64 set to manually installed.
+2026-10-11T06:23:19.1514810Z libcairo2 is already the newest version (1.18.0-3build1).
+2026-10-11T06:23:19.1515744Z libcairo2 set to manually installed.
+2026-10-11T06:23:19.1516376Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+2026-10-11T06:23:19.1516872Z libcups2t64 set to manually installed.
+2026-10-11T06:23:19.1517364Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+2026-10-11T06:23:19.1517834Z libdbus-1-3 set to manually installed.
+2026-10-11T06:23:19.1518330Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+2026-10-11T06:23:19.1518802Z libdrm2 set to manually installed.
+2026-10-11T06:23:19.1519279Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+2026-10-11T06:23:19.1519739Z libgbm1 set to manually installed.
+2026-10-11T06:23:19.1520223Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.9).
+2026-10-11T06:23:19.1520710Z libglib2.0-0t64 set to manually installed.
+2026-10-11T06:23:19.1521192Z libnspr4 is already the newest version (2:4.35-1.1build1).
+2026-10-11T06:23:19.1521640Z libnspr4 set to manually installed.
+2026-10-11T06:23:19.1522086Z libnss3 is already the newest version (2:3.98-1ubuntu0.2).
+2026-10-11T06:23:19.1522522Z libnss3 set to manually installed.
+2026-10-11T06:23:19.1523010Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+2026-10-11T06:23:19.1523493Z libpango-1.0-0 set to manually installed.
+2026-10-11T06:23:19.1523955Z libx11-6 is already the newest version (2:1.8.7-1build1).
+2026-10-11T06:23:19.1524390Z libx11-6 set to manually installed.
+2026-10-11T06:23:19.1524815Z libxcb1 is already the newest version (1.15-1ubuntu2).
+2026-10-11T06:23:19.1525499Z libxcb1 set to manually installed.
+2026-10-11T06:23:19.1525990Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+2026-10-11T06:23:19.1526477Z libxcomposite1 set to manually installed.
+2026-10-11T06:23:19.1526967Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+2026-10-11T06:23:19.1527405Z libxdamage1 set to manually installed.
+2026-10-11T06:23:19.1527815Z libxext6 is already the newest version (2:1.3.4-1build2).
+2026-10-11T06:23:19.1528201Z libxext6 set to manually installed.
+2026-10-11T06:23:19.1528612Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+2026-10-11T06:23:19.1529021Z libxfixes3 set to manually installed.
+2026-10-11T06:23:19.1529443Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+2026-10-11T06:23:19.1529859Z libxkbcommon0 set to manually installed.
+2026-10-11T06:23:19.1530293Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+2026-10-11T06:23:19.1530699Z libxrandr2 set to manually installed.
+2026-10-11T06:23:19.1531127Z xvfb is already the newest version (2:21.1.12-1ubuntu1.8).
+2026-10-11T06:23:19.1531703Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+2026-10-11T06:23:19.1532295Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+2026-10-11T06:23:19.1532738Z libfontconfig1 set to manually installed.
+2026-10-11T06:23:19.1533181Z fonts-liberation is already the newest version (1:2.1.5-3).
+2026-10-11T06:23:19.1533611Z fonts-liberation set to manually installed.
+2026-10-11T06:23:19.1534252Z The following additional packages will be installed:
+2026-10-11T06:23:19.1534642Z   xfonts-encodings xfonts-utils
+2026-10-11T06:23:19.1534938Z Recommended packages:
+2026-10-11T06:23:19.1535372Z   fonts-ipafont-mincho fonts-tlwg-loma
+2026-10-11T06:23:19.1701352Z The following NEW packages will be installed:
+2026-10-11T06:23:19.1701964Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+2026-10-11T06:23:19.1708542Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+2026-10-11T06:23:19.1709636Z   xfonts-utils
+2026-10-11T06:23:19.1713630Z The following packages will be upgraded:
+2026-10-11T06:23:19.1719395Z   libfreetype6
+2026-10-11T06:23:19.1892553Z 1 upgraded, 9 newly installed, 0 to remove and 22 not upgraded.
+2026-10-11T06:23:19.1893383Z Need to get 21.5 MB of archives.
+2026-10-11T06:23:19.1894179Z After this operation, 79.5 MB of additional disk space will be used.
+2026-10-11T06:23:19.1895303Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-11T06:23:19.2663630Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+2026-10-11T06:23:19.5569329Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+2026-10-11T06:23:19.6375947Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+2026-10-11T06:23:19.6696578Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+2026-10-11T06:23:19.7183517Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+2026-10-11T06:23:19.8144567Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libfreetype6 amd64 2.13.2+dfsg-1ubuntu0.2 [403 kB]
+2026-10-11T06:23:19.8468427Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+2026-10-11T06:23:19.8844954Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+2026-10-11T06:23:19.9128893Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+2026-10-11T06:23:19.9440326Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+2026-10-11T06:23:20.1984223Z Fetched 21.5 MB in 1s (28.0 MB/s)
+2026-10-11T06:23:20.2206490Z Selecting previously unselected package fonts-ipafont-gothic.
+2026-10-11T06:23:20.2467612Z (Reading database ...
+2026-10-11T06:23:20.2468263Z (Reading database ... 5%
+2026-10-11T06:23:20.2468839Z (Reading database ... 10%
+2026-10-11T06:23:20.2469159Z (Reading database ... 15%
+2026-10-11T06:23:20.2469458Z (Reading database ... 20%
+2026-10-11T06:23:20.2469759Z (Reading database ... 25%
+2026-10-11T06:23:20.2470053Z (Reading database ... 30%
+2026-10-11T06:23:20.2470461Z (Reading database ... 35%
+2026-10-11T06:23:20.2470757Z (Reading database ... 40%
+2026-10-11T06:23:20.2471057Z (Reading database ... 45%
+2026-10-11T06:23:20.2471343Z (Reading database ... 50%
+2026-10-11T06:23:20.2508400Z (Reading database ... 55%
+2026-10-11T06:23:20.3668052Z (Reading database ... 60%
+2026-10-11T06:23:20.5737680Z (Reading database ... 65%
+2026-10-11T06:23:20.7631917Z (Reading database ... 70%
+2026-10-11T06:23:20.9647935Z (Reading database ... 75%
+2026-10-11T06:23:21.1104657Z (Reading database ... 80%
+2026-10-11T06:23:21.3159329Z (Reading database ... 85%
+2026-10-11T06:23:21.5228818Z (Reading database ... 90%
+2026-10-11T06:23:21.6739042Z (Reading database ... 95%
+2026-10-11T06:23:21.6739740Z (Reading database ... 100%
+2026-10-11T06:23:21.6740718Z (Reading database ... 203191 files and directories currently installed.)
+2026-10-11T06:23:21.6785818Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+2026-10-11T06:23:21.6875500Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-10-11T06:23:21.9175998Z Selecting previously unselected package fonts-freefont-ttf.
+2026-10-11T06:23:21.9301402Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+2026-10-11T06:23:21.9309800Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-10-11T06:23:22.0121134Z Selecting previously unselected package fonts-tlwg-loma-otf.
+2026-10-11T06:23:22.0248947Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+2026-10-11T06:23:22.0255301Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-10-11T06:23:22.0452680Z Selecting previously unselected package fonts-unifont.
+2026-10-11T06:23:22.0578553Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+2026-10-11T06:23:22.0588222Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+2026-10-11T06:23:22.1638268Z Selecting previously unselected package fonts-wqy-zenhei.
+2026-10-11T06:23:22.1763120Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+2026-10-11T06:23:22.1859071Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+2026-10-11T06:23:22.6624183Z Preparing to unpack .../5-libfreetype6_2.13.2+dfsg-1ubuntu0.2_amd64.deb ...
+2026-10-11T06:23:22.6650642Z Unpacking libfreetype6:amd64 (2.13.2+dfsg-1ubuntu0.2) over (2.13.2+dfsg-1ubuntu0.1) ...
+2026-10-11T06:23:22.6906765Z Selecting previously unselected package xfonts-encodings.
+2026-10-11T06:23:22.7032694Z Preparing to unpack .../6-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+2026-10-11T06:23:22.7038569Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-10-11T06:23:22.7310512Z Selecting previously unselected package xfonts-utils.
+2026-10-11T06:23:22.7436627Z Preparing to unpack .../7-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+2026-10-11T06:23:22.7442867Z Unpacking xfonts-utils (1:7.7+6build3) ...
+2026-10-11T06:23:22.7778786Z Selecting previously unselected package xfonts-cyrillic.
+2026-10-11T06:23:22.7903366Z Preparing to unpack .../8-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+2026-10-11T06:23:22.7910369Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-10-11T06:23:22.8249472Z Selecting previously unselected package xfonts-scalable.
+2026-10-11T06:23:22.8374190Z Preparing to unpack .../9-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+2026-10-11T06:23:22.8380761Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+2026-10-11T06:23:22.8809024Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+2026-10-11T06:23:22.8928242Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-10-11T06:23:22.8944887Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-10-11T06:23:22.8976615Z Setting up libfreetype6:amd64 (2.13.2+dfsg-1ubuntu0.2) ...
+2026-10-11T06:23:22.8994580Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-10-11T06:23:22.9010854Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-10-11T06:23:22.9077234Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+2026-10-11T06:23:22.9092385Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+2026-10-11T06:23:22.9107853Z Setting up xfonts-utils (1:7.7+6build3) ...
+2026-10-11T06:23:22.9148244Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-10-11T06:23:22.9423356Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+2026-10-11T06:23:22.9689939Z Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+2026-10-11T06:23:22.9991030Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-10-11T06:23:23.0010650Z Not building database; man-db/auto-update is not 'true'.
+2026-10-11T06:23:23.0023276Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+2026-10-11T06:23:23.7048993Z
+2026-10-11T06:23:23.7049638Z Running kernel seems to be up-to-date.
+2026-10-11T06:23:23.7050079Z
+2026-10-11T06:23:23.7050603Z Restarting services...
+2026-10-11T06:23:23.7130407Z  systemctl restart php8.3-fpm.service
+2026-10-11T06:23:23.8256137Z
+2026-10-11T06:23:23.8276509Z No containers need to be restarted.
+2026-10-11T06:23:23.8276928Z
+2026-10-11T06:23:23.8277266Z No user sessions are running outdated binaries.
+2026-10-11T06:23:23.8277696Z
+2026-10-11T06:23:23.8278230Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-10-11T06:23:24.7201604Z Downloading Chrome for Testing 153.0.8010.12 (playwright chromium v1243) from https://cdn.playwright.dev/builds/cft/153.0.8010.12/linux64/chrome-linux64.zip
+2026-10-11T06:23:25.1486394Z |                                                                                |   0% of 186.8 MiB
+2026-10-11T06:23:25.5171015Z |■■■■■■■■                                                                        |  10% of 186.8 MiB
+2026-10-11T06:23:25.6035926Z |■■■■■■■■■■■■■■■■                                                                |  20% of 186.8 MiB
+2026-10-11T06:23:25.7020411Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 186.8 MiB
+2026-10-11T06:23:25.7659527Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 186.8 MiB
+2026-10-11T06:23:25.8462766Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 186.8 MiB
+2026-10-11T06:23:25.9089481Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 186.8 MiB
+2026-10-11T06:23:25.9838494Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 186.8 MiB
+2026-10-11T06:23:26.0734557Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 186.8 MiB
+2026-10-11T06:23:26.1551653Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 186.8 MiB
+2026-10-11T06:23:26.2347600Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 186.8 MiB
+2026-10-11T06:23:29.3861723Z Chrome for Testing 153.0.8010.12 (playwright chromium v1243) downloaded to /home/runner/.cache/ms-playwright/chromium-1243
+2026-10-11T06:23:29.3865956Z Downloading FFmpeg (playwright ffmpeg v1011) from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+2026-10-11T06:23:29.7791865Z |                                                                                |   0% of 2.3 MiB
+2026-10-11T06:23:29.8192449Z |■■■■■■■■                                                                        |  10% of 2.3 MiB
+2026-10-11T06:23:29.8348617Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+2026-10-11T06:23:29.8494355Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+2026-10-11T06:23:29.8616696Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+2026-10-11T06:23:29.8678106Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+2026-10-11T06:23:29.8760919Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+2026-10-11T06:23:29.8780035Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+2026-10-11T06:23:29.8882246Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+2026-10-11T06:23:29.8911068Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+2026-10-11T06:23:29.8928689Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+2026-10-11T06:23:29.9541157Z FFmpeg (playwright ffmpeg v1011) downloaded to /home/runner/.cache/ms-playwright/ffmpeg-1011
+2026-10-11T06:23:29.9544626Z Downloading Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243) from https://cdn.playwright.dev/builds/cft/153.0.8010.12/linux64/chrome-headless-shell-linux64.zip
+2026-10-11T06:23:30.3767308Z |                                                                                |   0% of 114.3 MiB
+2026-10-11T06:23:30.6533519Z |■■■■■■■■                                                                        |  10% of 114.3 MiB
+2026-10-11T06:23:30.7273920Z |■■■■■■■■■■■■■■■■                                                                |  20% of 114.3 MiB
+2026-10-11T06:23:30.7882122Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 114.3 MiB
+2026-10-11T06:23:30.8494581Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 114.3 MiB
+2026-10-11T06:23:30.9080995Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 114.3 MiB
+2026-10-11T06:23:30.9481335Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 114.3 MiB
+2026-10-11T06:23:30.9922677Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 114.3 MiB
+2026-10-11T06:23:31.0553042Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 114.3 MiB
+2026-10-11T06:23:31.0939355Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 114.3 MiB
+2026-10-11T06:23:31.1484902Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 114.3 MiB
+2026-10-11T06:23:33.3912946Z Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243) downloaded to /home/runner/.cache/ms-playwright/chromium_headless_shell-1243
+2026-10-11T06:23:33.4258590Z ##[group]Run npm run test:browser
+2026-10-11T06:23:33.4259162Z [36;1mnpm run test:browser[0m
+2026-10-11T06:23:33.4348916Z shell: /usr/bin/bash -e {0}
+2026-10-11T06:23:33.4349395Z ##[endgroup]
+2026-10-11T06:23:33.5369191Z
+2026-10-11T06:23:33.5369578Z > soratro@0.8.0 test:browser
+2026-10-11T06:23:33.5370053Z > playwright test
+2026-10-11T06:23:33.5370212Z
+2026-10-11T06:23:36.4804746Z
+2026-10-11T06:23:36.4805618Z Running 73 tests using 1 worker
+2026-10-11T06:23:36.4805917Z
+2026-10-11T06:23:39.9283212Z   ✓   1 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 360×640 (2.8s)
+2026-10-11T06:23:42.9667063Z   ✓   2 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 390×844 (3.0s)
+2026-10-11T06:23:45.9942030Z   ✓   3 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 412×915 (3.0s)
+2026-10-11T06:23:48.6549463Z   ✓   4 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 740×390 (2.6s)
+2026-10-11T06:23:51.4821157Z   ✓   5 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 800×1280 (2.8s)
+2026-10-11T06:23:54.2082321Z   ✓   6 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 1366×768 (2.7s)
+2026-10-11T06:23:57.1944527Z   ✓   7 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 1440×900 (3.0s)
+2026-10-11T06:24:00.3212086Z   ✓   8 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 1920×1080 (3.1s)
+2026-10-11T06:24:02.5943085Z   ✓   9 tests/e2e/aligned-web.spec.ts:28:1 › Seven bars align at 20 px; 150% screen zoom does not alter SVG/PDF/PNG or the musical project (2.3s)
+2026-10-11T06:24:05.1148221Z   ✓  10 tests/e2e/aligned-web.spec.ts:36:1 › Favorites persist; a line reset stages precisely, applies atomically and is reversible with Undo (2.5s)
+2026-10-11T06:24:08.3107032Z   ✓  11 tests/e2e/aligned-web.spec.ts:40:1 › A dense line preserves 24 px type, reports the constraint and prevents a clipped export until corrected (3.2s)
+2026-10-11T06:24:10.0365565Z   ✓  12 tests/e2e/aligned-web.spec.ts:43:1 › Touch pinch, double tap and rotation preserve the document, selection and preview position (1.7s)
+2026-10-11T06:24:11.8000279Z   ✓  13 tests/e2e/aligned-web.spec.ts:50:1 › Browser sharing uses Web Share files and downloads when unavailable (1.8s)
+2026-10-11T06:24:12.9923689Z   ✓  14 tests/e2e/aligned-web.spec.ts:55:1 › Small visual viewport keeps settings and Apply visible while a numeric field is focused (1.2s)
+2026-10-11T06:24:14.7097092Z   ✓  15 tests/e2e/aligned-web.spec.ts:59:1 › Page layout and export preserve the same personalized display geometry (1.7s)
+2026-10-11T06:24:17.9624426Z   ✓  16 tests/e2e/app.spec.ts:6:1 › Web Audio réel, métronome, transport, boucle, IndexedDB et cadres mobiles V0.1 conservés (3.2s)
+2026-10-11T06:24:23.8224523Z   ✓  17 tests/e2e/app.spec.ts:9:1 › REC PC, paroles/repère, PDF/SVG/PNG, export suppression import exact et redémarrage hors ligne (5.8s)
+2026-10-11T06:24:25.3979016Z   ✓  18 tests/e2e/app.spec.ts:16:71 › Pointer Events multitouch et composition 390×844 (1.6s)
+2026-10-11T06:24:26.9807878Z   ✓  19 tests/e2e/app.spec.ts:16:71 › Pointer Events multitouch et composition 740×390 (1.6s)
+2026-10-11T06:24:29.3791300Z   ✓  20 tests/e2e/cursor.spec.ts:18:1 › F/G: actual audio starts at measure 7 time 3 and its second half, with the metronome on the next pulse (2.4s)
+2026-10-11T06:24:31.8089637Z   ✓  21 tests/e2e/cursor.spec.ts:27:1 › H: clicks, direct entry, keys, measure numbers and both views retain one cursor without clearing selection (2.4s)
+2026-10-11T06:24:34.2218478Z   ✓  22 tests/e2e/cursor.spec.ts:37:1 › I/K: insertion uses the chosen duration and cursor time, Undo preserves the position, and all exports exclude work overlays (2.4s)
+2026-10-11T06:24:36.0633474Z   ✓  23 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 360×640 (1.8s)
+2026-10-11T06:24:37.8774188Z   ✓  24 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 390×844 (1.8s)
+2026-10-11T06:24:39.7187109Z   ✓  25 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 412×915 (1.8s)
+2026-10-11T06:24:41.5958548Z   ✓  26 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 740×390 (1.9s)
+2026-10-11T06:24:43.6149639Z   ✓  27 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 800×1280 (2.0s)
+2026-10-11T06:24:45.6360807Z   ✓  28 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 1366×768 (2.0s)
+2026-10-11T06:24:47.5921471Z   ✓  29 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 1440×900 (1.9s)
+2026-10-11T06:24:49.7144466Z   ✓  30 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 1920×1080 (2.1s)
+2026-10-11T06:24:52.0777907Z   ✓  31 tests/e2e/cursor.spec.ts:56:1 › Recording from the work cursor and pause/resume keep the musical origin and selection intact (2.4s)
+2026-10-11T06:24:53.6481166Z   ✓  32 tests/e2e/cursor.spec.ts:61:1 › A held note in a repeated section sounds once at the cursor, while future notated returns stay active (1.6s)
+2026-10-11T06:24:55.0893963Z   ✓  33 tests/e2e/cursor.spec.ts:66:1 › The insertion tool uses the clicked musical point and keeps its active duration independently of glyph width (1.4s)
+2026-10-11T06:24:56.7887306Z   ✓  34 tests/e2e/cursor.spec.ts:71:1 › Pasting uses the work cursor while the audio head advances elsewhere (1.7s)
+2026-10-11T06:24:58.3001762Z   ✓  35 tests/e2e/editing.spec.ts:7:1 › Real Ctrl gesture toggles 1/4/7, grouped drag and Undo preserve every other note and raw timing (1.5s)
+2026-10-11T06:25:00.3440597Z   ✓  36 tests/e2e/editing.spec.ts:21:1 › Common selection, Solfa m→f in Db, MIDI/roll/playback source and atomic Undo/Redo (2.0s)
+2026-10-11T06:25:01.9034607Z   ✓  37 tests/e2e/editing.spec.ts:32:1 › Locked Alto is readable and audible; arrows, delete, quantize, transpose and REC reject changes (1.5s)
+2026-10-11T06:25:03.2765565Z   ✓  38 tests/e2e/editing.spec.ts:41:1 › Real prelisten plays the selected frequency, releases it and stays silent when disabled or Ctrl selecting (1.4s)
+2026-10-11T06:25:06.0085910Z   ✓  39 tests/e2e/editing.spec.ts:48:1 › Fullscreen native and fallback restore the prior layout; manual follow suspension is reversible (2.7s)
+2026-10-11T06:25:07.2873545Z   ✓  40 tests/e2e/editing.spec.ts:54:1 › Touch multiple selection and direct Solfa editing work on a portrait phone (1.3s)
+2026-10-11T06:25:10.1535823Z   ✓  41 tests/e2e/export-preferences.spec.ts:5:1 › Solfa preferences remain visual, voice colors persist, black export and print match the same preview (2.8s)
+2026-10-11T06:25:12.5842552Z   ✓  42 tests/e2e/export-preferences.spec.ts:18:1 › Export errors retain settings and release busy state; retry, Escape focus and PNG/SVG/PDF scopes work (2.4s)
+2026-10-11T06:25:15.1343228Z   ✓  43 tests/e2e/export-preferences.spec.ts:26:1 › Cold offline restart retains composition, preferences, editing, immersion, audio and PDF export (2.5s)
+2026-10-11T06:25:18.0389687Z   ✓  44 tests/e2e/presentation.spec.ts:5:1 › Malagasy/custom credits and contributors stage, print, survive reload and undo atomically (2.9s)
+2026-10-11T06:25:20.9587836Z   ✓  45 tests/e2e/presentation.spec.ts:6:1 › Numbers, counts, alignment and direct editorial clicks keep the music intact (2.9s)
+2026-10-11T06:25:24.3760659Z   ✓  46 tests/e2e/presentation.spec.ts:7:1 › Visual symbols can be pinned, placed precisely by click, cancelled, moved numerically and restored with Undo (3.4s)
+2026-10-11T06:25:27.6391790Z   ✓  47 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 360×640 (3.2s)
+2026-10-11T06:25:30.9554354Z   ✓  48 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 390×844 (3.3s)
+2026-10-11T06:25:34.4576611Z   ✓  49 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 412×915 (3.5s)
+2026-10-11T06:25:37.7355465Z   ✓  50 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 740×390 (3.3s)
+2026-10-11T06:25:41.5292544Z   ✓  51 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 800×1280 (3.8s)
+2026-10-11T06:25:45.1557575Z   ✓  52 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 1366×768 (3.6s)
+2026-10-11T06:25:49.1098347Z   ✓  53 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 1440×900 (3.9s)
+2026-10-11T06:25:53.4259840Z   ✓  54 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 1920×1080 (4.3s)
+2026-10-11T06:25:55.4777475Z   ✓  55 tests/e2e/temporal-grid.spec.ts:51:1 › Mixed rhythms export the same vector coordinates to SVG/PDF and a real PNG, with separate octaves (2.0s)
+2026-10-11T06:25:56.7313824Z   ✓  56 tests/e2e/temporal-grid.spec.ts:59:1 › Legacy punctuation defaults preview immediately and cancel without migrating the composition (1.2s)
+2026-10-11T06:25:58.4789864Z   ✓  57 tests/e2e/traditional.spec.ts:8:1 › Common lyrics use one text, independent voice links, reversible rhythm fallback and portable export (1.7s)
+2026-10-11T06:26:01.7255939Z   ✓  58 tests/e2e/traditional.spec.ts:14:1 › Page layout previews cancel cleanly; styles survive reload and apply in one undoable change (3.2s)
+2026-10-11T06:26:03.8544585Z   ✓  59 tests/e2e/traditional.spec.ts:18:1 › Manual measure/page breaks and widths are previewed, resettable and preserve notes (2.1s)
+2026-10-11T06:26:08.3806056Z   ✓  60 tests/e2e/traditional.spec.ts:21:1 › Symbol objects validate navigation and trigger real D.C. al Fine audio playback; reader clicks do not edit (4.5s)
+2026-10-11T06:26:10.6617208Z   ✓  61 tests/e2e/traditional.spec.ts:26:71 › Traditional page editor and embedded fonts export offline at 390×844 (2.3s)
+2026-10-11T06:26:12.9800095Z   ✓  62 tests/e2e/traditional.spec.ts:26:71 › Traditional page editor and embedded fonts export offline at 740×390 (2.3s)
+2026-10-11T06:26:15.2775703Z   ✓  63 tests/e2e/traditional.spec.ts:29:1 › Export layout settings are staged, cancellable and explicitly applicable with Undo (2.3s)
+2026-10-11T06:26:19.2426636Z   ✓  64 tests/e2e/vocal.spec.ts:5:1 › Tap Tempo uses selected dotted pulse, audible native click scheduling and defers tempo changes until after REC (3.9s)
+2026-10-11T06:26:23.5197372Z Vocal diagnostics: Fenêtre de détection : 85 ms · délai de traitement observé : 47 ms. Le retard matériel s’ajoute à cette mesure.
+2026-10-11T06:26:26.0934248Z   ✓  65 tests/e2e/vocal.spec.ts:6:1 › Actual microphone/AudioWorklet/worker/Recorder flow creates SATB take, original audio and offline notes without changing other voices (6.8s)
+2026-10-11T06:26:27.2086550Z   ✓  66 tests/e2e/vocal.spec.ts:8:1 › Denied microphone stays out of REC; preview, source change and background release capture tracks (1.1s)
+2026-10-11T06:26:38.9147063Z   ✓  67 tests/e2e/vocal.spec.ts:9:1 › Complete publication workflow records four vocal layers, retains custom credits, exports PDF and imports the portable audio backup (11.7s)
+2026-10-11T06:26:43.4326433Z   ✓  68 tests/e2e/workspace.spec.ts:5:1 › Twenty mode changes preserve Piano Roll, zoom, both scroll axes, track and selection (4.5s)
+2026-10-11T06:26:45.2368753Z   ✓  69 tests/e2e/workspace.spec.ts:25:1 › Panel space, exact immersion restore, resizing and device preferences survive a reload (1.8s)
+2026-10-11T06:27:00.0891820Z   ✓  70 tests/e2e/workspace.spec.ts:48:1 › 100-measure score: last page, responsive export, dynamic paper, page navigation and desktop resize (14.8s)
+2026-10-11T06:27:01.2857455Z   ✓  71 tests/e2e/workspace.spec.ts:71:71 › Export controls and settings remain accessible at 390×844 (1.2s)
+2026-10-11T06:27:02.3734569Z   ✓  72 tests/e2e/workspace.spec.ts:71:71 › Export controls and settings remain accessible at 740×390 (1.1s)
+2026-10-11T06:27:03.1692589Z   ✓  73 tests/e2e/workspace.spec.ts:83:1 › Vocal source keeps optional audio controls collapsed and the Piano Roll usable (785ms)
+2026-10-11T06:27:03.4658538Z
+2026-10-11T06:27:03.4674357Z   73 passed (3.5m)
+2026-10-11T06:27:03.8422811Z ##[group]Run actions/upload-artifact@v4
+2026-10-11T06:27:03.8423151Z with:
+2026-10-11T06:27:03.8423484Z   name: Chromium-validation-5d736d51b68c3419d6edcc4a87771ae8591a4425
+2026-10-11T06:27:03.8423917Z   path: playwright-report
+test-results
+
+2026-10-11T06:27:03.8424212Z   retention-days: 30
+2026-10-11T06:27:03.8424449Z   if-no-files-found: warn
+2026-10-11T06:27:03.8424690Z   compression-level: 6
+2026-10-11T06:27:03.8424925Z   overwrite: false
+2026-10-11T06:27:03.8425367Z   include-hidden-files: false
+2026-10-11T06:27:03.8425648Z ##[endgroup]
+2026-10-11T06:27:04.0068236Z (node:4548) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-11T06:27:04.0069181Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-11T06:27:04.0485886Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-11T06:27:04.0488776Z The least common ancestor is /home/runner/work/soratro/soratro. This will be the root directory of the artifact
+2026-10-11T06:27:04.0489936Z With the provided path, there will be 97 files uploaded
+2026-10-11T06:27:04.0494572Z Artifact name is valid!
+2026-10-11T06:27:04.0496800Z Root directory input is valid!
+2026-10-11T06:27:04.3242011Z Beginning upload of artifact content to blob storage
+2026-10-11T06:27:04.8004029Z (node:4548) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-11T06:27:05.3302540Z Uploaded bytes 8388608
+2026-10-11T06:27:05.5202835Z Uploaded bytes 15307786
+2026-10-11T06:27:05.5648754Z Finished uploading artifact content to blob storage!
+2026-10-11T06:27:05.5650168Z SHA256 digest of uploaded artifact zip is 9e9b01cfca886093e2b399e046a57b2e6fc79597b8eb7a4b4cb027d3ec4950e6
+2026-10-11T06:27:05.5651581Z Finalizing artifact upload
+2026-10-11T06:27:05.7894640Z Artifact Chromium-validation-5d736d51b68c3419d6edcc4a87771ae8591a4425.zip successfully finalized. Artifact ID 11694001982
+2026-10-11T06:27:05.7896858Z Artifact Chromium-validation-5d736d51b68c3419d6edcc4a87771ae8591a4425 has been successfully uploaded! Final size is 15307786 bytes. Artifact ID is 11694001982
+2026-10-11T06:27:05.7901708Z Artifact download URL: https://github.com/ZoNampoina/soratro/actions/runs/38117857722/artifacts/11694001982
+2026-10-11T06:27:05.8106835Z Post job cleanup.
+2026-10-11T06:27:05.9284041Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-60b6c3f9b34c21c904b09c96f2ca879b12784b57e3e431bd7792fb7dda4e2385, not saving cache.
+2026-10-11T06:27:05.9419691Z Post job cleanup.
+2026-10-11T06:27:06.0337659Z [command]/usr/bin/git version
+2026-10-11T06:27:06.0394699Z git version 2.55.0
+2026-10-11T06:27:06.0454075Z Temporarily overriding HOME='/home/runner/work/_temp/5bab6945-8204-4365-a955-3fafe94226d9' before making global git config changes
+2026-10-11T06:27:06.0456012Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-11T06:27:06.0463863Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/soratro/soratro
+2026-10-11T06:27:06.0510710Z Removing SSH command configuration
+2026-10-11T06:27:06.0520798Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-11T06:27:06.0573362Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-11T06:27:06.0924666Z Removing HTTP extra header
+2026-10-11T06:27:06.0926345Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-11T06:27:06.1001810Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-11T06:27:06.1341773Z Removing includeIf entries pointing to credentials config files
+2026-10-11T06:27:06.1352097Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T06:27:06.1399506Z includeif.gitdir:/home/runner/work/soratro/soratro/.git.path
+2026-10-11T06:27:06.1402071Z includeif.gitdir:/home/runner/work/soratro/soratro/.git/worktrees/*.path
+2026-10-11T06:27:06.1403156Z includeif.gitdir:/github/workspace/.git.path
+2026-10-11T06:27:06.1404060Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-11T06:27:06.1414407Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/soratro/soratro/.git.path
+2026-10-11T06:27:06.1449250Z /home/runner/work/_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:27:06.1462063Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/soratro/soratro/.git.path /home/runner/work/_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:27:06.1514135Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/soratro/soratro/.git/worktrees/*.path
+2026-10-11T06:27:06.1542989Z /home/runner/work/_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:27:06.1554460Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/soratro/soratro/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:27:06.1596286Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-11T06:27:06.1623339Z /github/runner_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:27:06.1632061Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:27:06.1669629Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-11T06:27:06.1696741Z /github/runner_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:27:06.1707178Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config
+2026-10-11T06:27:06.1748429Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-11T06:27:06.1980330Z Removing credentials config '/home/runner/work/_temp/git-credentials-e3247e7c-5683-4fb4-94ec-b67228f3c62b.config'
+2026-10-11T06:27:06.2140712Z Cleaning up orphan processes
+2026-10-11T06:27:06.2562756Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

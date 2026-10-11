@@ -6,7 +6,7 @@ Cette évolution centre les symboles Solfa dans leurs cellules musicales et ajou
 
 Le centre visuel dépend du début et de la fin de la cellule de chaque voix. Les contours complets de la lettre, de l'altération et des octaves sont centrés ensemble. Les ponctuations restent sur leurs frontières rythmiques. Leurs styles, les tailles Solfa, les colonnes communes SATB et les lignes incomplètes sont conservés. La gravure ne modifie aucun événement MIDI, aucune durée ni aucun timing.
 
-Le curseur de travail est distinct de la sélection et de la tête audio. Clic, toucher, appui prolongé, poignée, numéros de mesure, **Aller à…** et raccourcis Alt le déplacent sans effacer les notes sélectionnées. Play démarre au curseur ; Pause reprend le passage audio courant ; Stop conserve la position de travail. L'insertion et le collage utilisent cette position et leur durée musicale active.
+Le curseur de travail est distinct de la sélection et de la tête audio. Aller à… rejoint aussi horizontalement sa position exacte à fort zoom ; le suivi audio défile lorsque la tête approche du bord. Clic, toucher, appui prolongé, poignée, numéros de mesure, **Aller à…** et raccourcis Alt le déplacent sans effacer les notes sélectionnées. Play démarre au curseur ; Pause reprend le passage audio courant ; Stop conserve la position de travail. L'insertion et le collage utilisent cette position et leur durée musicale active.
 
 Un départ au milieu initialise le parcours au premier passage de la mesure choisie. Les sections antérieures ne sont pas jouées initialement ; les reprises et renvois rencontrés ensuite restent actifs et peuvent revenir en arrière. Cette règle est affichée dans Aller à… et détaillée dans le [guide](WEB-CURSOR-V0.8.md). Le métronome conserve sa phase, y compris à mi-temps ; une note déjà tenue est reprise une seule fois.
 
@@ -37,8 +37,8 @@ Les [résultats structurés](validation-v0.8/local-result.json), [journaux unita
 | G — Demi-temps | Curseur à 26,5 ; premier clic suivant 0,5 seconde après la note à 60 BPM |
 | H — Vues synchronisées | Partition ↔ Piano Roll, règle, numéros, mini-timeline, raccourcis et rechargement ; sélection conservée |
 | I — Insertion | Note MIDI 73 à 25,5, durée 0,25 ; insertion par outil et collage ; Undo/Redo |
-| J — Android Web | Toucher et gestes CDP tactiles réels, poignée, zoom 140 %, Aller à…, Play/Stop sur cinq dimensions tactiles |
-| K — Exports | Aperçu et SVG reprennent les coordonnées de gravure ; PDF vectoriel et PNG issus du même document, inspection visuelle ; aucun calque de curseur imprimé |
+| J — Android Web | Toucher et gestes CDP tactiles réels, poignée visible après Aller à… à 140 %, Play/Stop sur cinq dimensions tactiles |
+| K — Exports | Aperçu et SVG reprennent les coordonnées de gravure ; 168 positions PDF/SVG, octaves incluses, comparées ; PNG issu du même SVG ; aucun calque de curseur imprimé |
 
 Le scénario de 24 mesures inclut **mesure 12, temps 3, deuxième demi-temps = 46,5 noires**, vérifié dans les deux vues. Les tests ajoutés couvrent aussi les durées irrégulières, silences, prolongations, paroles, signatures composées, levée, changements de signature et tempo, départ après un Fine antérieur, reprises futures, pause dans une reprise et REC clavier depuis le curseur 26,5.
 
@@ -54,7 +54,7 @@ Huit dimensions sont exercées : **360×640, 390×844, 412×915, 740×390, 800×
 
 ![Douze variantes de centrage et ponctuation](validation-v0.8/centering-12-variants.png)
 
-L'[export PDF réel du navigateur](validation-v0.8/cursor-centering.pdf), son [rendu inspecté](validation-v0.8/cursor-pdf-render.png), le [PNG réel](validation-v0.8/cursor-centering.png), le [SVG réel compressé](validation-v0.8/cursor-centering.svg.xz) et les [12 paires SVG/PDF](validation-v0.8/centering-12-variants.tar.xz) permettent de revoir les résultats. Les PDF et les contours d'octaves ont été inspectés visuellement après rendu.
+L'[export PDF réel du navigateur](validation-v0.8/cursor-centering.pdf), son [rendu inspecté](validation-v0.8/cursor-pdf-render.png), le [PNG réel](validation-v0.8/cursor-centering.png), le [SVG réel compressé](validation-v0.8/cursor-centering.svg.xz) et les [12 paires SVG/PDF](validation-v0.8/centering-12-variants.tar.xz) permettent de revoir les résultats. Les PDF et les contours d'octaves ont été inspectés visuellement après rendu. Un [contrôle indépendant des opérateurs PDF](validation-v0.8/export-coordinates.json), [reproductible](validation-v0.8/verify-export-coordinates.py), compare les 168 positions de texte de la première page avec le SVG réel, octaves comprises : erreur maximale **0,00035 point**, sous le seuil de 0,001 point.
 
 ## Performance
 
@@ -62,6 +62,16 @@ Le [benchmark](validation-v0.8/benchmark.json) utilise Node 24.19.0, 100 mesures
 
 ## Publication et limites
 
-La validation locale est terminée. Les résultats GitHub Actions et le contrôle du site public seront ajoutés après déploiement du commit de cette évolution.
+Le site est disponible à **https://zonampoina.github.io/soratro/**. Le commit de qualification de l'application est **`5d736d51b68c3419d6edcc4a87771ae8591a4425`**. La consolidation de ce rapport et de ses preuves ajoute uniquement des fichiers de documentation ; la version servie est contrôlée à nouveau après ce dernier déploiement.
+
+Les workflows [validation Chromium](https://github.com/ZoNampoina/soratro/actions/runs/38117857722) et [publication GitHub Pages](https://github.com/ZoNampoina/soratro/actions/runs/38117857723) sont **terminés avec succès**. Les journaux décodés confirment chacun **177 tests unitaires, 4 tests d'interface et 73 parcours navigateur réussis**. Le job de déploiement est aussi réussi. Le [résultat CI structuré](validation-v0.8/ci-runtime-result.json) et les [journaux Chromium](validation-v0.8/ci-runtime-browser.log) / [Pages](validation-v0.8/ci-runtime-pages-build.log) sont conservés dans le dépôt. L'artefact GitHub `Chromium-validation-5d736d51b68c3419d6edcc4a87771ae8591a4425`, avec traces, captures et exports, est disponible dans le workflow pendant 30 jours, jusqu'au 10 novembre 2026.
+
+Le [contrôle du site public](validation-v0.8/public-result.json) sur **390×844** vérifie la version **0.8.0**, le commit exact, une partition SATB de sept mesures et 116 notes à taille 20, les colonnes 4+3 et les styles de ponctuation. Le centre des contours complets reste sous la tolérance de hinting de 0,6 px ; l'erreur maximale de sérialisation des frontières est **0,00045 px**.
+
+Le même contrôle vérifie **mesure 7, temps 3, deuxième demi-temps = 26,5**, le curseur commun aux deux vues, sa poignée visible à **150 %**, le démarrage audio, Stop, les trois exports sans curseur, le rechargement hors ligne avec restauration à 26,5 et le PDF hors ligne. Il ne relève aucune erreur JavaScript. Les données musicales sont identiques avant et après navigation, zoom, lecture et rechargement.
+
+![Curseur sur la version publique, à 150 %](validation-v0.8/public-mobile-cursor.png)
+
+L'[export PDF du site](validation-v0.8/public-grid.pdf) et le [PDF produit hors ligne](validation-v0.8/public-offline.pdf) sont conservés. La partition de contrôle historique garde son titre « Grille rythmique SATB · SORATRO 0.7 » lors de l'import ; la version de l'application est vérifiée séparément dans `version.json` et dans l'interface.
 
 La qualification tactile repose sur Chromium avec événements tactiles réels et différentes dimensions d'écran. Aucun téléphone Android physique, périphérique MIDI, microphone réel ni imprimante physique n'a été testé. Les tests vocaux utilisent le signal synthétique et les permissions simulées de la suite existante. La publication concerne uniquement le Web ; aucune nouvelle APK ni aucun EXE ne sont produits.

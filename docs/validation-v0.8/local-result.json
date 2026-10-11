@@ -35,5 +35,8 @@
   "workOverlaysAbsentFromExports": true,
   "recordingOrigin": 26.5,
   "pwaUpdateAndColdBrowserOfflineRestart": true,
-  "physicalAndroidDeviceTested": false
+  "physicalAndroidDeviceTested": false,
+  "directNavigationKeepsCursorInViewportAt140Percent": true,
+  "audioHorizontalFollow": true,
+  "fullSuiteReplayedAfterVisibilityFix": true
 }

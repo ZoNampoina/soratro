@@ -1,0 +1,77 @@
+{
+  "url": "https://zonampoina.github.io/soratro/",
+  "version": {
+    "version": "0.8.0",
+    "schemaVersion": 2,
+    "commit": "5d736d51b68c3419d6edcc4a87771ae8591a4425",
+    "builtAt": "2026-10-11T06:23:01.489Z"
+  },
+  "measures": 7,
+  "notes": 116,
+  "noteSize": 20,
+  "punctuation": {
+    "style": "custom",
+    "size": 1.05,
+    "contrast": 0.95,
+    "weight": 1.65,
+    "gap": 2.25
+  },
+  "columns": [
+    {
+      "measure": 1,
+      "x": 74.925,
+      "width": 482.384
+    },
+    {
+      "measure": 2,
+      "x": 557.309,
+      "width": 169.506
+    },
+    {
+      "measure": 3,
+      "x": 726.815,
+      "width": 169.506
+    },
+    {
+      "measure": 4,
+      "x": 896.321,
+      "width": 169.506
+    },
+    {
+      "measure": 5,
+      "x": 74.925,
+      "width": 482.384
+    },
+    {
+      "measure": 6,
+      "x": 557.309,
+      "width": 169.506
+    },
+    {
+      "measure": 7,
+      "x": 726.815,
+      "width": 169.506
+    }
+  ],
+  "sharedPulseAnchors": true,
+  "completeGlyphsCentered": true,
+  "maxBrowserInkCenterErrorPx": 0.5600000000000023,
+  "cursorBeat": 26.5,
+  "sharedCursorBothViews": true,
+  "cursorVisibleAt150Percent": true,
+  "playbackFromCursor": true,
+  "cursorExcludedFromExports": true,
+  "offlineCursorRestored": true,
+  "exactHalvesQuartersThirds": true,
+  "maxSerializedAnchorErrorPx": 0.00044440370243137295,
+  "screenZoomDoesNotChangeProject": true,
+  "publicPdf": true,
+  "publicSvg": true,
+  "publicPng": true,
+  "publicColdOfflineReload": true,
+  "publicOfflinePdf": true,
+  "cacheNames": [
+    "soratro-%2Fsoratro%2F-62bc8bfc4f00"
+  ],
+  "pageErrors": []
+}
