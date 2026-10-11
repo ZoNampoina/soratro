@@ -1,0 +1,69 @@
+{
+  "url": "https://zonampoina.github.io/soratro/",
+  "version": {
+    "version": "0.7.0",
+    "schemaVersion": 2,
+    "commit": "e6fa8f3eae5d6ef1bc320564a565f2681e0ca1ab",
+    "builtAt": "2026-10-11T04:16:44.739Z"
+  },
+  "measures": 7,
+  "notes": 116,
+  "noteSize": 20,
+  "punctuation": {
+    "style": "custom",
+    "size": 1.05,
+    "contrast": 0.95,
+    "weight": 1.65,
+    "gap": 2.25
+  },
+  "columns": [
+    {
+      "measure": 1,
+      "x": 74.925,
+      "width": 520.325
+    },
+    {
+      "measure": 2,
+      "x": 595.251,
+      "width": 156.859
+    },
+    {
+      "measure": 3,
+      "x": 752.109,
+      "width": 156.859
+    },
+    {
+      "measure": 4,
+      "x": 908.968,
+      "width": 156.859
+    },
+    {
+      "measure": 5,
+      "x": 74.925,
+      "width": 520.325
+    },
+    {
+      "measure": 6,
+      "x": 595.251,
+      "width": 156.859
+    },
+    {
+      "measure": 7,
+      "x": 752.109,
+      "width": 156.859
+    }
+  ],
+  "sharedPulseAnchors": true,
+  "exactHalvesQuartersThirds": true,
+  "maxSerializedAnchorErrorPx": 0.0004088705444473817,
+  "screenZoomDoesNotChangeProject": true,
+  "publicPdf": true,
+  "publicSvg": true,
+  "publicPng": true,
+  "publicColdOfflineReload": true,
+  "publicOfflinePdf": true,
+  "cacheNames": [
+    "soratro-%2Fsoratro%2F-f791d1931575"
+  ],
+  "pageErrors": []
+}

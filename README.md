@@ -1,7 +1,7 @@
 # SORATRO
 ## Version 0.7.0
 
-La gravure utilise une conversion temporelle proportionnelle dans chaque mesure, commune aux voix SATB : temps, demis, quarts et tiers conservent leurs rapports exacts. Les ponctuations sont centrées sur leurs frontières musicales et proposent Normal, Renforcé par défaut et Personnalisé. Masquer les noms libère leur réserve sans décaler les colonnes. Mise en page regroupe désormais les commandes dans Mesures et alignement, Typographie et Voix et paroles. Voir [le guide Web](docs/WEB-LAYOUT-V0.7.md) et [l’audit initial](docs/AUDIT-V0.7.md).
+La gravure utilise une conversion temporelle proportionnelle dans chaque mesure, commune aux voix SATB : temps, demis, quarts et tiers conservent leurs rapports exacts. Les ponctuations sont centrées sur leurs frontières musicales et proposent Normal, Renforcé par défaut et Personnalisé. Masquer les noms libère leur réserve sans décaler les colonnes. Mise en page regroupe désormais les commandes dans Mesures et alignement, Typographie et Voix et paroles. Voir [le guide Web](docs/WEB-LAYOUT-V0.7.md), [l’audit initial](docs/AUDIT-V0.7.md) et [le rapport de livraison](docs/RAPPORT-V0.7.md).
 
 La grille des lignes incomplètes, la taille Solfa exacte, les avertissements de densité, le zoom indépendant, les favoris, le panneau de réglages mobile, le tactile et le partage Web de la V0.6 sont conservés. Son [rapport de livraison](docs/RAPPORT-V0.6.md) reste disponible.
 

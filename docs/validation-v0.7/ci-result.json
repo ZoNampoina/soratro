@@ -1,0 +1,174 @@
+{
+  "runtimeCommit": "e6fa8f3eae5d6ef1bc320564a565f2681e0ca1ab",
+  "workflows": [
+    {
+      "id": 38111053161,
+      "name": "Validate SORATRO in Chromium",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ZoNampoina/soratro/actions/runs/38111053161",
+      "jobs": [
+        {
+          "id": 114386518408,
+          "name": "browser",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v6",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v6",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm ci",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run build:pages",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm test",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npx playwright install --with-deps chromium",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run test:browser",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v6",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v6",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 38111053185,
+      "name": "Publish SORATRO to GitHub Pages",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ZoNampoina/soratro/actions/runs/38111053185",
+      "jobs": [
+        {
+          "id": 114386518783,
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Checkout source",
+              "conclusion": "success"
+            },
+            {
+              "name": "Set up Node.js",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install dependencies",
+              "conclusion": "success"
+            },
+            {
+              "name": "Build for /soratro/",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify music, storage and offline cache",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install Chromium for actual browser validation",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify recording, PDF, touch and offline restart in Chromium",
+              "conclusion": "success"
+            },
+            {
+              "name": "Upload site",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Set up Node.js",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Checkout source",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 114387135472,
+          "name": "deploy",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Configure Pages",
+              "conclusion": "success"
+            },
+            {
+              "name": "Deploy site",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "unitTests": 161,
+  "uiTests": 4,
+  "browserTests": 58,
+  "countsVerifiedInBothBuildLogs": true,
+  "browserDuration": "2.9m",
+  "pagesBrowserDuration": "3.0m",
+  "artifact": [
+    {
+      "id": 11692220292,
+      "name": "Chromium-validation-e6fa8f3eae5d6ef1bc320564a565f2681e0ca1ab",
+      "size": 13929439,
+      "expired": false,
+      "expiresAt": "2026-11-10T04:20:13Z"
+    }
+  ]
+}
