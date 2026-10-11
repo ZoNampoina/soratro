@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-11",
+  "initialVersion": "0.6.0",
+  "finalVersion": "0.7.0",
+  "baseCommit": "fc7e4653af7bf9e4d9ac4922f7ce11cecfed3a1e",
+  "unitTests": 161,
+  "uiTests": 4,
+  "browserTests": 58,
+  "viewportSizes": [
+    "360x640",
+    "390x844",
+    "412x915",
+    "740x390",
+    "800x1280",
+    "1366x768",
+    "1440x900",
+    "1920x1080"
+  ],
+  "documentTolerancePx": 1e-07,
+  "serializedTolerancePx": 0.002,
+  "styles": [
+    "normal",
+    "reinforced",
+    "custom"
+  ],
+  "noteSizes": [
+    12,
+    17,
+    20,
+    24
+  ],
+  "visualReview": [
+    "contact sheet of twelve variants",
+    "20 px vector PDF with octaves",
+    "seven-measure full PDF rendered with Poppler",
+    "390x844 punctuation settings",
+    "740x390 layout"
+  ],
+  "physicalAndroidTested": false,
+  "browserCapture": "real Chromium APIs with synthetic audio input",
+  "nativePackagesProduced": false,
+  "browserDurationReported": "3.4m",
+  "nearQuantizedTimingChecked": true
+}

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
-import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {readFile,mkdir,mkdtemp,writeFile} from 'node:fs/promises';
 import {resolve,extname} from 'node:path';
 import {chromium,expect} from '@playwright/test';
 
@@ -8,6 +8,8 @@ import {chromium,expect} from '@playwright/test';
 const [oldBuild,newBuild,output='tmp/pwa-update']=process.argv.slice(2);
 if(!oldBuild||!newBuild)throw new Error('Usage: node scripts/verify-pwa-update.mjs old-dist new-dist [output]');
 const beforeRoot=resolve(oldBuild),afterRoot=resolve(newBuild),outputRoot=resolve(output);
+const expectedOld=JSON.parse(await readFile(resolve(beforeRoot,'version.json'),'utf8')).version,expectedNew=JSON.parse(await readFile(resolve(afterRoot,'version.json'),'utf8')).version;
+assert.notEqual(expectedOld,expectedNew,'Provide two builds with different application versions.');
 await mkdir(outputRoot,{recursive:true});
 let root=beforeRoot;
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.ttf':'font/ttf','.svg':'image/svg+xml','.png':'image/png','.webmanifest':'application/manifest+json'};
@@ -22,37 +24,45 @@ const server=createServer(async(req,res)=>{
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const url='http://127.0.0.1:'+server.address().port+'/soratro/';
-let browser;
+const profile=await mkdtemp(resolve(outputRoot,'browser-profile-'));
+const launch=()=>chromium.launchPersistentContext(profile,{viewport:{width:390,height:844},hasTouch:true,isMobile:true,acceptDownloads:true,executablePath:process.env.SORATRO_CHROMIUM_PATH||undefined,args:['--no-sandbox','--autoplay-policy=no-user-gesture-required']});
+let context;
 try{
- browser=await chromium.launch({executablePath:process.env.SORATRO_CHROMIUM_PATH||undefined,args:['--no-sandbox','--autoplay-policy=no-user-gesture-required']});
- const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,acceptDownloads:true}),page=await context.newPage();
+ context=await launch();let page=await context.newPage();
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url);await page.getByRole('button',{name:/^Ouvrir l’étude SATB/}).click();
  await expect(page.locator('.save-state')).toContainText('Sauvegardé');
+ // Choose landscape explicitly before the snapshot: this dense study needs room at exact font size.
+ await page.getByRole('button',{name:'Partition',exact:true}).click();await page.getByRole('tab',{name:'Mise en page de la partition'}).click();const settings=page.locator('dialog');
+ await settings.getByRole('button',{name:'Paramètres de mise en page',exact:true}).click();await settings.getByLabel('Orientation',{exact:true}).selectOption('landscape');
+ await settings.getByRole('button',{name:'Fermer les paramètres de mise en page'}).click();await settings.getByRole('button',{name:'Appliquer la mise en page'}).click();
+ await page.getByRole('button',{name:'Composition',exact:true}).click();
  await page.getByRole('tab',{name:'Piano Roll',exact:true}).click();await page.getByRole('button',{name:'Augmenter le zoom horizontal'}).click();
  await page.evaluate(async()=>{await navigator.serviceWorker.ready;});
  await expect.poll(()=>page.evaluate(()=>!!navigator.serviceWorker.controller)).toBeTruthy();
  await page.evaluate(()=>new Promise((resolve,reject)=>{const request=indexedDB.open('soratro',2);request.onsuccess=()=>{const db=request.result,tx=db.transaction('preferences','readwrite');tx.objectStore('preferences').put({value:'retained-through-update'},'qa-update-marker');tx.oncomplete=()=>{db.close();resolve();};tx.onerror=()=>reject(tx.error);};request.onerror=()=>reject(request.error);}));
  const snapshot=()=>page.evaluate(()=>new Promise((resolve,reject)=>{const request=indexedDB.open('soratro',2);request.onsuccess=()=>{const db=request.result,tx=db.transaction(['projects','preferences']),projects=tx.objectStore('projects').getAll(),marker=tx.objectStore('preferences').get('qa-update-marker');tx.oncomplete=()=>{resolve({projects:projects.result,marker:marker.result});db.close();};tx.onerror=()=>reject(tx.error);};request.onerror=()=>reject(request.error);}));
  const before=await snapshot(),oldVersion=await page.evaluate(async()=>await (await fetch('version.json')).json()),oldCaches=await page.evaluate(()=>caches.keys());
- assert.equal(oldVersion.version,'0.5.0');assert.ok(before.projects[0].tracks.some(t=>t.events.length));
+ assert.equal(oldVersion.version,expectedOld);assert.ok(before.projects[0].tracks.some(t=>t.events.length));
  root=afterRoot;
  await page.evaluate(async()=>{const registration=await navigator.serviceWorker.getRegistration();await registration.update();});
  const update=page.getByRole('button',{name:'Sauvegarder & mettre à jour'});await expect(update).toBeVisible({timeout:20000});
  await page.screenshot({path:resolve(outputRoot,'update-ready.png')});
  await Promise.all([page.waitForNavigation(),update.click()]);
  await expect(page.locator('.save-state')).toContainText('Sauvegardé');
- await expect(page.locator('.editor-footer')).toContainText('0.6.0');
+ await expect(page.locator('.editor-footer')).toContainText(expectedNew);
  const after=await snapshot();assert.deepEqual(after,before);
  const newVersion=await page.evaluate(async()=>await (await fetch('version.json')).json()),newCaches=await page.evaluate(()=>caches.keys());
- assert.equal(newVersion.version,'0.6.0');assert.ok(newCaches.some(key=>!oldCaches.includes(key)));
+ assert.equal(newVersion.version,expectedNew);assert.ok(newCaches.some(key=>!oldCaches.includes(key)));
  await expect(page.locator('.roll-tools')).toContainText('120 %');
- await context.setOffline(true);await page.reload();await expect(page.locator('.save-state')).toContainText('Sauvegardé');
- assert.deepEqual(await snapshot(),before);assert.equal((await page.evaluate(async()=>await (await fetch('version.json')).json())).version,'0.6.0');
+ const restartUrl=page.url();await context.close();context=await launch();await context.setOffline(true);page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(restartUrl);await expect(page.locator('.save-state')).toContainText('Sauvegardé');
+ await expect(page.locator('.roll-tools')).toContainText('120 %');
+ assert.deepEqual(await snapshot(),before);assert.equal((await page.evaluate(async()=>await (await fetch('version.json')).json())).version,expectedNew);
  await page.getByRole('button',{name:'PDF / Export',exact:true}).click();const dialog=page.locator('dialog');
  const downloading=page.waitForEvent('download');await dialog.getByRole('button',{name:'Exporter PDF',exact:true}).click();const pdf=await downloading;
  const file=resolve(outputRoot,'after-update-offline.pdf');await pdf.saveAs(file);assert.equal((await readFile(file)).subarray(0,5).toString(),'%PDF-');
  await page.screenshot({path:resolve(outputRoot,'after-update-offline.png')});assert.deepEqual(errors,[]);
- const report={from:oldVersion.version,to:newVersion.version,projectCount:before.projects.length,noteCount:before.projects.reduce((n,p)=>n+p.tracks.reduce((total,t)=>total+t.events.length,0),0),projectsAndMarkerPreserved:true,rollZoomPreserved:true,oldCaches,newCaches,coldOfflineRestart:true,offlinePdf:true,pageErrors:errors};
+ const report={from:oldVersion.version,to:newVersion.version,projectCount:before.projects.length,noteCount:before.projects.reduce((n,p)=>n+p.tracks.reduce((total,t)=>total+t.events.length,0),0),layout:'landscape chosen explicitly before update',projectsAndMarkerPreserved:true,rollZoomPreserved:true,oldCaches,newCaches,browserProcessRestarted:true,coldOfflineRestart:true,offlinePdf:true,pageErrors:errors};
  await writeFile(resolve(outputRoot,'result.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));await context.close();
-}finally{await browser?.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
+}finally{await context?.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}

@@ -1,0 +1,81 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> soratro@0.7.0 test:browser
+> playwright test
+
+[WebServer] (node:31) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:44) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:92) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 58 tests using 1 worker
+
+(node:126) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 360×640 (3.8s)
+  ✓   2 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 390×844 (3.0s)
+  ✓   3 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 412×915 (2.7s)
+  ✓   4 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 740×390 (2.7s)
+  ✓   5 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 800×1280 (3.4s)
+  ✓   6 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 1366×768 (2.9s)
+  ✓   7 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 1440×900 (3.2s)
+  ✓   8 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 1920×1080 (3.6s)
+  ✓   9 tests/e2e/aligned-web.spec.ts:28:1 › Seven bars align at 20 px; 150% screen zoom does not alter SVG/PDF/PNG or the musical project (2.4s)
+  ✓  10 tests/e2e/aligned-web.spec.ts:36:1 › Favorites persist; a line reset stages precisely, applies atomically and is reversible with Undo (3.0s)
+  ✓  11 tests/e2e/aligned-web.spec.ts:40:1 › A dense line preserves 24 px type, reports the constraint and prevents a clipped export until corrected (2.9s)
+  ✓  12 tests/e2e/aligned-web.spec.ts:43:1 › Touch pinch, double tap and rotation preserve the document, selection and preview position (1.4s)
+  ✓  13 tests/e2e/aligned-web.spec.ts:50:1 › Browser sharing uses Web Share files and downloads when unavailable (2.0s)
+  ✓  14 tests/e2e/aligned-web.spec.ts:55:1 › Small visual viewport keeps settings and Apply visible while a numeric field is focused (1.2s)
+  ✓  15 tests/e2e/aligned-web.spec.ts:59:1 › Page layout and export preserve the same personalized display geometry (1.9s)
+  ✓  16 tests/e2e/app.spec.ts:6:1 › Web Audio réel, métronome, transport, boucle, IndexedDB et cadres mobiles V0.1 conservés (3.3s)
+  ✓  17 tests/e2e/app.spec.ts:9:1 › REC PC, paroles/repère, PDF/SVG/PNG, export suppression import exact et redémarrage hors ligne (6.6s)
+  ✓  18 tests/e2e/app.spec.ts:16:71 › Pointer Events multitouch et composition 390×844 (2.2s)
+  ✓  19 tests/e2e/app.spec.ts:16:71 › Pointer Events multitouch et composition 740×390 (1.8s)
+  ✓  20 tests/e2e/editing.spec.ts:7:1 › Real Ctrl gesture toggles 1/4/7, grouped drag and Undo preserve every other note and raw timing (1.8s)
+  ✓  21 tests/e2e/editing.spec.ts:21:1 › Common selection, Solfa m→f in Db, MIDI/roll/playback source and atomic Undo/Redo (2.7s)
+  ✓  22 tests/e2e/editing.spec.ts:32:1 › Locked Alto is readable and audible; arrows, delete, quantize, transpose and REC reject changes (2.5s)
+  ✓  23 tests/e2e/editing.spec.ts:41:1 › Real prelisten plays the selected frequency, releases it and stays silent when disabled or Ctrl selecting (2.0s)
+  ✓  24 tests/e2e/editing.spec.ts:48:1 › Fullscreen native and fallback restore the prior layout; manual follow suspension is reversible (3.8s)
+  ✓  25 tests/e2e/editing.spec.ts:54:1 › Touch multiple selection and direct Solfa editing work on a portrait phone (1.9s)
+  ✓  26 tests/e2e/export-preferences.spec.ts:5:1 › Solfa preferences remain visual, voice colors persist, black export and print match the same preview (3.5s)
+  ✓  27 tests/e2e/export-preferences.spec.ts:18:1 › Export errors retain settings and release busy state; retry, Escape focus and PNG/SVG/PDF scopes work (2.8s)
+  ✓  28 tests/e2e/export-preferences.spec.ts:26:1 › Cold offline restart retains composition, preferences, editing, immersion, audio and PDF export (3.0s)
+  ✓  29 tests/e2e/presentation.spec.ts:5:1 › Malagasy/custom credits and contributors stage, print, survive reload and undo atomically (3.6s)
+  ✓  30 tests/e2e/presentation.spec.ts:6:1 › Numbers, counts, alignment and direct editorial clicks keep the music intact (3.6s)
+  ✓  31 tests/e2e/presentation.spec.ts:7:1 › Visual symbols can be pinned, placed precisely by click, cancelled, moved numerically and restored with Undo (4.0s)
+  ✓  32 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 360×640 (3.5s)
+  ✓  33 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 390×844 (3.9s)
+  ✓  34 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 412×915 (3.8s)
+  ✓  35 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 740×390 (4.2s)
+  ✓  36 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 800×1280 (4.3s)
+  ✓  37 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 1366×768 (4.4s)
+  ✓  38 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 1440×900 (5.7s)
+  ✓  39 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 1920×1080 (5.5s)
+  ✓  40 tests/e2e/temporal-grid.spec.ts:51:1 › Mixed rhythms export the same vector coordinates to SVG/PDF and a real PNG, with separate octaves (2.2s)
+  ✓  41 tests/e2e/temporal-grid.spec.ts:59:1 › Legacy punctuation defaults preview immediately and cancel without migrating the composition (1.5s)
+  ✓  42 tests/e2e/traditional.spec.ts:8:1 › Common lyrics use one text, independent voice links, reversible rhythm fallback and portable export (1.9s)
+  ✓  43 tests/e2e/traditional.spec.ts:14:1 › Page layout previews cancel cleanly; styles survive reload and apply in one undoable change (3.7s)
+  ✓  44 tests/e2e/traditional.spec.ts:18:1 › Manual measure/page breaks and widths are previewed, resettable and preserve notes (2.4s)
+  ✓  45 tests/e2e/traditional.spec.ts:21:1 › Symbol objects validate navigation and trigger real D.C. al Fine audio playback; reader clicks do not edit (4.5s)
+  ✓  46 tests/e2e/traditional.spec.ts:26:71 › Traditional page editor and embedded fonts export offline at 390×844 (2.5s)
+  ✓  47 tests/e2e/traditional.spec.ts:26:71 › Traditional page editor and embedded fonts export offline at 740×390 (2.5s)
+  ✓  48 tests/e2e/traditional.spec.ts:29:1 › Export layout settings are staged, cancellable and explicitly applicable with Undo (2.4s)
+  ✓  49 tests/e2e/vocal.spec.ts:5:1 › Tap Tempo uses selected dotted pulse, audible native click scheduling and defers tempo changes until after REC (4.6s)
+Vocal diagnostics: Fenêtre de détection : 85 ms · délai de traitement observé : 48 ms. Le retard matériel s’ajoute à cette mesure.
+  ✓  50 tests/e2e/vocal.spec.ts:6:1 › Actual microphone/AudioWorklet/worker/Recorder flow creates SATB take, original audio and offline notes without changing other voices (6.8s)
+  ✓  51 tests/e2e/vocal.spec.ts:8:1 › Denied microphone stays out of REC; preview, source change and background release capture tracks (1.1s)
+  ✓  52 tests/e2e/vocal.spec.ts:9:1 › Complete publication workflow records four vocal layers, retains custom credits, exports PDF and imports the portable audio backup (11.6s)
+  ✓  53 tests/e2e/workspace.spec.ts:5:1 › Twenty mode changes preserve Piano Roll, zoom, both scroll axes, track and selection (6.5s)
+  ✓  54 tests/e2e/workspace.spec.ts:25:1 › Panel space, exact immersion restore, resizing and device preferences survive a reload (2.0s)
+  ✓  55 tests/e2e/workspace.spec.ts:48:1 › 100-measure score: last page, responsive export, dynamic paper, page navigation and desktop resize (16.9s)
+  ✓  56 tests/e2e/workspace.spec.ts:71:71 › Export controls and settings remain accessible at 390×844 (1.1s)
+  ✓  57 tests/e2e/workspace.spec.ts:71:71 › Export controls and settings remain accessible at 740×390 (1.2s)
+  ✓  58 tests/e2e/workspace.spec.ts:83:1 › Vocal source keeps optional audio controls collapsed and the Piano Roll usable (785ms)
+
+  58 passed (3.4m)

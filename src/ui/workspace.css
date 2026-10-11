@@ -282,7 +282,11 @@ body.modal-open { overflow:hidden; }
 .page-layout-body input,.page-layout-body select{min-height:36px;width:100%}
 .page-layout-body input[type=checkbox]{width:18px;min-height:18px;flex-shrink:0}
 .layout-tabs{top:-14px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.layout-tabs button{font-size:12px;min-height:38px;padding:6px 8px;text-align:left;justify-content:flex-start}
+.layout-tabs button{font-size:12px;min-height:38px;padding:6px 8px;text-align:left;justify-content:flex-start;white-space:normal}
+.punctuation-editor{display:flex;flex-direction:column;gap:8px;margin:10px 0;padding:12px 0;border-top:1px solid var(--border)}
+.punctuation-editor h3{font-size:13px;margin:0}
+.punctuation-editor label{display:flex;flex-direction:column;gap:5px}
+.punctuation-editor small{font-size:11px;line-height:1.5;color:var(--muted)}
 .layout-favorites,.layout-advanced{border:1px solid var(--border);border-radius:8px;padding:10px}
 .layout-favorites summary,.layout-advanced summary{cursor:pointer;font-size:12px;min-height:30px;line-height:1.5}
 .layout-favorites summary small{color:var(--muted);font-size:10px;margin-left:6px}
