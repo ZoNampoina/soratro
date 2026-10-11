@@ -33,7 +33,7 @@ La position est conservée entre Composition, Partition et Répétition, dans la
 - Cliquer ou toucher un emplacement libre dans la partition place le curseur sur la grille active ; les attaques irrégulières existantes sont aussi des points possibles.
 - Cliquer une note sélectionne cette note en Édition. En Lecture, cela place le curseur sur son attaque. Un appui prolongé place le curseur sans remplacer la sélection.
 - La poignée triangulaire au-dessus du système se déplace à la souris ou au doigt. Elle utilise le zoom actuel et le même calcul musical que le clic.
-- Cliquer un numéro de mesure rejoint son début. Le navigateur de partition utilise aussi la position partagée.
+- Cliquer un numéro de mesure rejoint son début. Le navigateur de partition utilise aussi la position partagée. Aller à… fait apparaître la position exacte horizontalement à fort zoom ; le suivi audio défile aussi lorsque la tête approche du bord.
 - Cliquer la règle du Piano Roll choisit un temps ou une subdivision. Un simple clic dans une zone vide conserve la sélection et place le curseur ; le déplacement sur le fond conserve la sélection rectangulaire existante.
 - Le bouton de position du transport ouvre **Aller à…**. Il permet de choisir mesure, temps et subdivision, puis de positionner le curseur, lire, ou insérer.
 - **Lire depuis le curseur**, **Lire depuis le début** et **Lire depuis la sélection** sont explicites dans cette commande. Le bouton Play démarre au curseur lorsqu'il n'est pas en pause ; après une pause il reprend la lecture.

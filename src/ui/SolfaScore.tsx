@@ -63,14 +63,21 @@ export function SolfaScore({project,beat,cursorBeat=0,running,compact,visible=tr
   },[visible,ready,zoom,viewport.fit]);
   useEffect(()=>()=>{clearTimeout(timer.current);clearTimeout(longPress.current);},[]);
   function suspend(){if(!running)return;setSuspended(true);clearTimeout(timer.current);timer.current=setTimeout(()=>setSuspended(false),4000);}
-  function navigate(number:number,behavior:ScrollBehavior='auto'){
+  function horizontalPosition(number:number,at:number){
+    const target=doc?.systems.find(s=>s.first<=number&&s.last>=number),position=target?.measures.find(m=>m.number===number),viewport=ref.current,page=viewport?.querySelector<HTMLElement>('[data-page="'+target?.page+'"]');
+    if(!position||!viewport||!page)return;
+    const x=page.offsetLeft+(position.x+position.inset+beatToScoreX(position.geometry,at)*position.scale)*zoom;
+    return x<viewport.scrollLeft+32||x>viewport.scrollLeft+viewport.clientWidth-32?Math.max(0,x-viewport.clientWidth/2):viewport.scrollLeft;
+  }
+  function navigate(number:number,behavior:ScrollBehavior='auto',at=measureAt(project,number).start){
     const target=doc?.systems.find(s=>s.first<=number&&s.last>=number);if(!target||!ref.current)return;
     const el=ref.current.querySelector<HTMLElement>('[data-page="'+target.page+'"]');
-    if(el){ref.current.scrollTo({top:el.offsetTop+target.y*zoom-24,behavior});setViewport(v=>({...v,page:target.page}));}
+    if(el){ref.current.scrollTo({top:el.offsetTop+target.y*zoom-24,left:horizontalPosition(number,at),behavior});setViewport(v=>v.page===target.page?v:{...v,page:target.page});}
   }
-  useEffect(()=>{if(visible&&running&&follow&&!suspended)navigate(current);},[current,running,visible,follow,suspended,zoom,doc]);
+  useEffect(()=>{if(visible&&running&&follow&&!suspended)navigate(current,'auto',beat);},[current,running,visible,follow,suspended,zoom,doc]);
+  useEffect(()=>{if(visible&&running&&follow&&!suspended){const left=horizontalPosition(current,beat);if(left!==undefined&&ref.current&&left!==ref.current.scrollLeft)ref.current.scrollTo({left});}},[beat,visible,running,follow,suspended,zoom,doc]);
   useEffect(()=>{
-    if(visible&&focusRequest&&appliedFocus.current!==focusRequest.id){navigate(measureForBeat(project,focusRequest.beat).number);appliedFocus.current=focusRequest.id;}
+    if(visible&&focusRequest&&appliedFocus.current!==focusRequest.id){navigate(measureForBeat(project,focusRequest.beat).number,'auto',focusRequest.beat);appliedFocus.current=focusRequest.id;}
   },[focusRequest?.id,visible,doc,zoom]);
   function changeZoom(value:number|ScoreFit,point?:{x:number;y:number}){
     const el=ref.current;
