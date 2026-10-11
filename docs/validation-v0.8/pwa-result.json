@@ -1,0 +1,21 @@
+{
+  "from": "0.7.0",
+  "to": "0.8.0",
+  "projectCount": 1,
+  "noteCount": 96,
+  "layout": "landscape chosen explicitly before update",
+  "projectsAndMarkerPreserved": true,
+  "rollZoomPreserved": true,
+  "oldCaches": [
+    "soratro-%2Fsoratro%2F-0f15dabd3297"
+  ],
+  "newCaches": [
+    "soratro-%2Fsoratro%2F-0f15dabd3297",
+    "soratro-%2Fsoratro%2F-37806db11de2"
+  ],
+  "browserProcessRestarted": true,
+  "coldOfflineRestart": true,
+  "cursorRetained": 4.25,
+  "offlinePdf": true,
+  "pageErrors": []
+}

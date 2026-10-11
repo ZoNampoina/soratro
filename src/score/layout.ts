@@ -2,7 +2,7 @@ import { noteDuration, noteStart, type Project } from '../music/model.ts';
 import { measureAt } from '../music/timeline.ts';
 import { midiToSolfa } from '../solfa/converter.ts';
 import {rhythmBoundaries,principalPulses,RHYTHM_TIME_EPS} from '../solfa/rhythm.ts';
-export interface ScoreCell {beat:number;x:number;symbols:string[];kind:'note'|'hold'|'rest';noteIds:string[]}
+export interface ScoreCell {beat:number;endBeat:number;x:number;symbols:string[];kind:'note'|'hold'|'rest';noteIds:string[]}
 export interface MeasureGeometry {begin:number;end:number;width:number;minimumWidth?:number;anchors:{beat:number;x:number}[];rhythm?:ReturnType<typeof rhythmBoundaries>;rhythmByTrack?:Record<string,ReturnType<typeof rhythmBoundaries>>;trackBeats?:Record<string,number[]>;temporal?:boolean;noteOffset?:number;leadingPadding?:number}
 export const SCORE_TIME_EPS=RHYTHM_TIME_EPS;
 function uniqueTimes(values:number[]){return values.sort((a,b)=>a-b).filter((v,i,a)=>i===0||v-a[i-1]>SCORE_TIME_EPS);}
@@ -31,5 +31,6 @@ export function measureGeometry(project:Project,barIndex:number,width=216,minGap
 export function beatToScoreX(geometry:MeasureGeometry,beat:number){if(geometry.temporal)return (Math.max(geometry.begin,Math.min(geometry.end,beat))-geometry.begin)/(geometry.end-geometry.begin)*geometry.width;const anchors=[...geometry.anchors,{beat:geometry.end,x:geometry.width}];for(let i=0;i<anchors.length-1;i++)if(beat>=anchors[i].beat&&beat<=anchors[i+1].beat){const a=anchors[i],b=anchors[i+1];return a.x+(beat-a.beat)/(b.beat-a.beat)*(b.x-a.x);}return beat<geometry.begin?0:geometry.width;}
 export function layoutMeasure(project:Project,trackIndex:number,barIndex:number,width:number,geometry=measureGeometry(project,barIndex,width)):ScoreCell[]{
   const track=project.tracks[trackIndex],own=geometry.trackBeats?.[track.id],epsilon=geometry.temporal?SCORE_TIME_EPS:.0001;
-  return geometry.anchors.filter(a=>!own||own.some(b=>Math.abs(a.beat-b)<epsilon)).map(({beat,x})=>{const notes=track.events.filter(n=>Math.abs(noteStart(n)-beat)<epsilon);const held=track.events.filter(n=>noteStart(n)<beat-epsilon&&noteStart(n)+noteDuration(n)>beat+epsilon);return {beat,x,symbols:notes.length?notes.map(n=>midiToSolfa(n.midiPitch,project.tonic)):held.length?['–']:['0'],kind:notes.length?'note':held.length?'hold':'rest',noteIds:notes.map(n=>n.id)};});
+  const anchors=geometry.anchors.filter(a=>!own||own.some(b=>Math.abs(a.beat-b)<epsilon));
+  return anchors.map(({beat,x},i)=>{const notes=track.events.filter(n=>Math.abs(noteStart(n)-beat)<epsilon);const held=track.events.filter(n=>noteStart(n)<beat-epsilon&&noteStart(n)+noteDuration(n)>beat+epsilon);const endBeat=Math.min(anchors[i+1]?.beat??geometry.end,...notes.map(n=>noteStart(n)+noteDuration(n)));return {beat,endBeat,x,symbols:notes.length?notes.map(n=>midiToSolfa(n.midiPitch,project.tonic)):held.length?['–']:['0'],kind:notes.length?'note':held.length?'hold':'rest',noteIds:notes.map(n=>n.id)};});
 }

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createProject,makeNote,type Project,type Signature,id} from '../src/music/model.ts';
 import {engraveProject,pageSVG,systemPage,type DrawOp,PX_PER_MM} from '../src/score/engraving.ts';
+import {solfaTextMetrics,solfaNoteMetrics} from '../src/score/solfa-metrics.ts';
 import {textWidth} from '../src/score/font-metrics.ts';
 import {measureAt} from '../src/music/timeline.ts';
 import {punctuationMetrics,punctuationSettings} from '../src/score/punctuation.ts';
@@ -14,10 +15,10 @@ const EPS=1e-7; // Document coordinates in px; round-tripped SVG uses 3 decimals
 const close=(a:number,b:number)=>assert.ok(Math.abs(a-b)<EPS,`${a} != ${b}`);
 function fixture(signature:Signature='4/4'):Project{const p=createProject({tonic:'C',timeSignature:signature});p.settings.measureCount=7;p.layout.measuresPerSystem=1;return p;}
 const inkBounds:Record<string,[number,number]>={':':[240/2048,451/2048],'.':[219/2048,430/2048],',':[158/2048,451/2048]}; // independently checked against the bundled font
-function center(op:DrawOp){assert.equal(op.kind,'text');if(op.kind!=='text')throw Error('Expected text');const bounds=op.role==='rhythm'?inkBounds[op.text]:undefined;return op.x+(bounds?(bounds[0]+bounds[1])*op.size/2:textWidth(op.baseText??op.text,op.size)/2);}
+function center(op:DrawOp){assert.equal(op.kind,'text');if(op.kind!=='text')throw Error('Expected text');const bounds=op.role==='rhythm'?inkBounds[op.text]:undefined;const glyph=solfaTextMetrics(op.baseText??op.text,op.size);return op.x+(bounds?(bounds[0]+bounds[1])*op.size/2:(glyph.left+glyph.right)/2);}
 for(const mode of ['grid','independent','adaptive'] as const)test(`Note attacks retain affine distances with changing subdivisions in ${mode}`,()=>{
  const p=fixture();p.layout.measureAlignment=mode;p.tracks[0].events=[[0,1],[1,.5],[1.5,.5],[2,2]].map(([b,d])=>makeNote('soprano',60,b,d,72));const before=structuredClone(p),doc=engraveProject(p),ops=doc.systems[0].ops.filter(o=>o.kind==='text'&&o.noteIds?.length);
- close(center(ops[1])-center(ops[0]),2*(center(ops[2])-center(ops[1])));close(center(ops[3])-center(ops[0]),2*(center(ops[1])-center(ops[0])));assert.deepEqual(p,before);
+ close(ops[1].timeX!-ops[0].timeX!,2*(ops[2].timeX!-ops[1].timeX!));close(ops[3].timeX!-ops[0].timeX!,2*(ops[1].timeX!-ops[0].timeX!));const m=doc.systems[0].measures[0];[.5,1.25,1.75,2.5].forEach((b,i)=>close(center(ops[i]),m.x+m.inset+b/4*m.geometry.width*m.scale));assert.deepEqual(p,before);
 });
 test('Thirds retain their exact musical times and one third of the graphic pulse',()=>{
  const p=fixture();p.tracks.forEach(t=>t.events=[0,1/3,2/3,1].map(b=>makeNote(t.id,60,b,1/3,72)));const doc=engraveProject(p),m=doc.systems[0].measures[0],a=m.geometry.anchors;
@@ -51,12 +52,12 @@ function fullGlyphWidth(op:DrawOp){if(op.kind!=='text')throw Error('Expected tex
 for(const size of [12,17,20,24])for(const style of ['normal','reinforced','custom'] as const)test(`${style} punctuation at ${size} px keeps temporal fractions, octaves and collision-free lanes`,()=>{
  const p=mixed();p.layout.noteSize=size;p.layout.punctuation={style,size:1.1,contrast:.95,weight:1.6,gap:2.5};const before=structuredClone(p),doc=engraveProject(p),s=doc.systems[0],m=s.measures[0],metrics=punctuationMetrics(p.layout),settings=punctuationSettings(p.layout);
  assert.deepEqual(doc.warnings,[]);const notes=s.ops.filter(o=>o.kind==='text'&&o.role==='note'),signs=s.ops.filter(o=>o.role==='rhythm');
- for(const op of notes){assert.equal(op.kind==='text'?op.size:0,size);if(op.kind==='text'&&op.noteIds?.length)close(op.x+fullGlyphWidth(op)/2-op.timeX!,m.geometry.noteOffset!);}
+ for(const op of notes){assert.equal(op.kind==='text'?op.size:0,size);if(op.kind==='text'&&op.noteIds?.length){const pitch=p.tracks.flatMap(t=>t.events).find(n=>n.id===op.noteIds![0])!.midiPitch,ink=solfaNoteMetrics(pitch,p,size);close(op.x+(ink.left+ink.right)/2,op.centerX!);close(op.centerX!,m.x+m.inset+(op.beat!+op.cellEnd!)/8*m.geometry.width*m.scale);}}
  for(const op of signs){const expected=m.x+m.inset+op.beat!/4*(m.geometry.width*m.scale);close(op.timeX!,expected);assert.equal(op.kind==='text'?op.size:op.width,op.kind==='text'?size*settings.size:metrics.thirdWidth);assert.equal(op.kind==='text'||op.kind==='curve'?op.color:'',metrics.color);if(op.kind==='text')close(center(op),expected);}
  const first=signs.find(o=>o.trackId==='soprano'&&o.rhythmKind==='half')!,quarter=signs.filter(o=>o.trackId==='alto'&&o.rhythmKind==='quarter'),third=signs.filter(o=>o.trackId==='tenor'&&o.rhythmKind==='third');
  close((first.timeX!-m.x-m.inset)/(m.geometry.width*m.scale),1.5/4);assert.deepEqual(quarter.map(o=>o.beat),[1.25,1.75]);assert.equal(third.length,2);close(third[0].beat!-2,1/3);close(third[1].beat!-2,2/3);
  assert.equal(signs.filter(o=>o.trackId==='bass'&&o.rhythmKind!=='pulse').length,0);assert.equal(notes.filter(o=>o.trackId==='bass').length,4); // one attack and the three principal continuations
- for(const track of p.tracks){const glyphs=notes.filter(o=>o.trackId===track.id),punctuation=signs.filter(o=>o.trackId===track.id);for(const a of glyphs)for(const b of punctuation)if(a.kind==='text'&&b.kind==='text'){const bounds=inkBounds[b.text],left=Math.max(a.x,b.x+bounds[0]*b.size-(b.strokeWidth??0)/2),right=Math.min(a.x+fullGlyphWidth(a),b.x+bounds[1]*b.size+(b.strokeWidth??0)/2);assert.ok(right-left<1e-6,`${track.id}: collision at ${a.beat}/${b.beat}`);}}
+ for(const track of p.tracks){const glyphs=notes.filter(o=>o.trackId===track.id),punctuation=signs.filter(o=>o.trackId===track.id);for(const a of glyphs)for(const b of punctuation)if(a.kind==='text'&&b.kind==='text'){const bounds=inkBounds[b.text],note=a.noteIds?.length?p.tracks.flatMap(t=>t.events).find(n=>n.id===a.noteIds![0]):undefined,glyph=note?solfaNoteMetrics(note.midiPitch,p,a.size):solfaTextMetrics(a.text,a.size),left=Math.max(a.x+glyph.left,b.x+bounds[0]*b.size-(b.strokeWidth??0)/2),right=Math.min(a.x+glyph.right,b.x+bounds[1]*b.size+(b.strokeWidth??0)/2);assert.ok(right-left<1e-6,`${track.id}: collision at ${a.beat}/${b.beat}`);}}
  const svg=pageSVG(doc.pages[0]);assert.ok(svg.includes('data-rhythm-kind="third"'));assert.match(svg,/<tspan font-size=/);for(const octave of [1,2,-1,-2])assert.ok(notes.some(o=>o.kind==='text'&&o.octave===octave));if(style==='reinforced'||style==='custom')assert.match(svg,/paint-order="stroke fill"/);assert.deepEqual(p,before);
 });
 test('Natural no-label grids center the complete reference row, leaving the incomplete row in its first columns',()=>{

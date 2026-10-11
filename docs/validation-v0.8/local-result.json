@@ -1,0 +1,39 @@
+{
+  "version": "0.8.0",
+  "baselineCommit": "1c5a8b389b6e1f71d29a110c474947ff75746fda",
+  "unitTests": 177,
+  "uiTests": 4,
+  "browserTests": 73,
+  "failures": 0,
+  "buildPages": true,
+  "viewports": [
+    "360×640",
+    "390×844",
+    "412×915",
+    "740×390",
+    "800×1280",
+    "1366×768",
+    "1440×900",
+    "1920×1080"
+  ],
+  "touchEvents": "real Chromium CDP touchStart/touchMove/touchEnd and touchscreen.tap",
+  "musicalGridCenterTolerancePx": 1e-07,
+  "serializedSvgTolerancePx": 0.002,
+  "browserHintedInkCenterTolerancePx": 0.6,
+  "cursorMeasure7Time3": 26,
+  "cursorMeasure7Time3SecondHalf": 26.5,
+  "cursorMeasure12Time3SecondHalf": 46.5,
+  "audioOscillatorStartAndMetronomePhaseVerified": true,
+  "workCursorIndependentOfSelectionAndAudio": true,
+  "insertAndPasteAtWorkCursor": true,
+  "exports": [
+    "PDF",
+    "SVG",
+    "PNG"
+  ],
+  "previewCoordinatesEqualEngraving": true,
+  "workOverlaysAbsentFromExports": true,
+  "recordingOrigin": 26.5,
+  "pwaUpdateAndColdBrowserOfflineRestart": true,
+  "physicalAndroidDeviceTested": false
+}

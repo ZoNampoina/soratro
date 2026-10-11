@@ -1,0 +1,47 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> soratro@0.8.0 build:pages
+> tsc -b && vite build --base=/soratro/ && node scripts/generate-sw.mjs
+
+vite v8.0.13 building client environment for production...
+[2Ktransforming...✓ 2197 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                  1.20 kB │ gzip:   0.65 kB
+dist/assets/pitch.worker-xeo_iIQf.js             9.65 kB
+dist/assets/mono-regular-bOJjcBKD.ttf           53.05 kB
+dist/assets/mono-bold-BvCB19xT.ttf              54.54 kB
+dist/assets/serif-bold-BvvUr21O.ttf             69.42 kB
+dist/assets/serif-regular-B8i7--kB.ttf          72.07 kB
+dist/assets/sans-bold-y5lX63rr.ttf              72.94 kB
+dist/assets/sans-regular-9oWxZHdj.ttf           77.09 kB
+dist/assets/mono-regular-italic-Er2NYBt5.ttf    81.00 kB
+dist/assets/mono-bold-italic-DB4MxXmL.ttf       82.30 kB
+dist/assets/sans-bold-italic-BuQaYXlZ.ttf      103.84 kB
+dist/assets/serif-bold-italic-BVcvi9Hs.ttf     105.95 kB
+dist/assets/sans-regular-italic-ByH8-cKX.ttf   106.76 kB
+dist/assets/serif-regular-italic-sHnGwSnE.ttf  108.82 kB
+dist/assets/ScoreFont-uCh15Ap1.ttf             759.72 kB
+dist/assets/index-BH0FG6Br.css                  79.31 kB │ gzip:  15.67 kB
+dist/assets/typeof-DPf5JpRP.js                   0.27 kB │ gzip:   0.16 kB
+dist/assets/esm-FwiUHQLf.js                      0.32 kB │ gzip:   0.23 kB
+dist/assets/esm-Bucp1ya2.js                      0.33 kB │ gzip:   0.24 kB
+dist/assets/web-mInFEGKu.js                      0.36 kB │ gzip:   0.24 kB
+dist/assets/midi-pgyN2GYo.js                     0.68 kB │ gzip:   0.40 kB
+dist/assets/web-tSdr8Kwr.js                      0.84 kB │ gzip:   0.40 kB
+dist/assets/esm-Cgo9W_oO.js                      1.32 kB │ gzip:   0.69 kB
+dist/assets/export-sP2L66W0.js                   4.69 kB │ gzip:   2.26 kB
+dist/assets/web-Cq3p9SYn.js                      8.49 kB │ gzip:   2.84 kB
+dist/assets/purify.es-Xwike-BU.js               28.07 kB │ gzip:  11.08 kB
+dist/assets/index.es-CQpPJlmN.js               151.55 kB │ gzip:  48.92 kB
+dist/assets/html2canvas-wBKxGJ7h.js            199.56 kB │ gzip:  46.78 kB
+dist/assets/jspdf.es.min-ClhcBCf1.js           392.87 kB │ gzip: 126.52 kB
+dist/assets/index-ChMVVwpK.js                  696.90 kB │ gzip: 201.02 kB
+
+✓ built in 453ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+SORATRO offline shell: 37 assets, revision 37806db11de2

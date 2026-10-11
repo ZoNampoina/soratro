@@ -1,0 +1,174 @@
+{
+  "variants": [
+    {
+      "key": "normal-12",
+      "noteSize": 12,
+      "style": "normal",
+      "punctuation": {
+        "style": "normal",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 297.7465545,
+      "height": 205
+    },
+    {
+      "key": "reinforced-12",
+      "noteSize": 12,
+      "style": "reinforced",
+      "punctuation": {
+        "style": "reinforced",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 320.554867,
+      "height": 205
+    },
+    {
+      "key": "custom-12",
+      "noteSize": 12,
+      "style": "custom",
+      "punctuation": {
+        "style": "custom",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 332.4819045,
+      "height": 205
+    },
+    {
+      "key": "normal-17",
+      "noteSize": 17,
+      "style": "normal",
+      "punctuation": {
+        "style": "normal",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 370.87744387500004,
+      "height": 225
+    },
+    {
+      "key": "reinforced-17",
+      "noteSize": 17,
+      "style": "reinforced",
+      "punctuation": {
+        "style": "reinforced",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 396.52255325,
+      "height": 225
+    },
+    {
+      "key": "custom-17",
+      "noteSize": 17,
+      "style": "custom",
+      "punctuation": {
+        "style": "custom",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 410.08585637500005,
+      "height": 225
+    },
+    {
+      "key": "normal-20",
+      "noteSize": 20,
+      "style": "normal",
+      "punctuation": {
+        "style": "normal",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 414.75597750000003,
+      "height": 237
+    },
+    {
+      "key": "reinforced-20",
+      "noteSize": 20,
+      "style": "reinforced",
+      "punctuation": {
+        "style": "reinforced",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 442.103165,
+      "height": 237
+    },
+    {
+      "key": "custom-20",
+      "noteSize": 20,
+      "style": "custom",
+      "punctuation": {
+        "style": "custom",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 456.6482275,
+      "height": 237
+    },
+    {
+      "key": "normal-24",
+      "noteSize": 24,
+      "style": "normal",
+      "punctuation": {
+        "style": "normal",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 473.260689,
+      "height": 253
+    },
+    {
+      "key": "reinforced-24",
+      "noteSize": 24,
+      "style": "reinforced",
+      "punctuation": {
+        "style": "reinforced",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 502.877314,
+      "height": 253
+    },
+    {
+      "key": "custom-24",
+      "noteSize": 24,
+      "style": "custom",
+      "punctuation": {
+        "style": "custom",
+        "size": 1.05,
+        "contrast": 0.95,
+        "weight": 1.65,
+        "gap": 2.25
+      },
+      "width": 518.731389,
+      "height": 253
+    }
+  ],
+  "allDocumentSizesPreserved": true,
+  "embeddedFonts": true
+}

@@ -1,5 +1,8 @@
 # SORATRO
-## Version 0.7.0
+## Version 0.8.0
+
+Les symboles Solfa sont centrés dans leurs cellules musicales, avec leurs altérations et marques d'octave. Un curseur de travail commun à Partition, Piano Roll et au transport permet de naviguer, démarrer la lecture et insérer des notes à une mesure, un temps ou une subdivision. Il reste indépendant de la sélection et de la tête audio, se déplace au doigt et survit au rechargement. Le bouton de position ouvre **Aller à…** et les commandes de lecture explicites. Voir [le guide du curseur](docs/WEB-CURSOR-V0.8.md), [l'audit initial](docs/AUDIT-V0.8.md) et [le rapport de qualification](docs/RAPPORT-V0.8.md).
+
 
 La gravure utilise une conversion temporelle proportionnelle dans chaque mesure, commune aux voix SATB : temps, demis, quarts et tiers conservent leurs rapports exacts. Les ponctuations sont centrées sur leurs frontières musicales et proposent Normal, Renforcé par défaut et Personnalisé. Masquer les noms libère leur réserve sans décaler les colonnes. Mise en page regroupe désormais les commandes dans Mesures et alignement, Typographie et Voix et paroles. Voir [le guide Web](docs/WEB-LAYOUT-V0.7.md), [l’audit initial](docs/AUDIT-V0.7.md) et [le rapport de livraison](docs/RAPPORT-V0.7.md).
 

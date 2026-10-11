@@ -2,14 +2,14 @@ import { DEFAULT_SOLFA,type SolfaDisplay } from '../score/display.ts';
 import type {Selection} from '../music/note-editing.ts';
 export type WorkMode = 'composition' | 'partition' | 'rehearsal';
 export type MusicView = 'roll' | 'solfa' | 'split';
-export interface NavigationPreferences {mode:WorkMode;view:MusicView;trackId:string;selected:Selection|null}
+export interface NavigationPreferences {mode:WorkMode;view:MusicView;trackId:string;selected:Selection|null;cursorBeat:number}
 export function normalizeNavigation(input:unknown):NavigationPreferences {
   const p=(input??{}) as Partial<NavigationPreferences>;
   const selected=p.selected&&typeof p.selected.id==='string'&&typeof p.selected.trackId==='string'?{
     id:p.selected.id,trackId:p.selected.trackId,
     ids:[...new Set([p.selected.id,...(Array.isArray(p.selected.ids)?p.selected.ids.filter(id=>typeof id==='string').slice(0,200000):[])])],
   }:null;
-  return {mode:['composition','partition','rehearsal'].includes(p.mode??'')?p.mode!:'composition',view:['roll','solfa','split'].includes(p.view??'')?p.view!:'roll',trackId:typeof p.trackId==='string'?p.trackId:'soprano',selected};
+  return {mode:['composition','partition','rehearsal'].includes(p.mode??'')?p.mode!:'composition',view:['roll','solfa','split'].includes(p.view??'')?p.view!:'roll',trackId:typeof p.trackId==='string'?p.trackId:'soprano',selected,cursorBeat:typeof p.cursorBeat==='number'&&Number.isFinite(p.cursorBeat)?Math.max(0,p.cursorBeat):0};
 }
 export interface WorkspacePreferences {
   schema: 1;

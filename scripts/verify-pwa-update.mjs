@@ -55,14 +55,19 @@ try{
  const newVersion=await page.evaluate(async()=>await (await fetch('version.json')).json()),newCaches=await page.evaluate(()=>caches.keys());
  assert.equal(newVersion.version,expectedNew);assert.ok(newCaches.some(key=>!oldCaches.includes(key)));
  await expect(page.locator('.roll-tools')).toContainText('120 %');
+ let cursorRetained=null;
+ if(await page.getByRole('button',{name:'Aller à…',exact:true}).count()){
+  await page.getByRole('button',{name:'Aller à…',exact:true}).click();const d=page.locator('dialog');await d.getByLabel('Mesure du curseur').fill('2');await d.getByLabel('Temps du curseur').fill('3');await d.getByLabel('Subdivision du curseur').selectOption('2:2');await d.getByRole('button',{name:'Positionner le curseur'}).click();cursorRetained=4.25;await expect(page.locator('.cursor-position-button')).toHaveAttribute('data-cursor-beat',String(cursorRetained));
+  await expect.poll(()=>page.evaluate(()=>new Promise(resolve=>{const request=indexedDB.open('soratro',2);request.onsuccess=()=>{const db=request.result,r=db.transaction('preferences').objectStore('preferences').get('navigation:'+decodeURIComponent(location.hash.slice(9)));r.onsuccess=()=>{resolve(r.result?.cursorBeat);db.close();};};}))).toBe(cursorRetained);
+ }
  const restartUrl=page.url();await context.close();context=await launch();await context.setOffline(true);page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
  await page.goto(restartUrl);await expect(page.locator('.save-state')).toContainText('Sauvegardé');
  await expect(page.locator('.roll-tools')).toContainText('120 %');
- assert.deepEqual(await snapshot(),before);assert.equal((await page.evaluate(async()=>await (await fetch('version.json')).json())).version,expectedNew);
+ if(cursorRetained!==null)await expect(page.locator('.cursor-position-button')).toHaveAttribute('data-cursor-beat',String(cursorRetained));assert.deepEqual(await snapshot(),before);assert.equal((await page.evaluate(async()=>await (await fetch('version.json')).json())).version,expectedNew);
  await page.getByRole('button',{name:'PDF / Export',exact:true}).click();const dialog=page.locator('dialog');
  const downloading=page.waitForEvent('download');await dialog.getByRole('button',{name:'Exporter PDF',exact:true}).click();const pdf=await downloading;
  const file=resolve(outputRoot,'after-update-offline.pdf');await pdf.saveAs(file);assert.equal((await readFile(file)).subarray(0,5).toString(),'%PDF-');
  await page.screenshot({path:resolve(outputRoot,'after-update-offline.png')});assert.deepEqual(errors,[]);
- const report={from:oldVersion.version,to:newVersion.version,projectCount:before.projects.length,noteCount:before.projects.reduce((n,p)=>n+p.tracks.reduce((total,t)=>total+t.events.length,0),0),layout:'landscape chosen explicitly before update',projectsAndMarkerPreserved:true,rollZoomPreserved:true,oldCaches,newCaches,browserProcessRestarted:true,coldOfflineRestart:true,offlinePdf:true,pageErrors:errors};
+ const report={from:oldVersion.version,to:newVersion.version,projectCount:before.projects.length,noteCount:before.projects.reduce((n,p)=>n+p.tracks.reduce((total,t)=>total+t.events.length,0),0),layout:'landscape chosen explicitly before update',projectsAndMarkerPreserved:true,rollZoomPreserved:true,oldCaches,newCaches,browserProcessRestarted:true,coldOfflineRestart:true,cursorRetained,offlinePdf:true,pageErrors:errors};
  await writeFile(resolve(outputRoot,'result.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));await context.close();
 }finally{await context?.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}

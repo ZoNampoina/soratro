@@ -11,25 +11,27 @@ import {DEFAULT_SCORE,normalizeScore,clamp,type ScoreFit} from '../storage/ui-pr
 import {usePreference} from './usePreference';
 import {useScoreGestures} from './useScoreGestures';
 import {ScoreDensityWarning} from './ScoreDensityWarning';
+import {snapCursor} from '../music/cursor';
 import {NumericInput} from './NumericInput';
 export interface FocusRequest {id:number;beat:number;noteId?:string}
 export interface EditorialTarget {role:'header'|'footer'|'number'|'system'|'symbol';objectId?:string;measure?:number}
 export interface MusicalPosition {measure:number;beat:number}
 interface Props {
-  project:Project;beat:number;running:boolean;compact?:boolean;visible?:boolean;
+  project:Project;beat:number;cursorBeat?:number;running:boolean;compact?:boolean;visible?:boolean;
   display?:SolfaDisplay;follow?:boolean;document?:ScoreDocument;preferenceKey?:string;preview?:boolean;
   selected?:Selection|null;focusRequest?:FocusRequest;onFullscreen?:()=>void;
   onNoteClick?:(note:NoteEvent,modifiers:{add:boolean;range:boolean})=>void;
   onMeasureClick?:(number:number)=>void;onObjectClick?:(id:string)=>void;
-  seek?:(beat:number)=>void;
+  seek?:(beat:number)=>void;onCursor?:(beat:number)=>void;onCursorMove?:(beat:number)=>void;cursorOnly?:boolean;
   editorial?:boolean;onEditorialClick?:(target:EditorialTarget)=>void;
   placement?:boolean;onPlace?:(position:MusicalPosition)=>void;onMoveObject?:(id:string,position:MusicalPosition)=>void;
 }
 const Paper=memo(function Paper({html,width,height}:{html:string;width:number;height:number}){
   return <div className="engraved-content" style={{width,height}} dangerouslySetInnerHTML={{__html:html}}/>;
 });
-export function SolfaScore({project,beat,running,compact,visible=true,display=DEFAULT_SOLFA,follow=true,document:provided,preferenceKey,preview=false,selected,focusRequest,onFullscreen,onNoteClick,seek,onMeasureClick,onObjectClick,editorial=false,onEditorialClick,placement=false,onPlace,onMoveObject}:Props){
+export function SolfaScore({project,beat,cursorBeat=0,running,compact,visible=true,display=DEFAULT_SOLFA,follow=true,document:provided,preferenceKey,preview=false,selected,focusRequest,onFullscreen,onNoteClick,seek,onCursor,onCursorMove,cursorOnly=false,onMeasureClick,onObjectClick,editorial=false,onEditorialClick,placement=false,onPlace,onMoveObject}:Props){
   const ref=useRef<HTMLDivElement>(null);
+  const longPress=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),press=useRef<{x:number;y:number}|null>(null),dragCursor=useRef(false);
   const dragObject=useRef<{id:string;x:number;y:number}|null>(null),ignoreClick=useRef(false);
   const [viewport,setViewport,ready]=usePreference(preferenceKey??'score:'+project.id,DEFAULT_SCORE,normalizeScore);
   const [bounds,setBounds]=useState({width:0,height:0}),[suspended,setSuspended]=useState(false),[measure,setMeasure]=useState(1),[multi,setMulti]=useState(false);
@@ -37,13 +39,13 @@ export function SolfaScore({project,beat,running,compact,visible=true,display=DE
   const pendingScroll=useRef<{left:number;top:number}|null>(null);
   const previousZoom=useRef(1);
   const result=useMemo(()=>{try{return {doc:provided??engraveProject(project,undefined,display),error:''};}catch(e){return {doc:null,error:e instanceof Error?e.message:'Rendu indisponible.'};}},[project,provided,display]);
-  const doc=result.doc,current=measureForBeat(project,beat).number,system=doc?.systems.find(s=>s.first<=current&&s.last>=current),position=system?.measures.find(m=>m.number===current);
+  const doc=result.doc,cursorMeasure=measureForBeat(project,cursorBeat).number,cursorSystem=doc?.systems.find(s=>s.first<=cursorMeasure&&s.last>=cursorMeasure),cursorPosition=cursorSystem?.measures.find(m=>m.number===cursorMeasure),current=measureForBeat(project,beat).number,system=doc?.systems.find(s=>s.first<=current&&s.last>=current),position=system?.measures.find(m=>m.number===current);
   const pages=useMemo(()=>doc?.pages.map(p=>pageSVG(p,undefined,!preview||editorial))??[],[doc,preview,editorial]);
   const noteIndex=useMemo(()=>new Map(project.tracks.flatMap(t=>t.events.map(n=>[n.id,n] as const))),[project.tracks]);
   const chosen=selectionIds(selected??null),paper=doc?.pages[clamp(viewport.page,0,(doc?.pages.length??1)-1)]??doc?.pages[0];
   const fitWidth=paper?(bounds.width-32)/paper.width:1,fitHeight=paper?(bounds.height-32)/paper.height:1;
   const zoom=viewport.fit==='manual'||!bounds.width?viewport.zoom:clamp(viewport.fit==='width'?fitWidth:viewport.fit==='height'?fitHeight:viewport.fit==='two'?Math.min(fitWidth,((bounds.height-52)/2)/(paper?.height??1)):Math.min(fitWidth,fitHeight),.1,3);
-  const suppressTouch=useScoreGestures(ref,zoom,changeZoom,()=>changeZoom('width'),()=>{dragObject.current=null;ignoreClick.current=true;});
+  const suppressTouch=useScoreGestures(ref,zoom,changeZoom,()=>changeZoom('width'),()=>{dragObject.current=null;press.current=null;clearTimeout(longPress.current);ignoreClick.current=true;});
   const pageNumber=Math.min(viewport.page,Math.max(0,(doc?.pages.length??1)-1));
   useEffect(()=>{
     const el=ref.current;if(!el||!visible)return;
@@ -59,7 +61,7 @@ export function SolfaScore({project,beat,running,compact,visible=true,display=DE
     }
     previousZoom.current=zoom;
   },[visible,ready,zoom,viewport.fit]);
-  useEffect(()=>()=>clearTimeout(timer.current),[]);
+  useEffect(()=>()=>{clearTimeout(timer.current);clearTimeout(longPress.current);},[]);
   function suspend(){if(!running)return;setSuspended(true);clearTimeout(timer.current);timer.current=setTimeout(()=>setSuspended(false),4000);}
   function navigate(number:number,behavior:ScrollBehavior='auto'){
     const target=doc?.systems.find(s=>s.first<=number&&s.last>=number);if(!target||!ref.current)return;
@@ -90,8 +92,14 @@ export function SolfaScore({project,beat,running,compact,visible=true,display=DE
     if(key){const note=noteIndex.get(key);if(note)onNoteClick?.(note,modifiers);return;}const object=el.closest('[data-object-id][data-score-role="symbol"]')?.getAttribute('data-object-id');if(object){onObjectClick?.(object);return;}const number=el.closest('[data-measure]')?.getAttribute('data-measure');if(number)onMeasureClick?.(+number);
   }
   function positionAt(index:number,e:{clientX:number;clientY:number;currentTarget:HTMLElement}):MusicalPosition|undefined{
-    const page=doc?.pages[index];if(!page)return;const rect=e.currentTarget.getBoundingClientRect(),x=(e.clientX-rect.left)/zoom,y=(e.clientY-rect.top)/zoom,sys=page.systems.find(s=>y>=s.y&&y<=s.y+s.height);if(!sys)return;const m=sys.measures.find(m=>x>=m.x&&x<=m.x+m.width);if(!m)return;const local=Math.max(0,Math.min(m.geometry.width,(x-m.x-m.inset)/m.scale)),points=[...m.geometry.anchors,{beat:m.geometry.end,x:m.geometry.width}],right=points.findIndex(a=>a.x>=local),b=points[Math.max(0,right)],a=points[Math.max(0,right-1)],absolute=a.beat+(b.beat-a.beat)*(b.x===a.x?0:(local-a.x)/(b.x-a.x)),metric=measureAt(project,m.number);return {measure:m.number,beat:Math.max(0,Math.min(metric.barBeats-.001,Math.round((absolute-metric.start)*8)/8))};
+    const page=doc?.pages[index];if(!page)return;
+    const rect=e.currentTarget.getBoundingClientRect(),x=(e.clientX-rect.left)/zoom,y=(e.clientY-rect.top)/zoom,sys=page.systems.find(s=>y>=s.y-28&&y<=s.y+s.height+8);
+    if(!sys)return;const m=sys.measures.find(m=>x>=m.x&&x<=m.x+m.width);if(!m)return;
+    const fraction=Math.max(0,Math.min(1,(x-m.x-m.inset)/(m.geometry.width*m.scale))),absolute=m.geometry.begin+fraction*(m.geometry.end-m.geometry.begin),at=snapCursor(project,absolute),metric=measureForBeat(project,at);
+    return {measure:metric.number,beat:at-metric.start};
   }
+  function absolute(position:MusicalPosition){return measureAt(project,position.measure).start+position.beat;}
+  function cursorAt(index:number,e:{clientX:number;clientY:number;currentTarget:HTMLElement}){const at=positionAt(index,e);if(at)(onCursorMove??seek)?.(absolute(at));}
   return <section hidden={!visible} className={'score-panel '+(compact?'compact-score':'')+(preview?' export-score':'')+(editorial?' editorial-score':'')+(placement?' placing-symbol':'')} aria-label={preview?'Aperçu de l’export':'Partition Solfa'}>
     <div className="panel-bar score-bar"><span className="panel-eyebrow"><Music2 size={14}/>{preview?'APERÇU':'PARTITION SOLFA'}</span>
       <div className="score-zoom"><button aria-label="Réduire la partition" onClick={()=>changeZoom(zoom/1.2)}><Minus size={14}/></button><label className="score-zoom-input"><NumericInput aria-label="Zoom de la partition (%)" type="number" min={10} max={300} value={Math.round(zoom*100)} onValueChange={n=>changeZoom(n/100)}/> %</label><button aria-label="Agrandir la partition" onClick={()=>changeZoom(zoom*1.2)}><Plus size={14}/></button>
@@ -110,16 +118,22 @@ export function SolfaScore({project,beat,running,compact,visible=true,display=DE
       for(const page of Array.from(el.querySelectorAll<HTMLElement>('[data-page]'))){if(page.offsetTop<=el.scrollTop+el.clientHeight*.35)index=Number(page.dataset.page);}
       setViewport(v=>({...v,top:el.scrollTop,left:el.scrollLeft,page:index}));
     }}>{result.error&&<p role="alert" className="score-error">{result.error}</p>}{doc?.pages.map((page,index)=><div className="engraved-page" data-page={index} key={index} style={{width:Math.max(page.width,...page.systems.map(s=>s.x+s.width+project.layout.margin*96/25.4))*zoom,height:page.height*zoom,contentVisibility:'auto',containIntrinsicSize:(page.width*zoom)+'px '+(page.height*zoom)+'px'}}
-      onPointerDown={e=>{const id=(e.target as Element).closest('[data-score-role="symbol"][data-object-id]')?.getAttribute('data-object-id');if(id&&onMoveObject&&!placement){dragObject.current={id,x:e.clientX,y:e.clientY};e.currentTarget.setPointerCapture(e.pointerId);}}}
-      onPointerCancel={()=>{dragObject.current=null;}}
-      onPointerUp={e=>{const drag=dragObject.current;dragObject.current=null;if(drag&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>7){const position=positionAt(index,e);if(position){ignoreClick.current=true;onMoveObject?.(drag.id,position);}}else if(drag){ignoreClick.current=true;if(editorial)onEditorialClick?.({role:'symbol',objectId:drag.id});else onObjectClick?.(drag.id);}}}
-      onClick={e=>{if(suppressTouch.current){ignoreClick.current=false;return;}if(placement){const op=(e.target as Element).closest('[data-score-beat][data-measure]'),bar=op?.getAttribute('data-measure'),at=op?.getAttribute('data-score-beat'),position=bar&&at?{measure:+bar,beat:Math.max(0,+at-measureAt(project,+bar).start)}:positionAt(index,e);if(position)onPlace?.(position);return;}selectElement(e.target as Element,{add:e.ctrlKey||e.metaKey||multi,range:e.shiftKey});}} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();if(placement){const number=(e.target as Element).closest('[data-measure]')?.getAttribute('data-measure');if(number)onPlace?.({measure:+number,beat:0});}else selectElement(e.target as Element,{add:e.ctrlKey||e.metaKey||multi,range:e.shiftKey});}}}>
+      onPointerDown={e=>{
+        if(!preview&&!editorial&&!placement&&e.pointerType==='touch'){ignoreClick.current=false;press.current={x:e.clientX,y:e.clientY};const page=e.currentTarget,clientX=e.clientX,clientY=e.clientY;clearTimeout(longPress.current);longPress.current=setTimeout(()=>{if(press.current){ignoreClick.current=true;cursorAt(index,{clientX,clientY,currentTarget:page});}},550);}
+        const id=(e.target as Element).closest('[data-score-role="symbol"][data-object-id]')?.getAttribute('data-object-id');if(id&&onMoveObject&&!placement){dragObject.current={id,x:e.clientX,y:e.clientY};e.currentTarget.setPointerCapture(e.pointerId);}}}
+      onPointerMove={e=>{if(press.current&&Math.hypot(e.clientX-press.current.x,e.clientY-press.current.y)>8){press.current=null;clearTimeout(longPress.current);}}} onPointerCancel={()=>{dragObject.current=null;press.current=null;clearTimeout(longPress.current);}}
+      onPointerUp={e=>{const tap=press.current;press.current=null;clearTimeout(longPress.current);
+        if(e.pointerType==='touch'&&tap&&!ignoreClick.current&&!preview&&!editorial&&!placement&&!dragObject.current){const target=e.target as Element,key=target.closest('[data-note-id]')?.getAttribute('data-note-id'),note=key?noteIndex.get(key):undefined;if(cursorOnly||!key&&!target.closest('[data-object-id],[data-score-role="number"]')){const at=note?noteStart(note):(()=>{const position=positionAt(index,e);return position?absolute(position):undefined;})();if(at!==undefined){onCursor?.(at);ignoreClick.current=true;}return;}}
+        const drag=dragObject.current;dragObject.current=null;if(drag&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>7){const position=positionAt(index,e);if(position){ignoreClick.current=true;onMoveObject?.(drag.id,position);}}else if(drag){ignoreClick.current=true;if(editorial)onEditorialClick?.({role:'symbol',objectId:drag.id});else onObjectClick?.(drag.id);}}}
+      onClick={e=>{if(suppressTouch.current){ignoreClick.current=false;return;}if(ignoreClick.current){ignoreClick.current=false;return;}if(placement){const op=(e.target as Element).closest('[data-score-beat][data-measure]'),bar=op?.getAttribute('data-measure'),at=op?.getAttribute('data-score-beat'),position=bar&&at?{measure:+bar,beat:Math.max(0,+at-measureAt(project,+bar).start)}:positionAt(index,e);if(position)onPlace?.(position);return;}const el=e.target as Element,key=el.closest('[data-note-id]')?.getAttribute('data-note-id'),note=key?noteIndex.get(key):undefined,number=el.closest('[data-score-role="number"]')?.getAttribute('data-measure');if(!preview&&!editorial&&(cursorOnly||!key&&!el.closest('[data-object-id]')&&!number)){const at=note?noteStart(note):(()=>{const position=positionAt(index,e);return position?absolute(position):undefined;})();if(at!==undefined)onCursor?.(at);return;}selectElement(el,{add:e.ctrlKey||e.metaKey||multi,range:e.shiftKey});}} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();if(placement){const number=(e.target as Element).closest('[data-measure]')?.getAttribute('data-measure');if(number)onPlace?.({measure:+number,beat:0});}else if(cursorOnly){const key=(e.target as Element).closest('[data-note-id]')?.getAttribute('data-note-id'),note=key?noteIndex.get(key):undefined;if(note)onCursor?.(noteStart(note));}else selectElement(e.target as Element,{add:e.ctrlKey||e.metaKey||multi,range:e.shiftKey});}}}>
       <div className="engraved-scale" style={{width:page.width,height:page.height,transform:'scale('+zoom+')'}}><Paper html={pages[index]} width={page.width} height={page.height}/>
         {!preview&&<svg className="score-cursor" width={page.width} height={page.height} aria-hidden="true">
           {page.ops.filter(op=>op.kind==='text'&&op.noteIds?.some(key=>chosen.has(key)||running&&noteIndex.has(key)&&noteStart(noteIndex.get(key)!)<=beat&&noteStart(noteIndex.get(key)!)+noteDuration(noteIndex.get(key)!)>beat)).map((op,i)=>op.kind==='text'?<rect key={i} data-selected-note={op.noteIds?.find(key=>chosen.has(key))} x={op.x-3} y={op.y-op.size} width={textWidth(op.text,op.size)+6} height={op.size+5} rx={3} fill={op.noteIds?.some(key=>chosen.has(key))?'#8063cd25':'#60b59f25'} stroke={project.tracks.find(t=>t.id===noteIndex.get(op.noteIds?.[0]??'')?.trackId)?.color??'#8063cd'} strokeWidth={1.2}/>:null)}
-          {running&&system?.page===index&&position&&<><rect x={position.x} y={position.y-4} width={position.width} height={position.height+8} fill="#ab94e617"/><line x1={position.x+position.inset+beatToScoreX(position.geometry,beat)*position.scale} x2={position.x+position.inset+beatToScoreX(position.geometry,beat)*position.scale} y1={position.y-4} y2={position.y+position.height+4} stroke="#a184dc" strokeWidth={2}/></>}
+          {cursorSystem?.page===index&&cursorPosition&&<line data-work-cursor={cursorBeat} x1={cursorPosition.x+cursorPosition.inset+beatToScoreX(cursorPosition.geometry,cursorBeat)*cursorPosition.scale} x2={cursorPosition.x+cursorPosition.inset+beatToScoreX(cursorPosition.geometry,cursorBeat)*cursorPosition.scale} y1={cursorPosition.y-8} y2={cursorPosition.y+cursorPosition.height+4} className="work-cursor-line"/>}
+          {running&&system?.page===index&&position&&<><rect x={position.x} y={position.y-4} width={position.width} height={position.height+8} fill="#ab94e617"/><line data-playback-head={beat} x1={position.x+position.inset+beatToScoreX(position.geometry,beat)*position.scale} x2={position.x+position.inset+beatToScoreX(position.geometry,beat)*position.scale} y1={position.y-4} y2={position.y+position.height+4} stroke="#a184dc" strokeWidth={2}/></>}
         </svg>}
       </div>
+      {!preview&&!editorial&&cursorSystem?.page===index&&cursorPosition&&<button className="work-cursor-handle" aria-label="Déplacer le curseur temporel" title="Glisser pour choisir une subdivision" style={{left:(cursorPosition.x+cursorPosition.inset+beatToScoreX(cursorPosition.geometry,cursorBeat)*cursorPosition.scale)*zoom-16,top:(cursorPosition.y-8)*zoom-30}} onPointerDown={e=>{e.stopPropagation();e.preventDefault();dragCursor.current=true;e.currentTarget.setPointerCapture(e.pointerId);}} onPointerMove={e=>{if(dragCursor.current){e.stopPropagation();cursorAt(index,{clientX:e.clientX,clientY:e.clientY,currentTarget:e.currentTarget.closest('.engraved-page') as HTMLElement});}}} onPointerUp={e=>{e.stopPropagation();dragCursor.current=false;}} onPointerCancel={()=>{dragCursor.current=false;}} onClick={e=>e.stopPropagation()}>▼</button>}
     </div>)}</div>
   </section>;
 }
