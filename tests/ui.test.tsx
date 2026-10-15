@@ -32,5 +32,17 @@ test('UI: selected notes retain their intervals at timeline boundaries and rehea
  const before=structuredClone(store.getSnapshot().project!.tracks[0].events),roll=document.querySelector('.roll-panel')!;fireEvent.keyDown(roll,{code:'KeyA',ctrlKey:true});fireEvent.keyDown(roll,{code:'ArrowLeft'});assert.deepEqual(store.getSnapshot().project!.tracks[0].events.map(n=>n.quantizedStart??n.editStart??n.originalStart),before.map(n=>n.originalStart));fireEvent.keyDown(roll,{code:'ArrowUp',shiftKey:true});assert.deepEqual(store.getSnapshot().project!.tracks[0].events.map(n=>n.midiPitch),before.map(n=>n.midiPitch+12));
  fireEvent.click(screen.getByRole('button',{name:'Répétition',exact:true}));fireEvent.change(screen.getByLabelText('De la mesure'),{target:{value:'3'}});fireEvent.click(screen.getByRole('button',{name:'Répéter la zone'}));assert.equal(audio.position(),6);assert.ok(screen.getByText('Boucle activée'));await close();
 });
+test('PWA: only the SORATRO worker signals offline readiness and an available update',async()=>{
+ const {hasOfflineController,registerOffline,updateWaiting}=await import('../src/pwa/updates');const previous=Object.getOwnPropertyDescriptor(navigator,'serviceWorker'),dispatch=window.dispatchEvent;const notifications:string[]=[];
+ const workers={controller:null as {scriptURL:string}|null,async register(){return {waiting:{},addEventListener(){}};}};
+ Object.defineProperty(navigator,'serviceWorker',{configurable:true,value:workers});window.dispatchEvent=(event:Event)=>{notifications.push(event.type);return true;};
+ try{
+  assert.equal(hasOfflineController(),false);
+  for(const scriptURL of ['https://example.test/sw.js','https://example.test/tety/sw.js','https://other.test/soratro/sw.js']){workers.controller={scriptURL};assert.equal(hasOfflineController(),false,scriptURL);await registerOffline();assert.equal(updateWaiting(),false);}
+  assert.deepEqual(notifications,[],'A root or sibling worker must not announce a SORATRO update');
+  workers.controller={scriptURL:'https://example.test/soratro/sw.js'};assert.equal(hasOfflineController(),true);await registerOffline();assert.equal(updateWaiting(),true);assert.deepEqual(notifications,['soratro-update-ready']);
+ }finally{window.dispatchEvent=dispatch;if(previous)Object.defineProperty(navigator,'serviceWorker',previous);else Reflect.deleteProperty(navigator,'serviceWorker');}
+});
+
 test.afterEach(async()=>{await close();});
 test.after(async()=>{audio.dispose();await store.repository.close();dom.window.close();});
