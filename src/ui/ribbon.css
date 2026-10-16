@@ -55,8 +55,8 @@
 .ribbon-scroll-arrow { flex:none; width:19px; min-height:0; padding:0; border-radius:0; background:var(--surface-2); }
 .ribbon-scroll-arrow:disabled { opacity:.2; }
 .ribbon-mobile-scroll { display:none; }
-.command-ribbon .ribbon-group button { min-height:25px; padding:3px 7px; gap:5px; font-size:11px; white-space:nowrap; }
-.command-ribbon .ribbon-group input,.command-ribbon .ribbon-group select { font-size:11px; padding:3px 5px; height:26px; }
+.command-ribbon .ribbon-group button:not(dialog *) { min-height:25px; padding:3px 7px; gap:5px; font-size:11px; white-space:nowrap; }
+.command-ribbon .ribbon-group input:not(dialog *),.command-ribbon .ribbon-group select:not(dialog *) { font-size:11px; padding:3px 5px; height:26px; }
 .command-ribbon .view-tabs { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:25px 25px; padding:0; gap:2px; background:transparent; }
 .command-ribbon .view-tabs button:first-child { grid-column:1/-1; }
 .command-ribbon .view-tabs button { border-radius:4px; min-width:62px; padding:2px 6px; }
@@ -138,7 +138,7 @@
   .ribbon-scroll { overflow:visible; flex:none; }
   .ribbon-scroll-arrow { display:none; }
   .command-ribbon .ribbon-group { padding-inline:7px; }
-  .command-ribbon .ribbon-group button { min-height:28px; }
+  .command-ribbon .ribbon-group button:not(dialog *) { min-height:28px; }
   .ribbon-transport .transport-buttons { gap:2px; }
   .ribbon-transport .transport-buttons button { width:31px; min-width:31px; height:44px; min-height:44px; padding:3px; }
   .ribbon-transport .transport-buttons .rec-button { width:46px; }

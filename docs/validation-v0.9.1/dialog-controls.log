@@ -1,0 +1,38 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:99) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:147) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:160) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 20 tests using 1 worker
+
+(node:194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/cursor.spec.ts:18:1 › F/G: actual audio starts at measure 7 time 3 and its second half, with the metronome on the next pulse (3.7s)
+  ✓   2 tests/e2e/cursor.spec.ts:27:1 › H: clicks, direct entry, keys, measure numbers and both views retain one cursor without clearing selection (2.7s)
+  ✓   3 tests/e2e/cursor.spec.ts:37:1 › I/K: insertion uses the chosen duration and cursor time, Undo preserves the position, and all exports exclude work overlays (4.4s)
+  ✓   4 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 360×640 (2.2s)
+  ✓   5 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 390×844 (2.2s)
+  ✓   6 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 412×915 (2.3s)
+  ✓   7 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 740×390 (2.1s)
+  ✓   8 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 800×1280 (2.3s)
+  ✓   9 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 1366×768 (2.4s)
+  ✓  10 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 1440×900 (2.9s)
+  ✓  11 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 1920×1080 (3.3s)
+  ✓  12 tests/e2e/cursor.spec.ts:56:1 › Recording from the work cursor and pause/resume keep the musical origin and selection intact (2.9s)
+  ✓  13 tests/e2e/cursor.spec.ts:61:1 › A held note in a repeated section sounds once at the cursor, while future notated returns stay active (1.6s)
+  ✓  14 tests/e2e/cursor.spec.ts:66:1 › The insertion tool uses the clicked musical point and keeps its active duration independently of glyph width (1.7s)
+  ✓  15 tests/e2e/cursor.spec.ts:71:1 › Pasting uses the work cursor while the audio head advances elsewhere (1.9s)
+  ✓  16 tests/e2e/ribbon.spec.ts:6:3 › Command ribbon leaves room for the score at 1920×1080 (3.4s)
+  ✓  17 tests/e2e/ribbon.spec.ts:6:3 › Command ribbon leaves room for the score at 1366×768 (2.9s)
+  ✓  18 tests/e2e/ribbon.spec.ts:6:3 › Command ribbon leaves room for the score at 390×844 (1.8s)
+  ✓  19 tests/e2e/ribbon.spec.ts:6:3 › Command ribbon leaves room for the score at 740×390 (2.5s)
+  ✓  20 tests/e2e/ribbon.spec.ts:38:1 › Ribbon groups keep commands, project contents and saved collapse preference (3.3s)
+
+  20 passed (56.1s)

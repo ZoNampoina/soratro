@@ -20,6 +20,11 @@ for(const viewport of [{width:1920,height:1080},{width:1366,height:768},{width:3
     await expect(page.locator('#ribbon-context')).toBeHidden();
     for(const name of ['Lecture','Stop','Enregistrer','Aller à…'])await expect(page.getByRole('button',{name,exact:true})).toBeInViewport();
     const collapsed=(await score.boundingBox())!;expect(collapsed.y).toBeLessThan(expanded.y-25);
+    // A dialog opened from the compact ribbon keeps its original field typography.
+    await page.getByRole('button',{name:'Aller à…',exact:true}).click();
+    const cursor=page.getByRole('dialog');
+    expect(await cursor.getByLabel('Mesure du curseur').evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(14);
+    await cursor.getByRole('button',{name:'Annuler',exact:true}).click();
     await page.screenshot({path:info.outputPath('ribbon-collapsed.png')});
     await page.getByRole('button',{name:'Afficher le ruban'}).click();
     await page.getByRole('tab',{name:'Mise en page de la partition'}).click();

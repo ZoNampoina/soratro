@@ -12,6 +12,7 @@ La zone supérieure empilait l’en-tête, le transport, les outils de compositi
 - Repli par la flèche ou double-clic sur un onglet. Lecture, Stop, REC et Aller à… restent disponibles ; le réglage `workspace-v1.toolbar` existant mémorise ce choix.
 - Défilement horizontal borné aux groupes, avec flèches et accès clavier/tactile. Le REC mobile conserve une hauteur de 44 px. La barre de zoom défile sans tronquer ses contrôles.
 - Timeline : seul son propre défilement suit la mesure courante, sans entraîner le ruban entier.
+- Les styles compacts excluent les dialogues natifs ouverts depuis un groupe, notamment Aller à…, afin de conserver la taille habituelle de leurs champs et boutons.
 
 Les actions réutilisent leurs gestionnaires existants. Piano Roll et Partition restent montés pendant les changements de mode. Aucun changement du schéma de projet, de la base IndexedDB, du moteur de gravure, de la pagination ou du moteur audio.
 
@@ -33,6 +34,7 @@ Les coordonnées et tailles des notes, ponctuations et colonnes des SVG ont ét�
 - Compilation TypeScript et GitHub Pages réussie ; avertissement de taille de bundle déjà présent.
 - 193 tests du cœur et cinq tests UI réussis.
 - Suite navigateur complète : 82/83 réussis au premier passage final. Le test du double-tap synthétique après rotation a été intermittent pendant des vérifications concurrentes ; sa [revalidation isolée](validation-v0.9.1/gesture-recheck.log) réussit trois fois de suite, sans modification du code du geste ni du test. Les cinq nouveaux tests du ruban réussissent. [Journal complet](validation-v0.9.1/browser-tests.log).
+- [Contrôle complémentaire du curseur et du ruban](validation-v0.9.1/dialog-controls.log) : 20 scénarios réussis après exclusion des dialogues natifs des styles compacts, avec vérification de la typographie des champs.
 - Comparaison reproductible et captures aux quatre tailles via `scripts/verify-ribbon.mjs`.
 - [Mise à jour réelle 0.9.0 → 0.9.1](validation-v0.9.1/pwa-update.json) : projet de 96 notes et préférence témoin identiques, zoom du Piano Roll conservé, curseur à 4,25 conservé après fermeture complète et redémarrage hors ligne ; PDF hors ligne produit sans erreur JavaScript.
 - Mobile : essais Chromium avec dimensions Android et événements tactiles ; aucun appareil Android physique disponible dans cet environnement.
