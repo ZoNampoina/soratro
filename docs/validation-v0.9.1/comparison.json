@@ -1,0 +1,70 @@
+[
+  {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "before": {
+      "scoreTop": 275,
+      "notationUnchanged": true
+    },
+    "after": {
+      "scoreTop": 180,
+      "notationUnchanged": true,
+      "collapsedTop": 146
+    },
+    "savedPixels": 95,
+    "savedPercent": 35
+  },
+  {
+    "viewport": {
+      "width": 1366,
+      "height": 768
+    },
+    "before": {
+      "scoreTop": 275,
+      "notationUnchanged": true
+    },
+    "after": {
+      "scoreTop": 180,
+      "notationUnchanged": true,
+      "collapsedTop": 146
+    },
+    "savedPixels": 95,
+    "savedPercent": 35
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "before": {
+      "scoreTop": 387,
+      "notationUnchanged": true
+    },
+    "after": {
+      "scoreTop": 181,
+      "notationUnchanged": true,
+      "collapsedTop": 155
+    },
+    "savedPixels": 206,
+    "savedPercent": 53
+  },
+  {
+    "viewport": {
+      "width": 740,
+      "height": 390
+    },
+    "before": {
+      "scoreTop": 234,
+      "notationUnchanged": true
+    },
+    "after": {
+      "scoreTop": 181,
+      "notationUnchanged": true,
+      "collapsedTop": 155
+    },
+    "savedPixels": 53,
+    "savedPercent": 23
+  }
+]

@@ -3,7 +3,7 @@ import type {WorkspacePreferences} from '../storage/ui-preferences';
 export function DisplayPreferences({workspace:w,change,exportSettings,canExport=true}:{workspace:WorkspacePreferences;change:(patch:Partial<WorkspacePreferences>)=>void;exportSettings:()=>void;canExport?:boolean}){
   return <>
     <section><h3>Interface</h3><div className="preference-checks">
-      {([['header','Barre supérieure'],['tools','Outils et timeline'],['toolbar','Ruban de composition'],['piano','Clavier piano'],['inspector','Inspecteur des notes']] as const).map(([key,label])=><label className="checkbox-label" key={key}><input type="checkbox" checked={w[key]} onChange={e=>change({[key]:e.target.checked})}/>{label}</label>)}
+      {([['header','Barre supérieure'],['tools','Outils et timeline'],['toolbar','Ruban de commandes'],['piano','Clavier piano'],['inspector','Inspecteur des notes']] as const).map(([key,label])=><label className="checkbox-label" key={key}><input type="checkbox" checked={w[key]} onChange={e=>change({[key]:e.target.checked})}/>{label}</label>)}
     </div><label>Panneau des pistes<select value={w.tracks} onChange={e=>change({tracks:e.target.value as typeof w.tracks})}><option value="open">Ouvert</option><option value="compact">Réduit aux voix</option><option value="hidden">Masqué</option></select></label></section>
     <section><h3>Composition</h3><label className="checkbox-label"><input type="checkbox" checked={w.sync} onChange={e=>change({sync:e.target.checked})}/>Synchroniser les vues</label>
       <label className="checkbox-label"><input type="checkbox" checked={w.preview} onChange={e=>change({preview:e.target.checked})}/>Préécoute des notes</label>

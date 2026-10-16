@@ -1,0 +1,146 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:98) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:146) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 83 tests using 1 worker
+
+(node:193) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/a4-engraving.spec.ts:6:60 › A4 density, exact paper and multipage PDF persist with 1 voices on desktop (5.6s)
+  ✓   2 tests/e2e/a4-engraving.spec.ts:6:60 › A4 density, exact paper and multipage PDF persist with 4 voices on desktop (7.8s)
+  ✓   3 tests/e2e/a4-engraving.spec.ts:6:60 › A4 density, exact paper and multipage PDF persist with 1 voices on Android viewport (4.7s)
+  ✓   4 tests/e2e/a4-engraving.spec.ts:6:60 › A4 density, exact paper and multipage PDF persist with 4 voices on Android viewport (9.1s)
+  ✓   5 tests/e2e/a4-engraving.spec.ts:23:1 › An impossible requested count uses a temporary editable A4 grid without saving or exporting it (2.6s)
+  ✓   6 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 360×640 (4.3s)
+  ✓   7 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 390×844 (3.3s)
+  ✓   8 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 412×915 (3.1s)
+  ✓   9 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 740×390 (3.9s)
+  ✓  10 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 800×1280 (3.7s)
+  ✓  11 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 1366×768 (4.1s)
+  ✓  12 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 1440×900 (8.1s)
+  ✓  13 tests/e2e/aligned-web.spec.ts:8:29 › Composition, staged layout, export and menus fit 1920×1080 (6.0s)
+  ✓  14 tests/e2e/aligned-web.spec.ts:28:1 › Seven bars align at 20 px; 150% screen zoom does not alter SVG/PDF/PNG or the musical project (5.1s)
+  ✓  15 tests/e2e/aligned-web.spec.ts:36:1 › Favorites persist; a line reset stages precisely, applies atomically and is reversible with Undo (4.6s)
+  ✓  16 tests/e2e/aligned-web.spec.ts:40:1 › A dense line preserves 24 px type, reports the constraint and prevents a clipped export until corrected (4.0s)
+  ✘  17 tests/e2e/aligned-web.spec.ts:43:1 › Touch pinch, double tap and rotation preserve the document, selection and preview position (14.4s)
+(node:547) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 tests/e2e/aligned-web.spec.ts:50:1 › Browser sharing uses Web Share files and downloads when unavailable (2.2s)
+  ✓  19 tests/e2e/aligned-web.spec.ts:55:1 › Small visual viewport keeps settings and Apply visible while a numeric field is focused (2.6s)
+  ✓  20 tests/e2e/aligned-web.spec.ts:59:1 › Page layout and export preserve the same personalized display geometry (2.1s)
+  ✓  21 tests/e2e/app.spec.ts:6:1 › Web Audio réel, métronome, transport, boucle, IndexedDB et cadres mobiles V0.1 conservés (3.4s)
+  ✓  22 tests/e2e/app.spec.ts:9:1 › REC PC, paroles/repère, PDF/SVG/PNG, export suppression import exact et redémarrage hors ligne (8.0s)
+  ✓  23 tests/e2e/app.spec.ts:16:71 › Pointer Events multitouch et composition 390×844 (2.2s)
+  ✓  24 tests/e2e/app.spec.ts:16:71 › Pointer Events multitouch et composition 740×390 (1.8s)
+  ✓  25 tests/e2e/cursor.spec.ts:18:1 › F/G: actual audio starts at measure 7 time 3 and its second half, with the metronome on the next pulse (2.9s)
+  ✓  26 tests/e2e/cursor.spec.ts:27:1 › H: clicks, direct entry, keys, measure numbers and both views retain one cursor without clearing selection (3.1s)
+  ✓  27 tests/e2e/cursor.spec.ts:37:1 › I/K: insertion uses the chosen duration and cursor time, Undo preserves the position, and all exports exclude work overlays (3.1s)
+  ✓  28 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 360×640 (2.3s)
+  ✓  29 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 390×844 (2.6s)
+  ✓  30 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 412×915 (2.4s)
+  ✓  31 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 740×390 (2.2s)
+  ✓  32 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 800×1280 (2.4s)
+  ✓  33 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 1366×768 (2.5s)
+  ✓  34 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 1440×900 (3.2s)
+  ✓  35 tests/e2e/cursor.spec.ts:46:214 › J: cursor placement and drag handle at 1920×1080 (2.9s)
+  ✓  36 tests/e2e/cursor.spec.ts:56:1 › Recording from the work cursor and pause/resume keep the musical origin and selection intact (3.9s)
+  ✓  37 tests/e2e/cursor.spec.ts:61:1 › A held note in a repeated section sounds once at the cursor, while future notated returns stay active (2.2s)
+  ✓  38 tests/e2e/cursor.spec.ts:66:1 › The insertion tool uses the clicked musical point and keeps its active duration independently of glyph width (3.6s)
+  ✓  39 tests/e2e/cursor.spec.ts:71:1 › Pasting uses the work cursor while the audio head advances elsewhere (2.3s)
+  ✓  40 tests/e2e/editing.spec.ts:7:1 › Real Ctrl gesture toggles 1/4/7, grouped drag and Undo preserve every other note and raw timing (1.9s)
+  ✓  41 tests/e2e/editing.spec.ts:21:1 › Common selection, Solfa m→f in Db, MIDI/roll/playback source and atomic Undo/Redo (2.6s)
+  ✓  42 tests/e2e/editing.spec.ts:32:1 › Locked Alto is readable and audible; arrows, delete, quantize, transpose and REC reject changes (2.0s)
+  ✓  43 tests/e2e/editing.spec.ts:41:1 › Real prelisten plays the selected frequency, releases it and stays silent when disabled or Ctrl selecting (1.6s)
+  ✓  44 tests/e2e/editing.spec.ts:48:1 › Fullscreen native and fallback restore the prior layout; manual follow suspension is reversible (3.0s)
+  ✓  45 tests/e2e/editing.spec.ts:54:1 › Touch multiple selection and direct Solfa editing work on a portrait phone (1.4s)
+  ✓  46 tests/e2e/export-preferences.spec.ts:5:1 › Solfa preferences remain visual, voice colors persist, black export and print match the same preview (3.2s)
+  ✓  47 tests/e2e/export-preferences.spec.ts:18:1 › Export errors retain settings and release busy state; retry, Escape focus and PNG/SVG/PDF scopes work (2.9s)
+  ✓  48 tests/e2e/export-preferences.spec.ts:26:1 › Cold offline restart retains composition, preferences, editing, immersion, audio and PDF export (2.9s)
+  ✓  49 tests/e2e/presentation.spec.ts:5:1 › Malagasy/custom credits and contributors stage, print, survive reload and undo atomically (3.5s)
+  ✓  50 tests/e2e/presentation.spec.ts:6:1 › Numbers, counts, alignment and direct editorial clicks keep the music intact (3.4s)
+  ✓  51 tests/e2e/presentation.spec.ts:7:1 › Visual symbols can be pinned, placed precisely by click, cancelled, moved numerically and restored with Undo (3.8s)
+  ✓  52 tests/e2e/ribbon.spec.ts:6:3 › Command ribbon leaves room for the score at 1920×1080 (2.1s)
+  ✓  53 tests/e2e/ribbon.spec.ts:6:3 › Command ribbon leaves room for the score at 1366×768 (1.8s)
+  ✓  54 tests/e2e/ribbon.spec.ts:6:3 › Command ribbon leaves room for the score at 390×844 (2.1s)
+  ✓  55 tests/e2e/ribbon.spec.ts:6:3 › Command ribbon leaves room for the score at 740×390 (2.3s)
+  ✓  56 tests/e2e/ribbon.spec.ts:33:1 › Ribbon groups keep commands, project contents and saved collapse preference (2.7s)
+  ✓  57 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 360×640 (4.1s)
+  ✓  58 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 390×844 (5.0s)
+  ✓  59 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 412×915 (4.6s)
+  ✓  60 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 740×390 (4.3s)
+  ✓  61 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 800×1280 (4.8s)
+  ✓  62 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 1366×768 (4.7s)
+  ✓  63 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 1440×900 (4.7s)
+  ✓  64 tests/e2e/temporal-grid.spec.ts:25:29 › Punctuation preferences, shared SATB anchors and margins at 1920×1080 (6.0s)
+  ✓  65 tests/e2e/temporal-grid.spec.ts:51:1 › Mixed rhythms export the same vector coordinates to SVG/PDF and a real PNG, with separate octaves (3.3s)
+  ✓  66 tests/e2e/temporal-grid.spec.ts:59:1 › Legacy punctuation defaults preview immediately and cancel without migrating the composition (1.7s)
+  ✓  67 tests/e2e/traditional.spec.ts:8:1 › Common lyrics use one text, independent voice links, reversible rhythm fallback and portable export (1.9s)
+  ✓  68 tests/e2e/traditional.spec.ts:14:1 › Page layout previews cancel cleanly; styles survive reload and apply in one undoable change (4.2s)
+  ✓  69 tests/e2e/traditional.spec.ts:18:1 › Manual measure/page breaks and widths are previewed, resettable and preserve notes (2.4s)
+  ✓  70 tests/e2e/traditional.spec.ts:21:1 › Symbol objects validate navigation and trigger real D.C. al Fine audio playback; reader clicks do not edit (5.2s)
+  ✓  71 tests/e2e/traditional.spec.ts:26:71 › Traditional page editor and embedded fonts export offline at 390×844 (3.8s)
+  ✓  72 tests/e2e/traditional.spec.ts:26:71 › Traditional page editor and embedded fonts export offline at 740×390 (2.7s)
+  ✓  73 tests/e2e/traditional.spec.ts:29:1 › Export layout settings are staged, cancellable and explicitly applicable with Undo (3.4s)
+  ✓  74 tests/e2e/vocal.spec.ts:5:1 › Tap Tempo uses selected dotted pulse, audible native click scheduling and defers tempo changes until after REC (4.1s)
+Vocal diagnostics: Fenêtre de détection : 85 ms · délai de traitement observé : 49 ms. Le retard matériel s’ajoute à cette mesure.
+  ✓  75 tests/e2e/vocal.spec.ts:6:1 › Actual microphone/AudioWorklet/worker/Recorder flow creates SATB take, original audio and offline notes without changing other voices (7.5s)
+  ✓  76 tests/e2e/vocal.spec.ts:8:1 › Denied microphone stays out of REC; preview, source change and background release capture tracks (1.3s)
+  ✓  77 tests/e2e/vocal.spec.ts:9:1 › Complete publication workflow records four vocal layers, retains custom credits, exports PDF and imports the portable audio backup (12.0s)
+  ✓  78 tests/e2e/workspace.spec.ts:5:1 › Twenty mode changes preserve Piano Roll, zoom, both scroll axes, track and selection (6.5s)
+  ✓  79 tests/e2e/workspace.spec.ts:25:1 › Panel space, exact immersion restore, resizing and device preferences survive a reload (2.0s)
+  ✓  80 tests/e2e/workspace.spec.ts:48:1 › 100-measure score: last page, responsive export, dynamic paper, page navigation and desktop resize (17.2s)
+  ✓  81 tests/e2e/workspace.spec.ts:71:71 › Export controls and settings remain accessible at 390×844 (1.3s)
+  ✓  82 tests/e2e/workspace.spec.ts:71:71 › Export controls and settings remain accessible at 740×390 (1.3s)
+  ✓  83 tests/e2e/workspace.spec.ts:83:1 › Vocal source keeps optional audio controls collapsed and the Piano Roll usable (940ms)
+
+
+  1) tests/e2e/aligned-web.spec.ts:43:1 › Touch pinch, double tap and rotation preserve the document, selection and preview position
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  locator('.composition .score-panel').getByLabel('Cadrage de la partition')
+    Expected: "width"
+    Received: "manual"
+    Timeout:  12000ms
+
+    Call log:
+      - Expect "toHaveValue" locator('.composition .score-panel').getByLabel('Cadrage de la partition') with timeout 12000ms
+      - waiting for locator('.composition .score-panel').getByLabel('Cadrage de la partition')
+        24 × locator resolved to <select aria-label="Cadrage de la partition">…</select>
+           - unexpected value "manual"
+
+
+      46 |  await page.setViewportSize({width:740,height:390});await expect(panel.getByLabel('Zoom de la partition (%)')).toHaveValue('200');await page.setViewportSize({width:390,height:844});await expect(panel.getByLabel('Zoom de la partition (%)')).toHaveValue('200');
+      47 |  for(let i=0;i<2;i++){await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x,y}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await page.waitForTimeout(90);}
+    > 48 |  await expect(panel.getByLabel('Cadrage de la partition')).toHaveValue('width');expect(await currentProject(page)).toEqual(before);await context.close();
+         |                                                            ^
+      49 | });
+      50 | test('Browser sharing uses Web Share files and downloads when unavailable',async({page})=>{
+      51 |  await loadScore(page,fixture());await page.getByRole('button',{name:'PDF / Export'}).click();const d=page.locator('dialog');await page.evaluate(()=>{Object.defineProperty(navigator,'canShare',{configurable:true,value:()=>false});});let wait=page.waitForEvent('download');await d.getByRole('button',{name:'Partager',exact:true}).click();expect((await wait).suggestedFilename()).toMatch(/\.pdf$/);
+        at /workspace/scratch/b67b829a5d17/soratro/tests/e2e/aligned-web.spec.ts:48:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/aligned-web-Touch-pinch-do-ac1d5-ection-and-preview-position/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/aligned-web-Touch-pinch-do-ac1d5-ection-and-preview-position/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/aligned-web-Touch-pinch-do-ac1d5-ection-and-preview-position/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/aligned-web-Touch-pinch-do-ac1d5-ection-and-preview-position/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/aligned-web.spec.ts:43:1 › Touch pinch, double tap and rotation preserve the document, selection and preview position
+  82 passed (5.5m)

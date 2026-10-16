@@ -1,0 +1,171 @@
+/* Editor chrome: one title row, one tab row, one command row. The score's
+   physical layout and the home screen are deliberately independent of it. */
+.editor-app>.app-header {
+  display:flex; height:40px; min-height:40px; padding:0 12px; gap:12px;
+}
+.editor-app .header-left { display:flex; flex:1; min-width:120px; min-height:0; gap:8px; }
+.editor-app .small-brand { gap:5px; font-size:12px; }
+.editor-app .small-brand img { width:24px; height:24px; }
+.editor-app .header-separator { height:18px; margin:0 2px; }
+.editor-app .project-title { display:block; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; padding:3px 4px; }
+.editor-app .project-title>span { display:none; }
+.editor-app .header-right { display:flex; flex-shrink:0; gap:3px; min-height:0; }
+.editor-app .header-right>button,.editor-app .file-actions button,.editor-app .history-buttons button,.editor-app .home-button {
+  min-height:30px; height:30px; padding:4px 6px; gap:4px; font-size:11px;
+}
+.editor-app .file-actions { gap:1px; }
+.editor-app .file-actions button>span { display:none; }
+.editor-app .save-state { min-width:0; border:0; }
+.editor-app .print-open { white-space:nowrap; }
+.editor-app .history-buttons { display:flex; gap:0; padding:0 4px; margin:0 3px; border-inline:1px solid var(--border); }
+.command-ribbon { flex:none; min-width:0; background:var(--surface); border-bottom:1px solid var(--border); }
+.ribbon-tabs-row { height:33px; display:flex; align-items:stretch; gap:12px; padding:0 10px; border-bottom:1px solid var(--line); }
+.ribbon-tabs { display:flex; align-items:stretch; flex:none; gap:4px; }
+.ribbon-tabs .work-mode-tabs { display:flex; gap:2px; background:none; border:0; padding:0; position:static; }
+.ribbon-tabs button { border-radius:0; min-height:32px; padding:4px 13px; font-size:12px; border:0; border-bottom:2px solid transparent; }
+.ribbon-tabs .active-tab,.ribbon-tabs button[aria-pressed=true] { color:var(--accent); border-bottom-color:var(--accent); background:var(--accent-surface); }
+.ribbon-tabs-row .workspace-controls { min-width:0; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; gap:1px; }
+.ribbon-tabs-row .workspace-controls button { flex:none; height:30px; min-height:30px; padding:4px 6px; }
+.ribbon-tabs-row .workspace-controls button span { display:none; }
+.ribbon-tabs-row .workspace-controls select { height:26px; padding:2px 4px; width:106px; flex:none; }
+.ribbon-body { display:flex; height:76px; min-width:0; }
+.ribbon-group { flex:none; display:flex; flex-direction:column; justify-content:space-between; padding:5px 10px 3px; border-right:1px solid var(--border); min-width:0; }
+.ribbon-group-content { display:flex; align-items:center; justify-content:center; gap:7px; flex:1; min-height:0; }
+.ribbon-group-label { display:block; text-align:center; color:var(--muted); font-size:10px; line-height:14px; white-space:nowrap; }
+.command-ribbon .ribbon-transport { position:relative; inset:auto; z-index:auto; display:flex; flex:none; align-items:stretch; gap:0; height:auto; min-height:0; padding:0; border:0; background:none; }
+.ribbon-transport .ribbon-group:first-child { padding-bottom:18px; }
+.ribbon-transport .ribbon-group:first-child>.ribbon-group-label { display:none; }
+.ribbon-transport .transport-buttons { display:flex; gap:2px; }
+.ribbon-transport .transport-buttons button { height:32px; min-height:32px; min-width:30px; padding:4px; border-radius:4px; }
+.ribbon-transport .transport-buttons svg { width:17px; height:17px; }
+.ribbon-transport .rec-button { width:49px; gap:4px; font-size:10px; }
+.ribbon-transport .record-dot { width:8px; height:8px; }
+.ribbon-transport .transport-divider { height:22px; margin:0 2px; }
+.ribbon-transport .position-display { width:92px; min-width:92px; border:0; padding:0 3px; margin:0; min-height:36px; }
+.ribbon-transport .position-display .eyebrow { font-size:8px; letter-spacing:.8px; }
+.ribbon-transport .position-display strong { font-size:19px; line-height:22px; }
+.ribbon-transport .position-display strong small { font-size:10px; }
+.command-ribbon .transport-state { display:flex; align-items:center; flex-direction:row; gap:5px; position:absolute; left:10px; bottom:4px; width:214px; min-height:12px; font-size:10px; line-height:12px; white-space:nowrap; }
+.ribbon-transport .transport-state>span:last-child { overflow:hidden; text-overflow:ellipsis; }
+.ribbon-transport .state-dot { width:5px; height:5px; }
+.ribbon-transport .count-number { font-size:12px; line-height:12px; }
+.ribbon-context { display:flex; min-width:0; flex:1; }
+.ribbon-scroll { min-width:0; overflow-x:auto; overflow-y:hidden; scrollbar-width:thin; flex:1; scroll-padding-inline:6px; }
+.ribbon-context-content { display:flex; align-items:stretch; width:max-content; min-width:100%; height:100%; }
+.ribbon-scroll-arrow { flex:none; width:19px; min-height:0; padding:0; border-radius:0; background:var(--surface-2); }
+.ribbon-scroll-arrow:disabled { opacity:.2; }
+.ribbon-mobile-scroll { display:none; }
+.command-ribbon .ribbon-group button { min-height:25px; padding:3px 7px; gap:5px; font-size:11px; white-space:nowrap; }
+.command-ribbon .ribbon-group input,.command-ribbon .ribbon-group select { font-size:11px; padding:3px 5px; height:26px; }
+.command-ribbon .view-tabs { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:25px 25px; padding:0; gap:2px; background:transparent; }
+.command-ribbon .view-tabs button:first-child { grid-column:1/-1; }
+.command-ribbon .view-tabs button { border-radius:4px; min-width:62px; padding:2px 6px; }
+.editor-app:not([data-mode=composition]) .composition-ribbon-group { display:none; }
+.command-ribbon .partition-toolbar { display:grid; grid-template-columns:repeat(4,auto); grid-template-rows:25px 25px; align-items:center; gap:3px 5px; height:auto; min-height:0; padding:0; overflow:visible; border:0; background:none; }
+.command-ribbon .partition-phases { grid-column:1/-1; padding:0; gap:3px; background:none; }
+.command-ribbon .partition-phases button { min-height:25px; flex:1; padding:3px 9px; }
+.command-ribbon .partition-toolbar>label { display:flex; align-items:center; gap:4px; font-size:10px; }
+.command-ribbon .partition-toolbar>label input { width:46px; }
+.command-ribbon .partition-toolbar>span { display:none; }
+.command-ribbon .composer-tools-slot { display:flex; }
+.command-ribbon .composer-tools { display:flex; height:auto; gap:0; padding:0; border:0; background:none; }
+.command-ribbon .work-actions { display:grid; grid-template-columns:repeat(4,auto); grid-template-rows:25px 25px; gap:2px; }
+.command-ribbon .work-actions button { justify-content:flex-start; min-height:25px; padding:3px 5px; }
+.command-ribbon .work-actions .panic-button { justify-content:center; }
+.command-ribbon .timeline-ribbon-group { width:165px; }
+.command-ribbon .mini-timeline { width:144px; flex:none; height:40px; }
+.command-ribbon .mini-timeline button { padding:2px; min-width:19px; min-height:34px; }
+.command-ribbon .quantization-tools { display:grid; grid-template-columns:86px 90px; grid-template-rows:25px 25px; gap:3px 7px; padding:0; margin:0; border:0; }
+.command-ribbon .quantization-tools label { display:flex; align-items:center; gap:4px; font-size:9px; }
+.command-ribbon .quantization-tools label>span { font-size:8px; white-space:nowrap; }
+.command-ribbon .quantization-tools .quant-strength { grid-column:1; grid-row:2; }
+.command-ribbon .quant-strength>input { width:48px; min-width:30px; }
+.command-ribbon .quantization-tools .quantize-button { grid-column:2; grid-row:1; }
+.command-ribbon .quantization-tools .restore-button { grid-column:2; grid-row:2; justify-self:center; }
+.command-ribbon .tempo-control { border:0; padding:0; gap:2px; }
+.command-ribbon .tempo-control input { width:62px; text-align:center; font-size:18px; padding:0; height:27px; }
+.command-ribbon .tempo-control>select { height:22px; padding:0 3px; width:78px; }
+.command-ribbon .tap-button { min-width:40px; height:42px; padding:4px; }
+.command-ribbon .input-source-control,.command-ribbon .count-in-control { display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:0; font-size:8px; letter-spacing:.5px; }
+.command-ribbon .input-source-control select { width:105px; }
+.command-ribbon .count-in-control select { width:88px; }
+.command-ribbon .count-in-control>span { font-size:8px; }
+.command-ribbon .project-quick-settings { display:flex; align-items:center; gap:5px; padding:0; }
+.command-ribbon .project-quick-settings label { display:flex; align-items:center; gap:4px; font-size:10px; white-space:nowrap; }
+.command-ribbon .project-quick-settings select { width:53px; }
+.command-ribbon .rehearsal-panel { display:flex; align-items:center; gap:12px; padding:0; border:0; background:none; }
+.command-ribbon .rehearsal-controls,.command-ribbon .rehearsal-loop { display:flex; align-items:center; gap:7px; flex-wrap:nowrap; margin:0; }
+.command-ribbon .rehearsal-panel label { display:flex; flex-direction:column; gap:2px; font-size:9px; }
+.command-ribbon .rehearsal-loop input { width:45px; }
+.command-ribbon .rehearsal-tempo,.command-ribbon .rehearsal-loop>strong { font-size:10px; max-width:105px; }
+.command-ribbon .rehearsal-lyrics { padding:0; min-height:0; }
+.command-ribbon[data-expanded=false] .ribbon-body { height:42px; }
+.command-ribbon[data-expanded=false] .ribbon-transport .ribbon-group { padding:3px 10px; }
+.command-ribbon[data-expanded=false] .ribbon-group-label,.command-ribbon[data-expanded=false] .position-display .eyebrow { display:none; }
+.command-ribbon[data-expanded=false] .transport-state { position:static; width:auto; max-width:200px; align-self:center; padding:0 12px; }
+.composition .score-bar { min-height:30px; height:30px; padding:1px 10px; gap:6px; }
+.composition .score-bar button { min-height:26px; height:26px; padding:2px 5px; }
+.composition .score-bar .score-zoom { gap:3px; }
+.composition .score-bar .score-zoom { flex-wrap:nowrap; width:max-content; }
+.editor-app[data-score-fullscreen=true] .ribbon-tabs { display:none; }
+.editor-app[data-score-fullscreen=true] .ribbon-tabs-row { justify-content:flex-end; }
+.editor-app[data-score-fullscreen=true] .ribbon-tabs-row>.workspace-controls { display:none; }
+.editor-app[data-immersion=true] .ribbon-tabs-row { height:30px; }
+@media(max-width:1100px) {
+  .editor-app .save-state>span:last-child { display:none; }
+  .editor-app .small-brand>span { display:none; }
+}
+@media(max-width:760px) {
+  .editor-app>.app-header { height:38px; min-height:38px; padding:0 6px; gap:5px; }
+  .editor-app .header-left { min-width:80px; flex:1; gap:3px; }
+  .editor-app .header-left .small-brand,.editor-app .header-separator { display:none; }
+  .editor-app .project-title { max-width:100%; font-size:11px; }
+  .editor-app .header-right { max-width:57%; overflow-x:auto; scrollbar-width:none; gap:1px; min-width:0; }
+  .editor-app .header-right>button,.editor-app .file-actions button,.editor-app .history-buttons button,.editor-app .home-button { height:32px; min-height:32px; flex:none; padding:4px; }
+  .editor-app .file-actions { display:flex; order:2; }
+  .editor-app .header-right .print-open { order:-2; font-size:10px; padding:4px 5px; }
+  .editor-app .header-right .save-state { order:-1; }
+  .editor-app .header-right .history-buttons { order:1; }
+  .ribbon-tabs-row { height:34px; gap:5px; padding:0 4px; }
+  .ribbon-tabs { min-width:0; flex:1; overflow-x:auto; scrollbar-width:none; }
+  .ribbon-tabs button { padding:4px 9px; font-size:11px; min-height:33px; flex:none; }
+  .ribbon-tabs-row .workspace-controls { flex:none; width:64px; margin:0; }
+  .ribbon-tabs-row .workspace-controls button { min-width:31px; min-height:32px; height:32px; }
+  .ribbon-mobile-scroll { display:flex; align-items:center; flex:none; gap:0; }
+  .ribbon-mobile-scroll button { padding:2px; min-height:32px; width:24px; }
+  .ribbon-body { height:74px; overflow-x:auto; overflow-y:hidden; scrollbar-width:thin; }
+  .ribbon-context { flex:none; }
+  .ribbon-scroll { overflow:visible; flex:none; }
+  .ribbon-scroll-arrow { display:none; }
+  .command-ribbon .ribbon-group { padding-inline:7px; }
+  .command-ribbon .ribbon-group button { min-height:28px; }
+  .ribbon-transport .transport-buttons { gap:2px; }
+  .ribbon-transport .transport-buttons button { width:31px; min-width:31px; height:44px; min-height:44px; padding:3px; }
+  .ribbon-transport .transport-buttons .rec-button { width:46px; }
+  .command-ribbon .ribbon-transport .position-display { width:86px; min-width:86px; min-height:36px; }
+  .command-ribbon .transport-state { left:7px; max-width:208px; }
+  .command-ribbon[data-expanded=false] .ribbon-body { height:48px; }
+  .command-ribbon[data-expanded=false] .ribbon-transport .ribbon-group { padding:0 6px; }
+  .command-ribbon[data-expanded=false] .transport-state { display:none; }
+  .command-ribbon .work-actions,.command-ribbon .view-tabs,.command-ribbon .partition-toolbar,.command-ribbon .quantization-tools { grid-template-rows:26px 26px; }
+  .command-ribbon .ribbon-group-label { font-size:9px; line-height:12px; }
+  .command-ribbon .partition-phases button { min-height:26px; padding:2px 7px; }
+  .composition .score-bar { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; min-height:34px; height:34px; }
+  .composition .score-bar>* { flex-shrink:0; }
+  .composition .score-bar .score-zoom { justify-content:flex-start; }
+  .composition .score-bar button,.composition .score-bar select { min-height:30px; height:30px; }
+}
+/* REC remains in the quick-access group in every work mode. */
+.editor-app .command-ribbon .transport-buttons>.rec-button { display:inline-flex; min-width:49px; margin-left:0; }
+.composition .score-bar .score-zoom-input input { min-height:26px; height:26px; }
+@media(max-width:760px) {
+  .editor-app .command-ribbon .transport-buttons>.rec-button { min-width:46px; }
+  .composition .score-bar .score-zoom-input input { font-size:12px; }
+}
+@media(max-width:380px) {
+  .command-ribbon .ribbon-transport .ribbon-group { padding-inline:4px; }
+  .ribbon-transport .transport-buttons { gap:1px; }
+  .ribbon-transport .transport-buttons button { width:28px; min-width:28px; }
+  .editor-app .command-ribbon .transport-buttons>.rec-button { width:42px; min-width:42px; }
+  .command-ribbon .ribbon-transport .position-display { min-width:76px; width:76px; }
+}

@@ -1,5 +1,9 @@
 # SORATRO
-## Version 0.9.0
+## Version 0.9.1
+
+L’atelier utilise un ruban compact à onglets **Composition, Partition et Répétition**, avec des groupes de commandes nommés. Les anciens bandeaux Transport, Outils, Modes et Sous-modes partagent une seule rangée. La flèche **Rabattre le ruban** et le double-clic sur un onglet masquent les groupes détaillés ; Lecture, Stop, REC et Aller à… restent accessibles. Le choix est mémorisé dans la préférence d’affichage existante. Sur téléphone, balayez horizontalement les groupes ou utilisez les flèches du ruban. Voir [le rapport de vérification](docs/RAPPORT-V0.9.1.md).
+
+### Version 0.9.0
 
 **Mise en page → Mesures et alignement** propose une densité horizontale de 70 à 150 %, enregistrée dans chaque partition. Elle ajuste les espaces sans réduire la taille Solfa. Le nombre de mesures par ligne accepte 0 (Auto) ou 1 à 32. Les feuilles gardent les dimensions du papier et une pagination normale ; les dernières lignes conservent leurs colonnes, y compris dans les modes indépendant et adaptatif. Les points sont des cercles vectoriels et les virgules de tiers descendent près de la ligne de notation.
 
