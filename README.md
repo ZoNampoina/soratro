@@ -1,5 +1,11 @@
 # SORATRO
-## Version 0.8.0
+## Version 0.9.0
+
+**Mise en page → Mesures et alignement** propose une densité horizontale de 70 à 150 %, enregistrée dans chaque partition. Elle ajuste les espaces sans réduire la taille Solfa. Le nombre de mesures par ligne accepte 0 (Auto) ou 1 à 32. Les feuilles gardent les dimensions du papier et une pagination normale ; les dernières lignes conservent leurs colonnes, y compris dans les modes indépendant et adaptatif. Les points sont des cercles vectoriels et les virgules de tiers descendent près de la ligne de notation.
+
+Un nombre de colonnes incompatible produit un avertissement chiffré et un aperçu provisoire éditable, sans modifier les réglages sauvegardés. L’export attend leur correction. Si une seule mesure dépasse la largeur utile, un message explique les réglages à adapter. Aucun changement de schéma IndexedDB ni suppression de données. Voir [l’audit](docs/AUDIT-V0.9.md) et [le rapport de vérification](docs/RAPPORT-V0.9.md).
+
+### Version 0.8.0
 
 Les symboles Solfa sont centrés dans leurs cellules musicales, avec leurs altérations et marques d'octave. Un curseur de travail commun à Partition, Piano Roll et au transport permet de naviguer, démarrer la lecture et insérer des notes à une mesure, un temps ou une subdivision. Il reste indépendant de la sélection et de la tête audio, se déplace au doigt et survit au rechargement. Le bouton de position ouvre **Aller à…** et les commandes de lecture explicites. Voir [le guide du curseur](docs/WEB-CURSOR-V0.8.md), [l'audit initial](docs/AUDIT-V0.8.md) et [le rapport de qualification](docs/RAPPORT-V0.8.md).
 

@@ -16,6 +16,7 @@ import {ScoreDensityWarning} from './ScoreDensityWarning';
 import {DEFAULT_SOLFA,type SolfaDisplay} from '../score/display';
 import {NumericInput} from './NumericInput';
 import {RhythmicPunctuationEditor} from './RhythmicPunctuationEditor';
+import {HorizontalDensity} from './HorizontalDensity';
 const FIELDS:Record<DecorationField,string>={custom:'Texte libre',title:'Titre',author:'Auteur',composer:'Compositeur',credits:'Autres crédits',tonic:'Tonalité',tempo:'Tempo',signature:'Mesure',date:'Date',page:'Numéro de page',pages:'Total des pages',logo:'Logo'};
 export function PageLayout({project:p,measure,onClose,update,notice,initialTarget,onSymbol,display=DEFAULT_SOLFA}:{project:Project;measure:number;onClose:()=>void;update:(fn:(p:Project)=>void)=>boolean;notice:(s:string)=>void;initialTarget?:EditorialTarget;onSymbol?:(id:string)=>void;display?:SolfaDisplay}){
  const [draft,setDraft]=useState<PageSettings>(()=>structuredClone(p.layout)),[tab,setTab]=useState(initialTarget?.role==='header'?'En-tête':initialTarget?.role==='footer'?'Pied de page':initialTarget?.role==='number'?'Typographie':initialTarget?'Systèmes':'Document'),[bar,setBar]=useState(initialTarget?.measure??measure),[error,setError]=useState(''),[styleId,setStyleId]=useState(''),[styleName,setStyleName]=useState('Mon style');
@@ -43,17 +44,18 @@ export function PageLayout({project:p,measure,onClose,update,notice,initialTarge
   return <div className="layout-field" key={key}><label>{label}
    {key==='systemAlignment'?<select aria-label={label} value={draft.systemAlignment??'auto'} onChange={e=>setting('systemAlignment',e.target.value as PageSettings['systemAlignment'])}><option value="auto">Automatique</option><option value="full">Pleine largeur</option><option value="natural">Largeur naturelle</option><option value="center">Centrée</option></select>
    :key==='numbering'?<select aria-label={label} value={draft.numbering?.mode??'measure'} onChange={e=>setting('numbering',{...createProject().layout.numbering!,...draft.numbering,mode:e.target.value as NonNullable<PageSettings['numbering']>['mode']})}><option value="measure">Chaque mesure</option><option value="system">Début de ligne</option><option value="page">Début de page</option><option value="none">Aucun</option></select>
-   :<NumericInput id={'layout-'+key} aria-label={label} type="number" min={key==='measuresPerSystem'?0:key==='noteSize'?10:8} max={key==='measuresPerSystem'?12:key==='noteSize'?32:24} step={1} list={key==='measuresPerSystem'?'layout-measure-counts':undefined} value={draft[key]} onValueChange={n=>setting(key,n)}/>}
-   {key==='measuresPerSystem'&&<><datalist id="layout-measure-counts"><option value="0" label="Auto"/>{Array.from({length:12},(_,i)=><option key={i+1} value={i+1}/>)}</datalist><small>0 = Automatique · 1 à 12 · saisie directe</small></>}
+   :<NumericInput id={'layout-'+key} aria-label={label} type="number" min={key==='measuresPerSystem'?0:key==='noteSize'?10:8} max={key==='measuresPerSystem'?32:key==='noteSize'?32:24} step={1} list={key==='measuresPerSystem'?'layout-measure-counts':undefined} value={draft[key]} onValueChange={n=>setting(key,n)}/>}
+   {key==='measuresPerSystem'&&<><datalist id="layout-measure-counts"><option value="0" label="Auto"/>{Array.from({length:12},(_,i)=><option key={i+1} value={i+1}/>)}</datalist><small>0 = Automatique · 1 à 32 · saisie directe</small></>}
   </label><button className="layout-pin" aria-label={(pins.includes(key)?'Désépingler ':'Épingler ')+label} aria-pressed={pins.includes(key)} onClick={()=>pin(key)}>{pins.includes(key)?'★':'☆'}</button></div>;
  }
  const line=result.doc?.systems.find(s=>s.first<=bar&&s.last>=bar),lineStart=line?.first??bar;
- return <Dialog title="Mise en page de la partition" className="page-layout-dialog" subtitle="Document imprimé · zoom indépendant" onClose={onClose} headerActions={<button className="primary-button layout-mobile-apply" aria-label="Appliquer la mise en page" disabled={!result.doc||!!result.doc.warnings?.length} onClick={apply}>Appliquer</button>}>
+ return <Dialog title="Mise en page de la partition" className="page-layout-dialog" subtitle={draft.paper+' '+(draft.orientation==='portrait'?'portrait':'paysage')+' · zoom indépendant'} onClose={onClose} headerActions={<button className="primary-button layout-mobile-apply" aria-label="Appliquer la mise en page" disabled={!result.doc||!!result.doc.warnings?.length} onClick={apply}>Appliquer</button>}>
   <div className={'page-layout-body '+(params?'layout-params-open':'')}>
    <aside aria-label="Paramètres de mise en page">
     <div className="layout-settings-heading"><strong>Paramètres</strong><button aria-label="Fermer les paramètres de mise en page" onClick={()=>setParams(false)}>Retour à l’aperçu</button></div>
     <details className="layout-favorites" open><summary>Favoris <small>★ pour épingler un réglage</small></summary><div className="form-grid">{pins.map(key=>field(key as Parameters<typeof field>[0]))}</div>{!pins.length&&<small>Épinglez vos réglages depuis les onglets.</small>}</details>
     <nav className="layout-tabs" aria-label="Sections de mise en page">{tabs.map(t=><button key={t} className={t===tab?'active':''} aria-pressed={t===tab} onClick={()=>setTab(t)}>{t==='Systèmes'?'Mesures et alignement':t}</button>)}</nav>
+    {result.error&&<p role="alert" className="layout-constraint">{result.error}</p>}
     <ScoreDensityWarning document={result.doc} layout={draft} change={patch=>setDraft(d=>({...d,...patch}))}/>
     {tab==='Document'&&<>
      <div className="form-grid"><label>Papier<select aria-label="Papier de mise en page" value={draft.paper} onChange={e=>setting('paper',e.target.value as PageSettings['paper'])}>{['A4','A5','Letter'].map(s=><option key={s}>{s}</option>)}</select></label><label>Orientation<select aria-label="Orientation" value={draft.orientation} onChange={e=>setting('orientation',e.target.value as PageSettings['orientation'])}><option value="portrait">Portrait</option><option value="landscape">Paysage</option></select></label></div>
@@ -63,6 +65,7 @@ export function PageLayout({project:p,measure,onClose,update,notice,initialTarge
     </>}
     {tab==='Systèmes'&&<>
      {!pins.includes('measuresPerSystem')&&field('measuresPerSystem')}
+     <HorizontalDensity layout={draft} change={value=>setting('horizontalDensity',value)}/>
      <label>Alignement des mesures<select aria-label="Alignement des mesures" value={draft.measureAlignment??'grid'} onChange={e=>setting('measureAlignment',e.target.value as PageSettings['measureAlignment'])}><option value="grid">Grille alignée</option><option value="independent">Justification indépendante</option><option value="adaptive">Adaptative</option></select></label>
      <small>{(draft.measureAlignment??'grid')==='grid'?'Les colonnes sont communes. Les emplacements de la dernière ligne restent blancs.':'Chaque ligne utilise ses propres largeurs.'}</small>
      {!pins.includes('systemAlignment')&&field('systemAlignment')}
@@ -74,7 +77,7 @@ export function PageLayout({project:p,measure,onClose,update,notice,initialTarge
      </details>
      <details className="layout-advanced" open={!!initialTarget&&['system','number'].includes(initialTarget.role)}><summary>Exceptions locales et sauts</summary>
       <label>Mesure à régler<input aria-label="Mesure à régler" type="number" min={1} max={measureCount(preview)} value={bar} onChange={e=>setBar(Math.max(1,Math.min(measureCount(preview),Math.floor(+e.target.value))))}/></label><small>Ligne {line?.index===undefined?'—':line.index+1} · mesures {line?.first??bar}–{line?.last??bar}</small>
-      <label>Mesures dans cette ligne<input aria-label="Mesures dans cette ligne" type="number" min={1} max={12} value={(draft.systemCounts?.[lineStart]??draft.measuresPerSystem)||4} onChange={e=>setting('systemCounts',{...draft.systemCounts,[lineStart]:+e.target.value})}/></label>
+      <label>Mesures dans cette ligne<input aria-label="Mesures dans cette ligne" type="number" min={1} max={32} value={(draft.systemCounts?.[lineStart]??draft.measuresPerSystem)||4} onChange={e=>setting('systemCounts',{...draft.systemCounts,[lineStart]:+e.target.value})}/></label>
       <label>Justification de cette ligne<select aria-label="Justification de cette ligne" value={draft.systemAlignments?.[lineStart]??draft.systemAlignment??'auto'} onChange={e=>setting('systemAlignments',{...draft.systemAlignments,[lineStart]:e.target.value as NonNullable<PageSettings['systemAlignment']>})}><option value="full">Pleine largeur</option><option value="natural">Largeur naturelle</option><option value="center">Centrée</option><option value="auto">Automatique</option></select></label>
       <label className="checkbox-label"><input aria-label="Saut de système après cette mesure" type="checkbox" checked={draft.systemBreaks.includes(bar)} onChange={e=>toggleBreak('systemBreaks',e.target.checked)}/>Saut de ligne après cette mesure</label>
       <label className="checkbox-label"><input aria-label="Saut de page après cette mesure" type="checkbox" checked={draft.pageBreaks?.includes(bar)??false} onChange={e=>toggleBreak('pageBreaks',e.target.checked)}/>Saut de page après cette mesure</label>

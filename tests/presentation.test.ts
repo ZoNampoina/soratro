@@ -25,6 +25,8 @@ test('An explicit four measures per system cannot be reduced by natural widths',
   // Deliberately exceed the natural page width: this used to wrap after 1-2 measures.
   p.layout.measuresPerSystem=4;
   p.layout.measureWidths={1:2.5,2:2.5,3:2.5,4:2.5};
+  const before=structuredClone(p),temporary=engraveProject(p);assert.ok(temporary.warnings!.length);assert.deepEqual(p,before);assert.ok(temporary.systems.every(s=>s.x+s.width<=temporary.pages[s.page].width-p.layout.margin*96/25.4+.001));
+  p.layout.orientation='landscape';
   let doc=engraveProject(p);
   assert.equal(doc.systems[0].first,1);
   assert.equal(doc.systems[0].last,4);

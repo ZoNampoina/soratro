@@ -1,0 +1,13 @@
+{
+  "node": "v24.19.0",
+  "measures": 100,
+  "voices": 4,
+  "notes": 2400,
+  "verses": 8,
+  "syllables": 1600,
+  "pages": 13,
+  "systems": 25,
+  "coldMs": 465,
+  "medianWarmMs": 363.9,
+  "worstWarmMs": 393
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "orientation": "portrait",
+    "widthMm": 210,
+    "heightMm": 297,
+    "pages": 2,
+    "systems": 8,
+    "notes": 500,
+    "noteSize": 17,
+    "horizontalDensity": 1.2,
+    "lastLineMeasures": 3
+  },
+  {
+    "orientation": "landscape",
+    "widthMm": 297,
+    "heightMm": 210,
+    "pages": 3,
+    "systems": 8,
+    "notes": 500,
+    "noteSize": 17,
+    "horizontalDensity": 1.2,
+    "lastLineMeasures": 3
+  }
+]

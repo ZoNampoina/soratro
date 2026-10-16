@@ -18,7 +18,7 @@ for(const bars of [5,6,7,9,11,12])test(`${bars} bars on a four-column grid leave
  assert.ok(final.ops.every(op=>op.measure===undefined||op.measure<=bars));assert.ok(!pageSVG(doc.pages.at(-1)!).includes('data-measure="'+(bars+1)+'"'));assert.deepEqual(p,before);
 });
 for(const columns of [1,2,3,5,6,7,8,9,10,11,12])test(`Shared columns remain exact with ${columns} measures per line`,()=>{
- const bars=Math.max(5,columns*2-1),p=fixture(bars,12);p.layout.measuresPerSystem=columns;const doc=engraveProject(p);
+ const bars=Math.max(5,columns*2-1),p=fixture(bars,12);p.layout.measuresPerSystem=columns;p.layout.orientation='landscape';const doc=engraveProject(p);
  for(const s of doc.systems.slice(1))for(const [i,m] of s.measures.entries())assert.equal(m.x,doc.systems[0].measures[i].x);
  assert.equal(doc.systems.flatMap(s=>s.measures).length,bars);
 });
@@ -28,13 +28,13 @@ test('Uneven density, lyrics, repeats, page breaks and local counts still share 
  for(const s of doc.systems.slice(1))for(const [i,m] of s.measures.entries())assert.equal(m.x,doc.systems[0].measures[i].x);
  for(const m of doc.systems.flatMap(s=>s.measures)){const a=m.geometry.anchors;for(let i=1;i<a.length;i++)assert.ok(Math.abs(a[i].x/m.geometry.width-(a[i].beat-m.geometry.begin)/(m.geometry.end-m.geometry.begin))<1e-7);}
 });
-for(const size of [12,17,20,24])test(`Document type stays ${size} px on all pages even when forced lines cannot fit`,()=>{
+for(const size of [12,17,20,24])test(`Impossible ${size} px lines report their physical constraint without modifying the source`,()=>{
  const p=fixture(7,size);p.tracks.forEach(t=>t.events=Array.from({length:224},(_,i)=>makeNote(t.id,[60,72,48,84,36][i%5],i*.125,.125,72)));p.layout.paper='A5';
- const doc=engraveProject(p,undefined,{...DEFAULT_SOLFA,noteScale:.7});
- assert.ok(doc.warnings!.length>0);assert.equal(new Set(doc.pages.flatMap(p=>p.ops.filter(op=>op.kind==='text'&&op.role==='note').map(op=>op.kind==='text'?op.size:0))).size,1);
- assert.ok(doc.pages.flatMap(p=>p.ops).filter(op=>op.kind==='text'&&op.role==='note').every(op=>op.kind==='text'&&op.size===size));
+ const before=structuredClone(p);assert.throws(()=>engraveProject(p,undefined,{...DEFAULT_SOLFA,noteScale:.7}),new RegExp('taille Solfa de '+size));assert.deepEqual(p,before);
+ assert.ok(checkScore(p).some(issue=>issue.message.includes('trop dense')));
+ p.layout.paper='A4';p.layout.orientation='landscape';p.layout.margin=5;p.layout.measuresPerSystem=1;
+ const doc=engraveProject(p);assert.deepEqual(doc.warnings,[]);assert.ok(doc.pages.flatMap(p=>p.ops).filter(op=>op.kind==='text'&&op.role==='note').every(op=>op.kind==='text'&&op.size===size));
  assert.equal(new Set(doc.pages.flatMap(p=>p.ops.flatMap(op=>op.kind==='text'?op.noteIds??[]:[]))).size,896);
- assert.ok(checkScore(p,doc).some(issue=>issue.message.includes('trop dense')));
 });
 test('Auto, independent and adaptive modes keep notes, octave signs and rhythmic thirds',()=>{
  const p=fixture(7);p.layout.measuresPerSystem=0;p.tracks[0].events=[0,1/3,2/3,1,1.5,1.75].map((b,i)=>makeNote('soprano',[60,72,48,84,36,62][i],b,1/3,72));

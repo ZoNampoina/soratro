@@ -10,7 +10,7 @@ import {NAVIGATION_LABELS} from '../music/navigation.ts';
 import {musicalSymbol} from './music-symbols.ts';
 import {temporalGeometry,solfaGlyphWidth,cellCenterBeat} from './temporal-grid.ts';
 import {combinedSolfaMetrics,solfaTextMetrics} from './solfa-metrics.ts';
-import {punctuationMetrics,punctuationInkCenter,thirdPunctuation} from './punctuation.ts';
+import {punctuationMetrics,punctuationInkCenter,thirdPunctuation,halfPunctuation} from './punctuation.ts';
 export interface OpMeta {role?:'number'|'system'|'note'|'rhythm'|'lyric'|'header'|'footer'|'symbol'|'link'|'voice';measure?:number;trackId?:string;objectId?:string;beat?:number;timeX?:number;centerX?:number;cellEnd?:number;rhythmKind?:'pulse'|'half'|'quarter'|'third'|'subdivision';uncertain?:boolean;provisional?:boolean}
 export type DrawOp=OpMeta&({kind:'text';x:number;y:number;text:string;size:number;color?:string;strokeWidth?:number;noteIds?:string[];baseText?:string;octave?:number;font?:FontKey}|{kind:'line';x:number;y:number;x2:number;y2:number;width:number;color?:string}|{kind:'curve';x:number;y:number;cx1:number;cy1:number;cx2:number;cy2:number;x2:number;y2:number;width:number;color?:string}|{kind:'circle';x:number;y:number;radius:number;color?:string;outline?:boolean}|{kind:'image';x:number;y:number;width:number;height:number;src:string});
 export interface EngravedMeasure {number:number;x:number;y:number;width:number;height:number;geometry:MeasureGeometry;scale:number;inset:number}
@@ -40,7 +40,22 @@ function decorationOps(p:Project,fields:PageDecoration[],page:number,total:numbe
   }return {ops,height:y};
 }
 function drawSymbol(ops:DrawOp[],symbol:string,x:number,y:number,meta:OpMeta,size=12){ops.push(...musicalSymbol(symbol,x,y,meta,size));}
+class HorizontalFitError extends Error{
+  first:number;last:number;requiredWidth:number;availableWidth:number;safeColumns:number;
+  constructor(message:string,first:number,last:number,requiredWidth:number,availableWidth:number,safeColumns:number){super(message);this.first=first;this.last=last;this.requiredWidth=requiredWidth;this.availableWidth=availableWidth;this.safeColumns=safeColumns;}
+}
 export function engraveProject(source:Project,selection?:{first:number;last:number},display:SolfaDisplay=DEFAULT_SOLFA,voiceColors=false):ScoreDocument{
+  try{return engraveDocument(source,selection,display,voiceColors);}catch(error){
+    if(!(error instanceof HorizontalFitError)||!error.safeColumns)throw error;
+    // Keep a dense legacy score editable on real paper without changing its saved layout.
+    // This is the same renderer with a temporary count; exports remain blocked by the warning.
+    const layout={...source.layout,measuresPerSystem:Math.min(source.layout.measuresPerSystem||error.safeColumns,error.safeColumns),systemCounts:Object.fromEntries(Object.entries(source.layout.systemCounts??{}).map(([bar,count])=>[bar,Math.min(count,error.safeColumns)]))};
+    const doc=engraveDocument({...source,layout},selection,display,voiceColors);
+    doc.warnings!.push({first:error.first,last:error.last,requiredWidth:error.requiredWidth,availableWidth:error.availableWidth,message:error.message+' Aperçu provisoire : '+error.safeColumns+' mesure(s) par ligne. Corrigez les réglages avant l’export.'});
+    return doc;
+  }
+}
+function engraveDocument(source:Project,selection:{first:number;last:number}|undefined,display:SolfaDisplay,voiceColors:boolean):ScoreDocument{
   const project={...source,layout:displayLayout(source.layout,display)},layout=project.layout,size=paperSize(project),margin=layout.margin*PX_PER_MM,first=selection?.first??1,last=selection?.last??measureCount(project),count=last-first+1;
   if(count<=0||count>10000)throw new Error('Sélection de partition invalide.');
   const doc:ScoreDocument={pages:[],systems:[],measureCount:count,warnings:[]},notes=project.tracks.flatMap(t=>t.events),noteIndex=new Map(notes.map(n=>[n.id,n])),placements=lyricPlacements(project),geometries=new Map<number,MeasureGeometry>();
@@ -51,31 +66,45 @@ export function engraveProject(source:Project,selection?:{first:number;last:numb
   const voiceHeights=project.tracks.map((t,i)=>Math.max(layout.voiceGap,layout.noteSize+18+above[i]+(t.events.some(n=>convertSolfa(n.midiPitch,project.tonic).octave<0)?5:0)+placements.filter(l=>l.trackIndex===i).length*(layout.lyricSize+7))),voiceY=voiceHeights.map((_,i)=>voiceHeights.slice(0,i).reduce((a,b)=>a+b,0)),musicHeight=voiceHeights.reduce((a,b)=>a+b,0);
   const header=layout.header??defaultHeader(project),footer=layout.footer??defaultFooter(project);let pageY=0,pageBottom=0;
   function newPage(){const page:ScorePage={index:doc.pages.length,...size,ops:[],systems:[]};doc.pages.push(page);const head=showDecoration(layout.headerOn??'first',page.index)?decorationOps(project,header,page.index,0,size.width,margin,'header'):{ops:[],height:0};page.ops.push(...head.ops.map(op=>({...op,y:op.y+margin})));const foot=showDecoration(layout.footerOn??'all',page.index)?decorationOps(project,footer,page.index,0,size.width,margin,'footer'):{ops:[],height:0};pageY=margin+head.height+(head.height?(layout.headerGap??16):0);pageBottom=size.height-margin-foot.height-(layout.footerGap??16);return page;}
-  const padding=(bar:number)=>[(project.repeats.some(r=>r.startMeasure===bar)?20:8)+(geometries.get(bar)?.leadingPadding??0),project.repeats.some(r=>r.endMeasure===bar)?20:8];
+  const padding=(bar:number)=>[(project.repeats.some(r=>r.startMeasure===bar)?20:8/(layout.horizontalDensity??1))+(geometries.get(bar)?.leadingPadding??0),project.repeats.some(r=>r.endMeasure===bar)?20:8/(layout.horizontalDensity??1)];
   const barWidth=(bar:number,minimum=false)=>{const g=geometries.get(bar)!,[a,b]=padding(bar),factor=layout.measureWidths?.[bar]??1,min=g.minimumWidth!*Math.max(1,factor);return (minimum?min:Math.max(min,g.width*factor))+a+b;};
   // Plan the real measures first. Empty grid slots never become musical measures or draw operations.
+  const autoWidth=Math.max(...Array.from(geometries.keys(),bar=>barWidth(bar))),autoCount=Math.max(1,Math.min(32,Math.floor(available/autoWidth)));
   const plans:{group:number[];requested:number;next:number;columns:number}[]=[];let number=first;
-  while(number<=last){const group:number[]=[],configured=layout.systemCounts?.[number]??layout.measuresPerSystem,requested=configured>0?Math.max(1,Math.trunc(configured)):12;let minimum=0;
-    while(number<=last&&group.length<requested){const width=barWidth(number,true);if(!configured&&group.length&&minimum+width>available)break;group.push(number);minimum+=width;number++;if(layout.systemBreaks.includes(number-1)||layout.pageBreaks?.includes(number-1))break;}
+  while(number<=last){const group:number[]=[],configured=layout.systemCounts?.[number]??layout.measuresPerSystem,requested=configured>0?Math.max(1,Math.trunc(configured)):autoCount;
+    while(number<=last&&group.length<requested){group.push(number);number++;if(layout.systemBreaks.includes(number-1)||layout.pageBreaks?.includes(number-1))break;}
     plans.push({group,requested,next:number,columns:Math.max(layout.measuresPerSystem,configured,group.length)});
   }
   if(!layout.measuresPerSystem){const autoColumns=Math.max(...plans.map(p=>p.group.length));for(const plan of plans)plan.columns=Math.max(autoColumns,layout.systemCounts?.[plan.group[0]]??0);}
-  const grid=layout.measureAlignment===undefined||layout.measureAlignment==='grid',families=new Map<number,{preferred:number[];minimum:number[]}>();
-  if(grid)for(const plan of plans){let family=families.get(plan.columns);if(!family){family={preferred:Array(plan.columns).fill(0),minimum:Array(plan.columns).fill(0)};families.set(plan.columns,family);}plan.group.forEach((bar,col)=>{family!.preferred[col]=Math.max(family!.preferred[col],barWidth(bar));family!.minimum[col]=Math.max(family!.minimum[col],barWidth(bar,true));});}
-  for(const family of families.values()){const preferred=Math.min(...family.preferred.filter(n=>n>0)),minimum=Math.min(...family.minimum.filter(n=>n>0));family.preferred=family.preferred.map(n=>n||preferred);family.minimum=family.minimum.map(n=>n||minimum);}
-  function fitWidths(preferred:number[],minimum:number[],fill:boolean){
+  const grid=layout.measureAlignment===undefined||layout.measureAlignment==='grid';
+  type WidthFamily={preferred:number[];minimum:number[]};
+  const families=new Map<number,WidthFamily>(),planFamilies=new Map<typeof plans[number],WidthFamily>();
+  const createFamily=(columns:number):WidthFamily=>({preferred:Array(columns).fill(0),minimum:Array(columns).fill(0)});
+  if(grid)for(const plan of plans){if(!families.has(plan.columns))families.set(plan.columns,createFamily(plan.columns));planFamilies.set(plan,families.get(plan.columns)!);}
+  else for(const [index,plan] of plans.entries())if(plan.group.length<plan.columns){
+    // Independent full rows keep their own widths; a short row inherits its nearest full row.
+    const complete=(other:typeof plan)=>other.columns===plan.columns&&other.group.length===other.columns;
+    const reference=plans.slice(0,index).reverse().find(complete)??plans.slice(index+1).find(complete);
+    const family=(reference&&planFamilies.get(reference))??createFamily(plan.columns);
+    planFamilies.set(plan,family);if(reference)planFamilies.set(reference,family);
+  }
+  for(const plan of plans){const family=planFamilies.get(plan);if(family)plan.group.forEach((bar,col)=>{family.preferred[col]=Math.max(family.preferred[col],barWidth(bar));family.minimum[col]=Math.max(family.minimum[col],barWidth(bar,true));});}
+  for(const family of new Set(planFamilies.values())){const preferred=Math.min(...family.preferred.filter(n=>n>0)),minimum=Math.min(...family.minimum.filter(n=>n>0));family.preferred=family.preferred.map(n=>n||preferred);family.minimum=family.minimum.map(n=>n||minimum);}
+  function fitWidths(preferred:number[],minimum:number[],fill:boolean,firstBar:number){
     const natural=preferred.reduce((a,b)=>a+b,0),needed=minimum.reduce((a,b)=>a+b,0);
-    if(needed>available)return minimum;
+    if(needed>available+.01){
+      const widest=Math.max(...Array.from(geometries.keys(),bar=>barWidth(bar,true))),safeColumns=Math.max(0,Math.min(minimum.length-1,Math.floor(available/widest)));
+      throw new HorizontalFitError('Ligne trop dense à partir de la mesure '+firstBar+' pour '+minimum.length+' mesures : '+(needed/PX_PER_MM).toFixed(1)+' mm nécessaires pour '+(available/PX_PER_MM).toFixed(1)+' mm disponibles, à taille Solfa de '+layout.noteSize+'. Réduisez le nombre de mesures par ligne, augmentez la densité horizontale, réduisez les marges ou passez en paysage. La taille des notes est conservée.',firstBar,Math.min(last,firstBar+minimum.length-1),needed,available,safeColumns);
+    }
     if(natural>available){const ratio=(available-needed)/(natural-needed);return preferred.map((n,i)=>minimum[i]+(n-minimum[i])*ratio);}
     return fill?preferred.map(n=>n*available/natural):preferred;
   }
   const annotation=(bar:number)=>[...(display.markers?project.markers.filter(m=>m.measure===bar).map(m=>m.label):[]),...project.tempoMap.filter(t=>t.measure===bar).map(t=>tempoLabel(project.settings.tempoUnit)+' = '+Number((t.bpm/unitBeats(project.settings.tempoUnit)).toFixed(2))),...project.signatureMap.filter(s=>s.measure===bar).map(s=>s.signature)].filter(Boolean).join(' · ');
   let page=newPage();
   for(const plan of plans){const {group,requested,next}=plan;if(layout.pageBreaks?.includes(group[0]-1)&&page.systems.length)page=newPage();
-    const alignment=layout.systemAlignments?.[group[0]]??layout.systemAlignment??'auto',family=grid?families.get(plan.columns):undefined;
+    const alignment=layout.systemAlignments?.[group[0]]??layout.systemAlignment??'auto',family=planFamilies.get(plan);
     const preferred=family?.preferred??group.map(bar=>barWidth(bar)),minimum=family?.minimum??group.map(bar=>barWidth(bar,true));
-    const fill=alignment==='full'||alignment==='auto'&&(grid||next<=last||group.length===requested),fitted=fitWidths(preferred,minimum,fill),widths=fitted.slice(0,group.length),total=fitted.reduce((a,b)=>a+b,0),offset=alignment==='center'||alignment==='natural'&&labels==='never'?Math.max(0,(available-total)/2):0;
-    if(total>available+.01)doc.warnings!.push({first:group[0],last:group.at(-1)!,requiredWidth:total,availableWidth:available,message:'Cette ligne ('+group.length+' mesures'+(grid?' sur une grille de '+plan.columns:'')+') est trop dense pour cette largeur de page avec une taille Solfa de '+layout.noteSize+'. La taille des caractères est conservée.'});
+    const fill=alignment==='full'||alignment==='auto'&&(!!family||next<=last||group.length===requested),fitted=fitWidths(preferred,minimum,fill,group[0]),widths=fitted.slice(0,group.length),total=fitted.reduce((a,b)=>a+b,0),offset=alignment==='center'||alignment==='natural'&&labels==='never'?Math.max(0,(available-total)/2):0;
     const annotations=group.map((bar,i)=>wrap(annotation(bar),widths[i]-12,10)),top=Math.max(35,Math.max(0,...annotations.map((a,index)=>a.length+project.indications.filter(i=>i.measure===group[index]&&!i.trackId&&!i.trackIds?.length&&!['breath','fermata','crescendo','diminuendo','accent','tenuto','final'].includes(i.kind)).length))*15+26),height=top+musicHeight+(layout.numbering?.position==='below'?layout.numbering.size+layout.numbering.gap:0);
     if(pageY+height>pageBottom){if(!page.systems.length)throw new Error('Les voix, textes et couplets ne tiennent pas sur cette page. Réduisez les tailles ou choisissez un format plus grand.');page=newPage();if(pageY+height>pageBottom)throw new Error('Les voix et textes ne tiennent pas sur ce format.');}
     const system:ScoreSystem={index:doc.systems.length,page:page.index,first:group[0],last:group.at(-1)!,x:margin+offset,y:pageY,width:gutter+widths.reduce((a,b)=>a+b,0),height,measures:[],ops:[]};const ops=system.ops;
@@ -95,6 +124,7 @@ export function engraveProject(source:Project,selection?:{first:number;last:numb
         }
         if(display.separators==='standard')for(const boundary of geometry.rhythmByTrack?.[track.id]??geometry.rhythm??[]){const bx=at(boundary.beat),meta:OpMeta={role:'rhythm',measure:bar,trackId:track.id,beat:boundary.beat,timeX:bx,rhythmKind:boundary.kind},punctuation=punctuationMetrics(layout);
           if(boundary.kind==='third')ops.push({...thirdPunctuation(bx,baseline,layout),...meta});
+          else if(boundary.label==='.')ops.push({...halfPunctuation(bx,baseline,layout),...meta});
           else text(ops,boundary.label,bx-punctuationInkCenter(boundary.label,punctuation.size),baseline,punctuation.size,meta,punctuation.color,{strokeWidth:punctuation.strokeWidth});
         }
         const own=placements.filter(l=>l.trackIndex===ti);own.forEach(({line:l,common},li)=>{const lyricY=baseline+layout.lyricSize+10+li*(layout.lyricSize+7);if(bar===group[0])text(ops,l.kind==='refrain'?'R.':l.kind==='common'?'':String(l.verse??1)+'.',system.x+5,lyricY,8,{role:'lyric',objectId:l.id},'#77717d');

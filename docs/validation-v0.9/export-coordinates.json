@@ -1,0 +1,18 @@
+[
+  {
+    "orientation": "portrait",
+    "pages": 2,
+    "textOperatorsChecked": 897,
+    "punctuationVectorsChecked": 5,
+    "maximumPdfCoordinateErrorPt": 4.84e-05,
+    "svgMatchesDocument": true
+  },
+  {
+    "orientation": "landscape",
+    "pages": 3,
+    "textOperatorsChecked": 899,
+    "punctuationVectorsChecked": 5,
+    "maximumPdfCoordinateErrorPt": 4.98e-05,
+    "svgMatchesDocument": true
+  }
+]
