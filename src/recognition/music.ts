@@ -106,7 +106,7 @@ export function convertScan(session:ScanSession,{preview=false,partial=false,dra
   ids.forEach((keys,i)=>linkSyllable(project,line.id,i,keys));
  }
  project.settings.measureCount=barCount;project.settings.loopEnd=measureAt(project,barCount).end;
- if(draft){project.title='Brouillon · '+project.title;mark(rows[0]??({id:'document',voice:0,firstMeasure:1} as ScanRow),'Brouillon de numérisation · à compléter');}
+ if(draft){if(!/^Brouillon\b/i.test(project.title))project.title='Brouillon · '+project.title;if(!project.indications.length)mark(rows[0]??({id:'document',voice:0,firstMeasure:1} as ScanRow),'À vérifier · brouillon');}
  if(!project.tracks.some(t=>t.events.length)&&!(draft&&(rows.length||session.pages.length)))issues.push({message:'Aucune note musicale exploitable. Gardez le brouillon et corrigez les zones.',severity:'error'});
  try{validateProject(project);}catch(e){issues.push({message:e instanceof Error?e.message:'Conversion invalide.',severity:'error'});}
  return {project,issues,noteSources,importable:!issues.some(i=>i.severity==='error'),includedRows:includedRowIds.size,omittedRows:omittedRowIds.size,barCount,includedMeasures:occupied.size,omittedMeasures:omittedKeys.size,draft};
