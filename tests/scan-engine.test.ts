@@ -1,0 +1,12 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {newScanSession,type ScanRegion,type GlyphTemplate} from '../src/recognition/types.ts';
+import {binaryPixels,normalizedMask,type PreparedPixels} from '../src/recognition/image-processing.ts';
+import {recognizePrinted} from '../src/recognition/printed-engine.ts';
+function customFixture(){const image:PreparedPixels={width:180,height:70,data:new Uint8ClampedArray(180*70*4).fill(255),toSource:[1,0,0,0,1,0,0,0,1]},ink=(x:number,y:number)=>{const i=(y*180+x)*4;image.data[i]=image.data[i+1]=image.data[i+2]=0;},pattern=['11110','10010','10110','11010','10110','10010','11111'];for(const x of [25,60,95,130])for(let y=0;y<7;y++)for(let dx=0;dx<5;dx++)if(pattern[y][dx]==='1')ink(x+dx,20+y);for(const x of [46,81,116]){ink(x,21);ink(x,25);}for(let y=10;y<41;y++){ink(15,y);ink(151,y);}return image;}
+const region:ScanRegion={id:'r',box:{x:10,y:15,width:150,height:20},kind:'music',system:1,voice:0,firstMeasure:1,verse:1};
+test('Scan profiles really change classification of a held exemplar; automatic output still requires human review',()=>{
+ const image=customFixture(),hints=newScanSession().hints,none=recognizePrinted(image,[],hints,'p',0,[region]);assert.equal(none.rows.length,1);assert.ok(none.unresolved>=4);const template:GlyphTemplate={label:'d',mask:normalizedMask(binaryPixels(image),{x:25,y:20,width:5,height:7}),aspect:5/7,origin:'profile'},learned=recognizePrinted(image,[template],hints,'p',0,[region]);assert.equal(learned.rows[0].text,'|d:d:d:d|');assert.equal(learned.unresolved,0);assert.equal(learned.rows[0].confirmed,false);assert.ok(learned.rows[0].glyphs.filter(g=>g.label==='d').every(g=>g.origin==='profile'&&g.state==='review'));
+});
+test('Scan manual anchors are matched in source coordinates rather than stale prepared-image coordinates',()=>{
+ const image=customFixture(),hints=newScanSession().hints,template:GlyphTemplate={label:'d',mask:normalizedMask(binaryPixels(image),{x:25,y:20,width:5,height:7}),aspect:5/7,origin:'profile'},first=recognizePrinted(image,[template],hints,'p',0,[region]),glyph=first.rows[0].glyphs.find(g=>g.label==='d')!;glyph.label='m';glyph.anchor=true;glyph.state='validated';glyph.box={x:999,y:999,width:5,height:7};const second=recognizePrinted(image,[template],hints,'p',1,[region],first.rows);assert.equal(second.rows[0].glyphs.find(g=>g.id===glyph.id)?.label,'m');assert.equal(second.rows[0].glyphs.find(g=>g.id===glyph.id)?.box.x,25);
+});

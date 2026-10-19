@@ -1,0 +1,389 @@
+{
+  "engine": "soratro-glyphs-1",
+  "templates": 288,
+  "scope": "Synthetic controlled fonts, including fonts present in the reference templates; not an independent accuracy corpus. Human confirmation is simulated only after capturing raw recognition.",
+  "cases": [
+    {
+      "name": "Clean SATB, 4/4",
+      "reference": [
+        "|d:r:m:f|",
+        "|r:m:f:d|",
+        "|m:f:d:r|",
+        "|f:d:r:m|"
+      ],
+      "actual": [
+        "|d:r:m:f|",
+        "|r:m:f:d|",
+        "|m:f:d:r|",
+        "|f:d:r:m|"
+      ],
+      "referenceSigns": 36,
+      "editDistance": 0,
+      "rows": {
+        "expected": 4,
+        "actual": 4
+      },
+      "measureVoiceCells": {
+        "expected": 4,
+        "actual": 4
+      },
+      "voicesExact": true,
+      "notes": {
+        "expected": 16,
+        "actual": 16
+      },
+      "rhythmImportableAfterHumanConfirmation": true,
+      "unknown": 0,
+      "milliseconds": 68,
+      "deskew": 0
+    },
+    {
+      "name": "Solo, 2/4",
+      "reference": [
+        "|d:r|"
+      ],
+      "actual": [
+        "|d:r|"
+      ],
+      "referenceSigns": 5,
+      "editDistance": 0,
+      "rows": {
+        "expected": 1,
+        "actual": 1
+      },
+      "measureVoiceCells": {
+        "expected": 1,
+        "actual": 1
+      },
+      "voicesExact": true,
+      "notes": {
+        "expected": 2,
+        "actual": 2
+      },
+      "rhythmImportableAfterHumanConfirmation": true,
+      "unknown": 0,
+      "milliseconds": 18,
+      "deskew": 0
+    },
+    {
+      "name": "SA, 3/4",
+      "reference": [
+        "|d:r:m|",
+        "|m:f:s|"
+      ],
+      "actual": [
+        "|d:r:m|",
+        "|m:f:s|"
+      ],
+      "referenceSigns": 14,
+      "editDistance": 0,
+      "rows": {
+        "expected": 2,
+        "actual": 2
+      },
+      "measureVoiceCells": {
+        "expected": 2,
+        "actual": 2
+      },
+      "voicesExact": true,
+      "notes": {
+        "expected": 6,
+        "actual": 6
+      },
+      "rhythmImportableAfterHumanConfirmation": true,
+      "unknown": 0,
+      "milliseconds": 20,
+      "deskew": 0
+    },
+    {
+      "name": "SATB halves and thirds, 4/4",
+      "reference": [
+        "|d:r.m:f,s,l:0|",
+        "|d:r.m:f,s,l:0|",
+        "|d:r.m:f,s,l:0|",
+        "|d:r.m:f,s,l:0|"
+      ],
+      "actual": [
+        "|d:r.m:f,s,l:0|",
+        "|d:r.m:f,s,l:0|",
+        "|d:r.m:f,s,l:0|",
+        "|d:r.m:f,s,l:0|"
+      ],
+      "referenceSigns": 60,
+      "editDistance": 0,
+      "rows": {
+        "expected": 4,
+        "actual": 4
+      },
+      "measureVoiceCells": {
+        "expected": 4,
+        "actual": 4
+      },
+      "voicesExact": true,
+      "notes": {
+        "expected": 24,
+        "actual": 24
+      },
+      "rhythmImportableAfterHumanConfirmation": true,
+      "unknown": 0,
+      "milliseconds": 87,
+      "deskew": 0
+    },
+    {
+      "name": "SATB thirds, 6/8",
+      "reference": [
+        "|d,r,m:f,s,l|",
+        "|d,r,m:f,s,l|",
+        "|d,r,m:f,s,l|",
+        "|d,r,m:f,s,l|"
+      ],
+      "actual": [
+        "|d,r,m:f,s,l|",
+        "|d,r,m:f,s,l|",
+        "|d,r,m:f,s,l|",
+        "|d,r,m:f,s,l|"
+      ],
+      "referenceSigns": 52,
+      "editDistance": 0,
+      "rows": {
+        "expected": 4,
+        "actual": 4
+      },
+      "measureVoiceCells": {
+        "expected": 4,
+        "actual": 4
+      },
+      "voicesExact": true,
+      "notes": {
+        "expected": 24,
+        "actual": 24
+      },
+      "rhythmImportableAfterHumanConfirmation": true,
+      "unknown": 0,
+      "milliseconds": 54,
+      "deskew": 0
+    },
+    {
+      "name": "Solo upper octave and rest",
+      "reference": [
+        "|d':r:m:0|"
+      ],
+      "actual": [
+        "|d?:r:m:0|"
+      ],
+      "referenceSigns": 10,
+      "editDistance": 1,
+      "rows": {
+        "expected": 1,
+        "actual": 1
+      },
+      "measureVoiceCells": {
+        "expected": 1,
+        "actual": 1
+      },
+      "voicesExact": true,
+      "notes": {
+        "expected": 3,
+        "actual": 0
+      },
+      "rhythmImportableAfterHumanConfirmation": false,
+      "unknown": 1,
+      "milliseconds": 15,
+      "deskew": 0
+    },
+    {
+      "name": "Solo continuation",
+      "reference": [
+        "|d:-:s:0|"
+      ],
+      "actual": [
+        "|d:-:s:0|"
+      ],
+      "referenceSigns": 9,
+      "editDistance": 0,
+      "rows": {
+        "expected": 1,
+        "actual": 1
+      },
+      "measureVoiceCells": {
+        "expected": 1,
+        "actual": 1
+      },
+      "voicesExact": true,
+      "notes": {
+        "expected": 2,
+        "actual": 2
+      },
+      "rhythmImportableAfterHumanConfirmation": true,
+      "unknown": 0,
+      "milliseconds": 12,
+      "deskew": 0
+    },
+    {
+      "name": "Small italic, 4/4",
+      "reference": [
+        "|d:r:m:f|",
+        "|d:r:m:f|",
+        "|d:r:m:f|",
+        "|d:r:m:f|"
+      ],
+      "actual": [
+        "|d:?:m:f|",
+        "|d:?:m:f|",
+        "|d:?:m:f|",
+        "|d:?:m:f|"
+      ],
+      "referenceSigns": 36,
+      "editDistance": 4,
+      "rows": {
+        "expected": 4,
+        "actual": 4
+      },
+      "measureVoiceCells": {
+        "expected": 4,
+        "actual": 4
+      },
+      "voicesExact": true,
+      "notes": {
+        "expected": 16,
+        "actual": 0
+      },
+      "rhythmImportableAfterHumanConfirmation": false,
+      "unknown": 4,
+      "milliseconds": 48,
+      "deskew": 0
+    },
+    {
+      "name": "Blurred, 4/4",
+      "reference": [
+        "|d:r:m:f|",
+        "|d:r:m:f|",
+        "|d:r:m:f|",
+        "|d:r:m:f|"
+      ],
+      "actual": [
+        "|d:r:m:f|",
+        "|d:r:m:f|",
+        "|d:r:m:f|",
+        "|d:r:m:f|"
+      ],
+      "referenceSigns": 36,
+      "editDistance": 0,
+      "rows": {
+        "expected": 4,
+        "actual": 4
+      },
+      "measureVoiceCells": {
+        "expected": 4,
+        "actual": 4
+      },
+      "voicesExact": true,
+      "notes": {
+        "expected": 16,
+        "actual": 16
+      },
+      "rhythmImportableAfterHumanConfirmation": true,
+      "unknown": 0,
+      "milliseconds": 45,
+      "deskew": 0
+    },
+    {
+      "name": "Inclined, 4/4 with deskew",
+      "reference": [
+        "|d:r:m:f|",
+        "|d:r:m:f|",
+        "|d:r:m:f|",
+        "|d:r:m:f|"
+      ],
+      "actual": [],
+      "referenceSigns": 36,
+      "editDistance": 36,
+      "rows": {
+        "expected": 4,
+        "actual": 0
+      },
+      "measureVoiceCells": {
+        "expected": 4,
+        "actual": 0
+      },
+      "voicesExact": false,
+      "notes": {
+        "expected": 16,
+        "actual": 0
+      },
+      "rhythmImportableAfterHumanConfirmation": false,
+      "unknown": 0,
+      "milliseconds": 52,
+      "deskew": 0
+    },
+    {
+      "name": "Touching letters, intentionally ambiguous",
+      "reference": [
+        "|dr:m:f:s|"
+      ],
+      "actual": [
+        "|dr:m:f:s|"
+      ],
+      "referenceSigns": 10,
+      "editDistance": 0,
+      "rows": {
+        "expected": 1,
+        "actual": 1
+      },
+      "measureVoiceCells": {
+        "expected": 1,
+        "actual": 1
+      },
+      "voicesExact": true,
+      "notes": {
+        "expected": 5,
+        "actual": 0
+      },
+      "rhythmImportableAfterHumanConfirmation": false,
+      "unknown": 0,
+      "milliseconds": 20,
+      "deskew": 0
+    },
+    {
+      "name": "Irregular meter, must remain blocked",
+      "reference": [
+        "|d:r:m|"
+      ],
+      "actual": [
+        "|d:r:m|"
+      ],
+      "referenceSigns": 7,
+      "editDistance": 0,
+      "rows": {
+        "expected": 1,
+        "actual": 1
+      },
+      "measureVoiceCells": {
+        "expected": 1,
+        "actual": 1
+      },
+      "voicesExact": true,
+      "notes": {
+        "expected": 3,
+        "actual": 0
+      },
+      "rhythmImportableAfterHumanConfirmation": false,
+      "unknown": 0,
+      "milliseconds": 10,
+      "deskew": 0
+    }
+  ],
+  "privateReference": {
+    "pixels": [
+      1152,
+      1536
+    ],
+    "rows": 19,
+    "barLines": 48,
+    "unknown": 95,
+    "milliseconds": 2060,
+    "signature": "Not asserted: no validated complete transcription reference.",
+    "completeMusicalAccuracy": "Not measured. Source requires assisted correction; no automatic import.",
+    "sha256": "1e89dbb97dc57139bc89592b6cddd7f7cbeb2455ee9d90c62621734c6620ca1a"
+  }
+}

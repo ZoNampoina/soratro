@@ -8,3 +8,6 @@ tests/.runtime/
 tmp/
 
 playwright-report/
+
+# Reproducible PDF.js resources copied from the pinned dependency
+public/scan-pdf/
