@@ -14,7 +14,8 @@ export function splitBars(text:string){const parts=text.trim().split('|').map(s=
 export function parseMusicRow(row:ScanRow,session:ScanSession):{cells:ParsedCell[];issues:ScanIssue[];bars:number}{
  const issues:ScanIssue[]=[],cells:ParsedCell[]=[];const signature=session.hints.signature;
  const bars=splitBars(row.text);if(!signature)return {cells,issues:[{rowId:row.id,message:'Renseignez la signature rythmique.',severity:'error'}],bars:bars.length};
- const info=signatureInfo(signature),pulse=info.compound&&session.hints.compoundPulse?info.pulse*3:info.pulse;
+ const info=signatureInfo(signature),pulse=session.hints.pulseBeats??(info.compound&&session.hints.compoundPulse?info.pulse*3:info.pulse);
+ if(![.5,1,1.5,2].includes(pulse))return {cells,issues:[{rowId:row.id,message:'Valeur du temps imprimé invalide.',severity:'error'}],bars:bars.length};
  const problem=(message:string,measure:number)=>issues.push({rowId:row.id,measure,message,severity:'error'});
  if(!row.text.trim())problem('Ligne vide : saisissez les signes ou excluez cette zone.',row.firstMeasure);
  let time=0,index=0;
@@ -23,14 +24,17 @@ export function parseMusicRow(row:ScanRow,session:ScanSession):{cells:ParsedCell
   const tokens=bar.split(':').map(s=>s.trim()),wanted=Math.ceil(length/pulse);
   if(tokens.length!==wanted){problem(`Mesure ${measure} : ${tokens.length} temps lus, ${wanted} attendus (${signature}${info.compound&&session.hints.compoundPulse?', groupes de trois croches':''}).`,measure);time+=length;return;}
   tokens.forEach((part,pi)=>{
-   const span=Math.min(pulse,length-pi*pulse),halves=part.split('.');
+   const span=Math.min(pulse,length-pi*pulse);
+   // Previously rejected combination: Curwen's dot+comma separates 3/4 and 1/4.
+   const dotted=part.match(/^([^.,]+)\.\s*,([^.,]+)$/);
+   const halves=dotted?[dotted[1],dotted[2]]:part.split('.');
    if(halves.length>2){problem(`Mesure ${measure} : plusieurs points dans un temps. Utilisez une seule séparation de demi-temps.`,measure);return;}
    halves.forEach((half,hi)=>{
     const thirds=half.split(','),allowed=halves.length===2?[1,2,3]:[1,3];
     if(!allowed.includes(thirds.length)){problem(`Mesure ${measure} : virgule ambiguë. Trois parties sont attendues ; une octave basse s’écrit _1.`,measure);return;}
     thirds.forEach((value,di)=>{
      const symbol=value.trim().replaceAll('’',"'").replaceAll('′',"'").replaceAll('–','-').replaceAll('−','-');
-     const start=time+pi*pulse+hi*span/halves.length+di*span/halves.length/thirds.length,duration=span/halves.length/thirds.length;
+     const share=dotted?(hi===0?.75:.25):1/halves.length,start=time+pi*pulse+(dotted?(hi===0?0:.75):hi/halves.length)*span+di*span*share/thirds.length,duration=span*share/thirds.length;
      if(symbol==='0'||symbol==='-'){cells.push({kind:symbol==='0'?'rest':'hold',syllables:[],start,duration,measure,index:index++});return;}
      const values=symbol.split('/'),syllables:ParsedCell['syllables']=[];let valid=values.length<=8;
      for(const v of values){const match=v.match(/^(di|ri|fi|si|ta|[drmfslt])(?:(\'+)|\^([1-4])|_([1-4]))?$/);if(!match){valid=false;break;}const octave=match[2]?.length??(match[3]?+match[3]:match[4]?-Number(match[4]):0);syllables.push({syllable:match[1],octave});}
@@ -41,12 +45,13 @@ export function parseMusicRow(row:ScanRow,session:ScanSession):{cells:ParsedCell
   });time+=length;
  });return {cells,issues,bars:bars.length};
 }
-export interface ScanConversion {project:Project;issues:ScanIssue[];noteSources:Record<string,{rowId:string;glyphId?:string}>;importable:boolean;includedRows:number;omittedRows:number;barCount:number}
-export function convertScan(session:ScanSession,{preview=false,partial=false}:{preview?:boolean;partial?:boolean}={}):ScanConversion {
+export interface ScanConversion {project:Project;issues:ScanIssue[];noteSources:Record<string,{rowId:string;glyphId?:string}>;importable:boolean;includedRows:number;omittedRows:number;barCount:number;includedMeasures:number;omittedMeasures:number;draft:boolean}
+export function convertScan(session:ScanSession,{preview=false,partial=false,draft=false}:{preview?:boolean;partial?:boolean;draft?:boolean}={}):ScanConversion {
+ partial=partial||draft;
  const hints=session.hints,issues:ScanIssue[]=[],project=createProject({title:hints.title||session.title,author:hints.author,composer:hints.composer,tonic:hints.tonic||'C',timeSignature:hints.signature||'4/4',tempo:hints.tempo}),noteSources:ScanConversion['noteSources']={};
  const pageOrder=new Map(session.pages.map((p,i)=>[p.id,i]));
  const rows=session.rows.filter(r=>r.kind==='music'&&r.included).slice().sort((a,b)=>a.firstMeasure-b.firstMeasure||a.voice-b.voice||a.system-b.system||(pageOrder.get(a.pageId)??0)-(pageOrder.get(b.pageId)??0));
- const count=Math.max(1,hints.voiceCount||Math.max(0,...rows.map(r=>r.voice+1)));
+ const count=Math.min(64,Math.max(1,hints.voiceCount||Math.max(0,...rows.map(r=>r.voice+1))));
  const template=choirTracks(hints.choir),namedTemplate=template.length===count&&hints.choir!=='Personnalisé';
  project.tracks=Array.from({length:Math.min(count,64)},(_,i)=>({id:'scan-voice-'+i,name:hints.voiceNames[i]||(namedTemplate?template[i].name:'Voix '+(i+1)),shortName:namedTemplate?template[i].shortName:'V'+(i+1),color:VOICE_COLORS[i%VOICE_COLORS.length],volume:.72,mute:false,solo:false,events:[]}));
  project.settings.choirTemplate=namedTemplate?hints.choir:count===1?'Solo':'Personnalisé';project.settings.rehearsalVoice=project.tracks[0].id;project.settings.pickupBeats=hints.pickupBeats;project.layout.compoundPulse=hints.compoundPulse;
@@ -56,17 +61,24 @@ export function convertScan(session:ScanSession,{preview=false,partial=false}:{p
  if(!hints.signature)issues.push({message:'La signature rythmique doit être choisie ou confirmée.',severity:'error'});
  if(!hints.reviewed&&!preview)issues.push({message:'Vérifiez la tonalité, la signature et les registres des voix avant l’import.',severity:'error'});
  if(hints.pickupBeats<0||hints.pickupBeats>=signatureInfo(project.timeSignature).barBeats)issues.push({message:'La levée doit être plus courte qu’une mesure complète.',severity:'error'});
- const occupied=new Set<string>(),lastNotes=new Map<number,NoteEvent[]>();let imported=0,omitted=0,barCount=1;
- const omittedMeasure=(row:ScanRow,message:string)=>{omitted++;issues.push({rowId:row.id,measure:row.firstMeasure,message,severity:partial?'warning':'error'});if(partial&&!preview)project.indications.push({id:id(),measure:row.firstMeasure,kind:'text',trackId:project.tracks[row.voice]?.id,text:'À vérifier · zone de numérisation non importée'});};
- for(const row of rows){
-  const page=session.pages.find(p=>p.id===row.pageId),parsed=parseMusicRow(row,session);barCount=Math.max(barCount,row.firstMeasure+Math.max(1,parsed.bars)-1);
-  if(!Number.isInteger(row.voice)||row.voice<0||row.voice>=count||!Number.isInteger(row.firstMeasure)||row.firstMeasure<1){issues.push({rowId:row.id,message:'Numéro de mesure ou voix invalide.',severity:'error'});continue;}
-  if(page&&page.revision!==row.revision){omittedMeasure(row,'Image modifiée : réalignez ou relancez cette zone avant de l’importer.');continue;}
-  if(!preview&&!row.confirmed){omittedMeasure(row,'Cette ligne n’a pas été validée.');continue;}
-  if(row.glyphs.some(g=>g.label==='?')&&!row.manual){omittedMeasure(row,'Des signes indéterminés restent dans cette ligne.');continue;}
-  if(parsed.issues.length){issues.push(...parsed.issues.map(i=>({...i,severity:partial?'warning' as const:i.severity})));omittedMeasure(row,'Ligne rythmique incomplète ou ambiguë.');continue;}
+ const occupied=new Set<string>(),lastNotes=new Map<number,NoteEvent[]>(),includedRowIds=new Set<string>(),omittedRowIds=new Set<string>(),omittedKeys=new Set<string>(),marked=new Set<string>();let barCount=1;
+ const mark=(row:ScanRow,text:string)=>{const measure=Math.max(1,Math.trunc(row.firstMeasure)||1),key=row.voice+':'+measure+':'+text;if(marked.has(key))return;marked.add(key);project.indications.push({id:id(),measure,kind:'text',trackId:project.tracks[row.voice]?.id,text});};
+ const omittedMeasure=(row:ScanRow,message:string,bars=1)=>{omittedRowIds.add(row.id);for(let i=0;i<bars;i++)omittedKeys.add(row.voice+':'+(row.firstMeasure+i));issues.push({rowId:row.id,measure:row.firstMeasure,message,severity:partial?'warning':'error'});if(partial)mark(row,'À vérifier · V'+(row.voice+1)+' · passage non transcrit');};
+ const units=rows.flatMap(row=>{
+  const parsed=parseMusicRow(row,session),bars=splitBars(row.text);barCount=Math.max(barCount,row.firstMeasure+Math.max(1,parsed.bars)-1);
+  if(!partial||!bars.length)return [{row,parsed}];
+  const groups:ScanRow['glyphs'][]=[[]];for(const glyph of row.glyphs){if(glyph.label==='|')groups.push([]);else groups.at(-1)!.push(glyph);}if(!groups[0].length)groups.shift();if(!groups.at(-1)?.length)groups.pop();
+  return bars.map((text,index)=>{const measure=row.firstMeasure+index,info=signatureInfo(project.timeSignature),shift=index*info.barBeats-(row.firstMeasure===1&&index>0&&hints.pickupBeats>0?info.barBeats-hints.pickupBeats:0);return {row:{...row,text,firstMeasure:measure,glyphs:groups.length===bars.length?groups[index]:[]},parsed:{bars:1,cells:parsed.cells.filter(c=>c.measure===measure).map(c=>({...c,start:c.start-shift})),issues:parsed.issues.filter(i=>i.measure===undefined||i.measure===measure)}};});
+ });
+ for(const {row,parsed} of units){
+  const page=session.pages.find(p=>p.id===row.pageId);
+  if(!Number.isInteger(row.voice)||row.voice<0||row.voice>=count||!Number.isInteger(row.firstMeasure)||row.firstMeasure<1){omittedMeasure(row,'Numéro de mesure ou voix invalide : zone à réassigner.',parsed.bars);continue;}
+  if(page&&page.revision!==row.revision){omittedMeasure(row,'Image modifiée : réalignez ou relancez cette zone avant de l’importer.',parsed.bars);continue;}
+  if(!preview&&!draft&&!row.confirmed){omittedMeasure(row,'Cette ligne n’a pas été validée.',parsed.bars);continue;}
+  if(!partial&&row.glyphs.some(g=>g.label==='?')&&!row.manual){omittedMeasure(row,'Des signes indéterminés restent dans cette ligne.',parsed.bars);continue;}
+  if(parsed.issues.length){issues.push(...parsed.issues.map(i=>({...i,severity:partial?'warning' as const:i.severity})));omittedMeasure(row,'Mesure rythmique incomplète ou ambiguë.',parsed.bars);continue;}
   const duplicates=Array.from({length:parsed.bars},(_,i)=>row.voice+':'+(row.firstMeasure+i));
-  if(duplicates.some(key=>occupied.has(key))){issues.push({rowId:row.id,message:'Deux zones occupent les mêmes mesures de la même voix. Réassignez ou excluez une zone.',severity:'error'});continue;}
+  if(duplicates.some(key=>occupied.has(key))){omittedMeasure(row,'Deux zones occupent les mêmes mesures de la même voix. Réassignez ou excluez une zone.',parsed.bars);continue;}
   const offset=measureAt(project,row.firstMeasure).start,track=project.tracks[row.voice],added:NoteEvent[]=[],previous=lastNotes.get(row.voice)?.map(n=>structuredClone(n))??[];let held=previous;
   let bad=false,glyphIndex=0;const noteGlyphs=row.manual?[]:row.glyphs.filter(g=>/^(di|ri|fi|si|ta|[drmfslt])$/.test(g.label));
   for(const cell of parsed.cells){
@@ -77,14 +89,14 @@ export function convertScan(session:ScanSession,{preview=false,partial=false}:{p
    }
    held=[];
    for(const value of cell.syllables){const pitch=60+TONICS.indexOf(project.tonic)+pitchOffset(value.syllable)+(value.octave+(hints.voiceOctaves[row.voice]??0))*12;
-    if(pitch<0||pitch>127){issues.push({rowId:row.id,measure:cell.measure,message:'Octave hors de la plage MIDI ; corrigez le registre.',severity:'error'});bad=true;break;}
+    if(pitch<0||pitch>127){issues.push({rowId:row.id,measure:cell.measure,message:'Octave hors de la plage MIDI ; corrigez le registre.',severity:partial?'warning':'error'});bad=true;break;}
     const note=makeNote(track.id,pitch,offset+cell.start,cell.duration,project.tempo);note.id='scan-note-'+row.id+'-'+cell.index+'-'+held.length;added.push(note);held.push(note);
     const glyph=noteGlyphs[glyphIndex++];noteSources[note.id]={rowId:row.id,glyphId:glyph?.id};
    }if(bad)break;
   }
-  if(bad){omittedMeasure(row,'Ligne non importée en raison de ses prolongations ou octaves.');continue;}
+  if(bad){omittedMeasure(row,'Mesure non importée en raison de ses prolongations ou octaves.',parsed.bars);continue;}
   for(const previousNote of previous){const original=track.events.find(n=>n.id===previousNote.id);if(original)Object.assign(original,previousNote);}
-  duplicates.forEach(key=>occupied.add(key));track.events.push(...added);lastNotes.set(row.voice,held);imported++;
+  duplicates.forEach(key=>occupied.add(key));track.events.push(...added);lastNotes.set(row.voice,held);includedRowIds.add(row.id);if(draft&&!row.confirmed)mark(row,'Proposition à vérifier · V'+(row.voice+1));
  }
  // A lyric link is imported only after an explicit choice of its note IDs.
  for(const row of session.rows.filter(r=>r.kind==='lyrics'&&r.included&&r.confirmed)){
@@ -94,9 +106,10 @@ export function convertScan(session:ScanSession,{preview=false,partial=false}:{p
   ids.forEach((keys,i)=>linkSyllable(project,line.id,i,keys));
  }
  project.settings.measureCount=barCount;project.settings.loopEnd=measureAt(project,barCount).end;
- if(!project.tracks.some(t=>t.events.length))issues.push({message:'Aucune note musicale exploitable. Gardez le brouillon et corrigez les zones.',severity:'error'});
+ if(draft){project.title='Brouillon · '+project.title;mark(rows[0]??({id:'document',voice:0,firstMeasure:1} as ScanRow),'Brouillon de numérisation · à compléter');}
+ if(!project.tracks.some(t=>t.events.length)&&!(draft&&(rows.length||session.pages.length)))issues.push({message:'Aucune note musicale exploitable. Gardez le brouillon et corrigez les zones.',severity:'error'});
  try{validateProject(project);}catch(e){issues.push({message:e instanceof Error?e.message:'Conversion invalide.',severity:'error'});}
- return {project,issues,noteSources,importable:!issues.some(i=>i.severity==='error'),includedRows:imported,omittedRows:omitted,barCount};
+ return {project,issues,noteSources,importable:!issues.some(i=>i.severity==='error'),includedRows:includedRowIds.size,omittedRows:omittedRowIds.size,barCount,includedMeasures:occupied.size,omittedMeasures:omittedKeys.size,draft};
 }
 export interface ScanImportOptions {mode:'measures'|'voices';afterMeasure:number;voiceMap:Record<string,string>}
 /** Pure preview and application share exactly this operation. Call on a store.update clone. */

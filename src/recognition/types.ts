@@ -13,14 +13,14 @@ export const PREPARATION_PRESETS:Record<string,Partial<Preparation>>={
  'Manuscrit au crayon':{brightness:-8,contrast:1.5,sharpness:.3,noise:0,adaptive:false,flatten:true,invert:false},
  'Document dégradé':{brightness:0,contrast:1.35,sharpness:.15,noise:.3,adaptive:true,flatten:true,invert:false}
 };
-export interface ScanHints {title:string;composer:string;author:string;tonic:Tonic|'';signature:Signature|'';tempo:number;choir:ChoirTemplate;voiceCount:number;measuresPerLine:number;verses:number;writing:Writing;compoundPulse:boolean;pickupBeats:number;reviewed:boolean;voiceNames:string[];voiceOctaves:number[]}
+export interface ScanHints {title:string;composer:string;author:string;tonic:Tonic|'';signature:Signature|'';tempo:number;choir:ChoirTemplate;voiceCount:number;measuresPerLine:number;verses:number;writing:Writing;compoundPulse:boolean;pulseBeats?:number;pickupBeats:number;reviewed:boolean;voiceNames:string[];voiceOctaves:number[]}
 export interface ScanRegion {id:string;box:Box;kind:'music'|'lyrics'|'ignore';system:number;voice:number;firstMeasure:number;verse:number}
 export interface ScanPage {id:string;sourceId:string;rasterId:string;name:string;width:number;height:number;originalWidth:number;originalHeight:number;sourcePage:number;preparation:Preparation;revision:number;regions:ScanRegion[]}
 export interface GlyphAlternative {label:string;distance:number}
 export interface ScanGlyph {id:string;box:Box;sourceQuad:Quad;label:string;alternatives:GlyphAlternative[];distance?:number;state:'review'|'unknown'|'validated';origin:'classifier'|'manual'|'profile';anchor?:boolean;mask?:number[]}
 export interface ScanRow {id:string;pageId:string;revision:number;regionId?:string;box:Box;system:number;voice:number;firstMeasure:number;kind:'music'|'lyrics';verse:number;glyphs:ScanGlyph[];text:string;confirmed:boolean;included:boolean;manual:boolean;lyricNotes?:string[][]}
 export interface ScanCorrection {at:string;rowId:string;glyphId?:string;before:string;after:string}
-export interface ScanSession {schema:1;id:string;title:string;createdAt:string;updatedAt:string;revision:number;stage:ScanStage;pages:ScanPage[];rows:ScanRow[];hints:ScanHints;profileId?:string;resources?:{id:string;bytes:number}[];corrections:ScanCorrection[];imported?:{projectId:string;at:string;method:string};selection?:{pageId:string;rowId?:string;glyphId?:string};view:{mode:'original'|'result'|'compare';zoom:number;prepared:boolean}}
+export interface ScanSession {schema:1;id:string;title:string;createdAt:string;updatedAt:string;revision:number;stage:ScanStage;pages:ScanPage[];rows:ScanRow[];hints:ScanHints;profileId?:string;resources?:{id:string;bytes:number}[];corrections:ScanCorrection[];imported?:{projectId:string;at:string;method:string;draft?:boolean};selection?:{pageId:string;rowId?:string;glyphId?:string};view:{mode:'original'|'result'|'compare';zoom:number;prepared:boolean}}
 export interface ScanSummary {id:string;title:string;updatedAt:string;pages:number;rows:number;bytes:number;imported:boolean}
 export interface ScanAsset {id:string;sessionId:string;name:string;blob:Blob;kind:'source'|'raster';bytes:number}
 export interface GlyphSample {label:string;mask:number[];aspect:number;createdAt:string}

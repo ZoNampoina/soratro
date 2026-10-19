@@ -43,3 +43,20 @@ test('Scan imports use the existing measure engine, preserve target notes and su
 test('Scan history includes regions and corrections, and textual splitting refuses invented image coordinates',()=>{
  const {s,r}=fixture('2/4','|d:r|m:f|'),h=new ScanHistory<ScanSession>();h.commit(s);s.rows[0].text='|s:l|';assert.equal(h.undo(s)!.rows[0].text,'|d:r|m:f|');assert.equal(h.redo(s)!.rows[0].text,'|s:l|');r.text='|d:r|m:f|';assert.throws(()=>splitScanRow(s,r.id,1),/barres/);assert.deepEqual(splitBars('|d:r|m:f|'),['d:r','m:f']);
 });
+test('Scan dot+comma preserves three-quarter/quarter durations without changing thirds or halves',()=>{
+ const {s,r}=fixture('2/4',"|s.,d':s.,m|");const result=convertScan(s);assert.ok(result.importable,JSON.stringify(result.issues));assert.deepEqual(result.project.tracks[0].events.map(noteDuration),[.75,.25,.75,.25]);assert.deepEqual(result.project.tracks[0].events.map(noteStart),[0,.75,1,1.75]);assert.equal(result.project.tracks[0].events[1].midiPitch,82);
+ s.hints.signature='4/4';s.hints.pulseBeats=2;const half=convertScan(s);assert.ok(half.importable);assert.deepEqual(half.project.tracks[0].events.map(noteDuration),[1.5,.5,1.5,.5]);
+});
+test('Scan partial conversion retains good measures around an unreadable measure with exact timeline positions',()=>{
+ const {s,r}=fixture('2/4','|d:r|?:m|f:s|');assert.equal(convertScan(s).project.tracks[0].events.length,0);const partial=convertScan(s,{partial:true});assert.ok(partial.importable);assert.equal(partial.includedMeasures,2);assert.equal(partial.omittedMeasures,1);assert.deepEqual(partial.project.tracks[0].events.map(noteStart),[0,1,4,5]);assert.ok(partial.project.indications.some(i=>i.measure===2&&i.text?.includes('À vérifier')));assert.equal(r.text,'|d:r|?:m|f:s|');
+});
+test('Scan explicit draft can finish with zero notes and never invents music, while strict import stays blocked',async()=>{
+ const {s,r}=fixture('4/4','|?:?:?:?|');r.confirmed=false;const before=structuredClone(s);assert.equal(convertScan(s).importable,false);assert.equal(convertScan(s,{partial:true}).importable,false);const draft=convertScan(s,{draft:true});assert.ok(draft.importable,JSON.stringify(draft.issues));assert.equal(draft.project.tracks.flatMap(t=>t.events).length,0);assert.match(draft.project.title,/Brouillon/);assert.ok(draft.project.indications.some(i=>i.text?.includes('À vérifier')));assert.deepEqual(s,before);assert.deepEqual((await decodeProject(await encodeProject(draft.project))).tracks,draft.project.tracks);
+});
+test('Scan draft preserves unreviewed proposals as flagged notes and keeps note IDs stable for existing lyric links',()=>{
+ const {s,r}=fixture('2/4','|d:r|m:f|'),strict=convertScan(s);r.confirmed=false;const draft=convertScan(s,{draft:true});assert.ok(draft.importable);assert.deepEqual(draft.project.tracks[0].events,strict.project.tracks[0].events);assert.ok(draft.project.indications.some(i=>i.text?.includes('Proposition à vérifier')));
+});
+test('Scan missing metadata remains a real error even for a draft',()=>{const {s}=fixture();s.hints.tonic='';assert.equal(convertScan(s,{draft:true}).importable,false);});
+test('Scan measure refinement preserves the entire original zone when precise bar coordinates are unavailable',async()=>{
+ const {isolateScanMeasures}=await import('../src/recognition/editing.ts');const {s,r}=fixture('2/4','|d:r|?:m|f:s|'),before=structuredClone(s),history=new ScanHistory<ScanSession>();history.commit(s);const keys=isolateScanMeasures(s,r.id);assert.equal(keys.length,3);assert.deepEqual(s.rows.map(r=>r.firstMeasure),[1,2,3]);assert.deepEqual(s.rows.map(r=>r.text),['|d:r|','|?:m|','|f:s|']);assert.ok(s.rows.every(r=>JSON.stringify(r.box)===JSON.stringify(before.rows[0].box)));assert.deepEqual(history.undo(s),before);
+});
