@@ -1,0 +1,34 @@
+[WebServer] (node:462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 1 worker
+
+(node:569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/reference-audio.spec.ts:9:35 › Transport stays beside the logo and dark controls are readable at 1366px (3.7s)
+  ✓   2 tests/e2e/reference-audio.spec.ts:9:35 › Transport stays beside the logo and dark controls are readable at 390px (2.7s)
+  ✓   3 tests/e2e/reference-audio.spec.ts:9:35 › Transport stays beside the logo and dark controls are readable at 740px (2.7s)
+  ✓   4 tests/e2e/reference-audio.spec.ts:11:1 › Ctrl+Q quantizes only the selection or active voice, remains undoable, and respects text entry (2.1s)
+  ✓   5 tests/e2e/reference-audio.spec.ts:12:1 › Audio clock starts at an arbitrary anchored point, resumes after pause and works across modes (2.7s)
+  ✓   6 tests/e2e/reference-audio.spec.ts:13:1 › REC without count-in at a middle cursor replaces only played intervals and keeps one undo action (3.3s)
+  ✓   7 tests/e2e/reference-audio.spec.ts:14:1 › Local worker proposals are corrected, transposed for alto and inserted only after validation (3.0s)
+  ✓   8 tests/e2e/reference-audio.spec.ts:15:1 › Score-master slowdown uses pitch-preserving PCM and loops restart the audio source (3.5s)
+  ✓   9 tests/e2e/reference-audio.spec.ts:16:1 › Portable audio export, reimport and cold offline analysis retain local source and notes (4.2s)
+  ✓  10 tests/e2e/reference-audio.spec.ts:17:1 › Missing source is reported, reattaching the file keeps anchors and existing music (2.8s)
+  ✓  11 tests/e2e/ribbon.spec.ts:7:3 › Command ribbon leaves room for the score at 1920×1080 (3.0s)
+  ✓  12 tests/e2e/ribbon.spec.ts:7:3 › Command ribbon leaves room for the score at 1366×768 (3.3s)
+  ✓  13 tests/e2e/ribbon.spec.ts:7:3 › Command ribbon leaves room for the score at 390×844 (3.6s)
+  ✓  14 tests/e2e/ribbon.spec.ts:7:3 › Command ribbon leaves room for the score at 740×390 (2.9s)
+  ✓  15 tests/e2e/ribbon.spec.ts:39:1 › Ribbon groups keep commands, project contents and saved collapse preference (3.5s)
+
+  15 passed (51.2s)

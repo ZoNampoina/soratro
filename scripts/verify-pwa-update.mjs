@@ -64,6 +64,7 @@ try{
  await page.goto(restartUrl);await expect(page.locator('.save-state')).toContainText('Sauvegardé');
  await expect(page.locator('.roll-tools')).toContainText('120 %');
  if(cursorRetained!==null)await expect(page.locator('.cursor-position-button')).toHaveAttribute('data-cursor-beat',String(cursorRetained));assert.deepEqual(await snapshot(),before);assert.equal((await page.evaluate(async()=>await (await fetch('version.json')).json())).version,expectedNew);
+ const headerMenu=page.locator('.header-project-menu');if(await headerMenu.count()&&!await headerMenu.evaluate(el=>el.hasAttribute('open')))await headerMenu.locator('summary').click();
  await page.getByRole('button',{name:'PDF / Export',exact:true}).click();const dialog=page.locator('dialog');
  const downloading=page.waitForEvent('download');await dialog.getByRole('button',{name:'Exporter PDF',exact:true}).click();const pdf=await downloading;
  const file=resolve(outputRoot,'after-update-offline.pdf');await pdf.saveAs(file);assert.equal((await readFile(file)).subarray(0,5).toString(),'%PDF-');

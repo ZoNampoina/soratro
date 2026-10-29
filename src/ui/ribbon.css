@@ -229,3 +229,7 @@
 .command-ribbon .tap-button{height:34px}
 .command-ribbon[data-expanded=false] .ribbon-body{height:0}
 @media(max-width:760px){.command-ribbon .ribbon-group button:not(dialog *){min-height:36px}.command-ribbon .ribbon-body{height:58px}.command-ribbon[data-expanded=false] .ribbon-body{height:0}}
+/* Fractions stay inside the position button, including after an offline restart. */
+.header-transport .position-display{overflow:hidden}
+.header-transport .position-display strong{display:block;max-width:100%;white-space:nowrap;overflow:hidden}
+.header-transport .position-display strong small{display:block;font-size:9px;line-height:10px;text-align:center}
