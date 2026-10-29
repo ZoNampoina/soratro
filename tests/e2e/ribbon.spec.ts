@@ -1,3 +1,4 @@
+import {clickHeader} from './helpers';
 import {test,expect} from '@playwright/test';
 import {loadScore,currentProject} from './helpers';
 import {rhythmicScore} from '../fixtures/rhythmic-score';
@@ -30,7 +31,7 @@ for(const viewport of [{width:1920,height:1080},{width:1366,height:768},{width:3
     await page.getByRole('tab',{name:'Mise en page de la partition'}).click();
     await expect(page.getByRole('heading',{name:'Mise en page de la partition'})).toBeVisible();
     await page.getByRole('button',{name:'Fermer',exact:true}).first().click();
-    await page.getByRole('button',{name:'Mode clair',exact:true}).click();
+    await clickHeader(page,'Mode clair');
     await page.screenshot({path:info.outputPath('ribbon-expanded.png')});
   });
 }

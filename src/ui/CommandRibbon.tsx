@@ -9,7 +9,7 @@ export function RibbonGroup({label,children,className=''}:{label:string;children
 }
 
 /** Reuses editor commands in one bounded row; hiding the ribbon never unmounts them. */
-export function CommandRibbon({tabs,utilities,transport,expanded,contextKey,children}:{tabs:ReactNode;utilities:ReactNode;transport:ReactNode;expanded:boolean;contextKey:string;children:ReactNode}){
+export function CommandRibbon({tabs,utilities,transport,expanded,contextKey,children}:{tabs:ReactNode;utilities:ReactNode;transport?:ReactNode;expanded:boolean;contextKey:string;children:ReactNode}){
   const body=useRef<HTMLDivElement>(null),scroll=useRef<HTMLDivElement>(null),content=useRef<HTMLDivElement>(null);
   const [edges,setEdges]=useState({left:false,right:false});
   useEffect(()=>{

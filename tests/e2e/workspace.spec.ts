@@ -1,3 +1,4 @@
+import {clickHeader} from './helpers';
 import {test,expect,type Page} from '@playwright/test';
 import {loadScore} from './helpers';
 import {largeScore} from '../fixtures/large-score';
@@ -51,7 +52,7 @@ test('100-measure score: last page, responsive export, dynamic paper, page navig
   const loadedMs=Date.now()-started,pages=await page.locator('.composition .engraved-page').count();expect(pages).toBeGreaterThanOrEqual(10);await info.attach('100-measures-performance',{body:JSON.stringify({loadedMs,notes:2400,pages}),contentType:'application/json'});
   await page.locator('.composition .score-viewport').evaluate(el=>{el.scrollTop=el.scrollHeight;});
   await expect(page.locator('.composition .engraved-page').last()).toBeInViewport();
-  await page.getByRole('button',{name:'PDF / Export'}).click();
+  await clickHeader(page,'PDF / Export');
   const dialog=page.locator('dialog');const bounds=(await dialog.boundingBox())!;
   expect(bounds.width).toBeGreaterThan(900);expect(bounds.y).toBeGreaterThanOrEqual(12);expect(bounds.y+bounds.height).toBeLessThanOrEqual(948);
   const preview=dialog.locator('.export-preview');expect((await preview.boundingBox())!.width).toBeGreaterThan(500);
@@ -65,12 +66,12 @@ test('100-measure score: last page, responsive export, dynamic paper, page navig
   await expect(dialog.getByRole('button',{name:'Exporter PDF'})).toBeInViewport();await expect(dialog.getByRole('button',{name:'Annuler',exact:true})).toBeInViewport();
   const currentPaper=await dialog.locator('.engraved-page').nth(1).boundingBox(),visibleArea=await dialog.locator('.score-viewport').boundingBox();expect(currentPaper!.y).toBeGreaterThanOrEqual(visibleArea!.y);expect(currentPaper!.y+currentPaper!.height).toBeLessThanOrEqual(visibleArea!.y+visibleArea!.height+1);
   await page.screenshot({path:info.outputPath('export-desktop.png')});
-  await dialog.getByRole('button',{name:'Fermer',exact:true}).click();await page.getByRole('button',{name:'PDF / Export'}).click();await expect(page.locator('dialog').getByLabel('Papier')).toHaveValue('A5');
+  await dialog.getByRole('button',{name:'Fermer',exact:true}).click();await clickHeader(page,'PDF / Export');await expect(page.locator('dialog').getByLabel('Papier')).toHaveValue('A5');
 });
 
 for(const viewport of [{width:390,height:844},{width:740,height:390}])test('Export controls and settings remain accessible at '+viewport.width+'×'+viewport.height,async({browser},info)=>{
   const context=await browser.newContext({viewport,isMobile:true,hasTouch:true});const page=await context.newPage();
-  await page.goto('http://127.0.0.1:4176/soratro/');await page.getByRole('button',{name:/^Ouvrir l’étude SATB/}).click();await page.getByRole('button',{name:'PDF / Export'}).click();
+  await page.goto('http://127.0.0.1:4176/soratro/');await page.getByRole('button',{name:/^Ouvrir l’étude SATB/}).click();await clickHeader(page,'PDF / Export');
   const dialog=page.locator('dialog');await expect(dialog.getByRole('button',{name:'Exporter PDF'})).toBeInViewport();
   if(viewport.width<=760){await expect(dialog.locator('.export-preview')).toBeVisible();await dialog.getByRole('button',{name:'Paramètres de l’export'}).click();}
   await dialog.getByLabel('Papier').selectOption('A5');await dialog.getByLabel('Orientation').selectOption('landscape');

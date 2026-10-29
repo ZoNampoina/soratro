@@ -1,11 +1,12 @@
 import type {InputSource,VocalSettings,VocalDiagnostic,TakeAudio} from '../vocal/types.ts';
+import type {ReferenceAudio} from '../reference/types.ts';
 export type TrackId = string;
 export type Signature = `${number}/${number}`;
 export type Tonic = 'C' | 'Db' | 'D' | 'Eb' | 'E' | 'F' | 'F#' | 'G' | 'Ab' | 'A' | 'Bb' | 'B';
 export const TONICS: Tonic[] = ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
 export const SIGNATURES: Signature[] = ['2/4','3/4','4/4','5/4','6/8','7/8','9/8','12/8'];
 export const SCHEMA_VERSION = 2;
-export const APP_VERSION = '0.10.1';
+export const APP_VERSION = '0.11.0';
 export type TempoUnit = 'quarter' | 'dotted-quarter' | 'eighth';
 export type QuantizationGrid = 'none'|'1/2'|'1/4'|'1/8'|'1/16'|'1/32'|'triplet-quarter'|'triplet-eighth'|'triplet-sixteenth'|'compound'|'auto';
 export type ChoirTemplate = 'Solo'|'Unisson'|'SA'|'SAB'|'SATB'|'SSA'|'SSAA'|'TTB'|'TTBB'|'Personnalisé';
@@ -28,7 +29,7 @@ export interface RhythmicPunctuation {style:'normal'|'reinforced'|'custom';size:
 export interface MeasureNumbering {mode:'measure'|'system'|'page'|'none';size:number;position:'above'|'below'|'left';color:string;gap:number;start:number;prefix:string;pickupZero:boolean}
 export type DecorationField='custom'|'title'|'author'|'composer'|'credits'|'tonic'|'tempo'|'signature'|'date'|'page'|'pages'|'logo';
 export interface PageDecoration {id:string;field:DecorationField;text:string;align:'left'|'center'|'right';size:number;bold:boolean;italic:boolean;color:string;font:'sans'|'serif'|'mono';visible:boolean;row:number;offsetX:number;offsetY:number;logo?:string}
-export interface RecordingTake {id:string;name:string;trackId:TrackId;startBeat:number;endBeat:number;createdAt:string;events:NoteEvent[];selected:boolean;mode?:'overdub'|'replace';source?:InputSource;audio?:TakeAudio;replacedEvents?:NoteEvent[];replacementFragments?:string[];replacedLyrics?:LyricLine[];replacedLinks?:MusicLink[]}
+export interface RecordingTake {id:string;name:string;trackId:TrackId;startBeat:number;endBeat:number;createdAt:string;events:NoteEvent[];selected:boolean;mode?:'overdub'|'replace';source?:InputSource;audio?:TakeAudio;replacementRanges?:{start:number;end:number}[];replacedEvents?:NoteEvent[];replacementFragments?:string[];replacedLyrics?:LyricLine[];replacedLinks?:MusicLink[]}
 export interface PageSettings {paper:'A4'|'A5'|'Letter';orientation:'portrait'|'landscape';margin:number;measuresPerSystem:number;horizontalDensity?:number;noteSize:number;lyricSize:number;voiceGap:number;systemGap:number;titleSize:number;pageNumbers:boolean;systemBreaks:number[];pageBreaks?:number[];systemCounts?:Record<string,number>;measureWidths?:Record<string,number>;systemGaps?:Record<string,number>;justification?:'regular'|'adaptive';measureAlignment?:MeasureAlignment;voiceLabels?:'first'|'page'|'always'|'never';lyricPlacement?:'auto'|'common'|'group'|'voice';compoundPulse?:boolean;punctuation?:RhythmicPunctuation;header?:PageDecoration[];footer?:PageDecoration[];headerOn?:'first'|'all'|'following'|'none';footerOn?:'first'|'all'|'following'|'none';headerGap?:number;footerGap?:number;numbering?:MeasureNumbering;systemAlignment?:SystemAlignment;systemAlignments?:Record<string,SystemAlignment>}
 export interface NoteEvent {
   id: string; trackId: TrackId; midiPitch: number; velocity: number;
@@ -37,6 +38,7 @@ export interface NoteEvent {
   startTime: number; endTime: number; duration: number; recordedTempo: number;
   rawStartBeat?:number;rawDurationBeats?:number;compensationMs?:number;
   vocal?:VocalDiagnostic;editStart?:number;editDuration?:number;tieFrom?:string;tieTo?:string;phraseId?:string;
+  audioDetection?:{referenceId:string;concertPitch:number;confidence:number;uncertain:boolean};
 }
 export interface Track {
   id: TrackId; name: string; shortName: string; color: string;
@@ -45,6 +47,7 @@ export interface Track {
 }
 export interface LyricLine {id:string;text:string;trackId:TrackId;syllables:Syllable[];verse?:number;section?:string;kind?:'verse'|'refrain'|'common';sharedTextId?:string}
 export interface Project {
+  referenceAudio?:ReferenceAudio;
   id: string; schemaVersion: 2; title: string; author: string; composer: string;
   tonic: Tonic; timeSignature: Signature; tempo: number;
   createdAt: string; updatedAt: string; tracks: Track[]; lyrics: LyricLine[];

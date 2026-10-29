@@ -15,6 +15,7 @@ export class ProjectStore {
   private listeners=new Set<()=>void>();private undoStack:Project[]=[];private redoStack:Project[]=[];private revision=0;private pending:Promise<unknown>=Promise.resolve();private take:Project|null=null;
   subscribe=(fn:()=>void)=>{this.listeners.add(fn);return ()=>this.listeners.delete(fn);};
   getSnapshot=()=>this.state;
+  referencedAudioIds(){const used=new Set<string>();for(const p of [this.state.project,this.take,...this.undoStack,...this.redoStack]){if(!p)continue;if(p.referenceAudio)used.add(p.referenceAudio.id);for(const t of p.takes)if(t.audio)used.add(t.audio.id);}return used;}
   private emit(part:Partial<Snapshot>){this.state={...this.state,...part};this.listeners.forEach(fn=>fn());}
   async init(){try{const projects=(await this.repository.all()).sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt));this.emit({projects,loading:false});const key=location.hash.startsWith('#project=')?decodeURIComponent(location.hash.slice(9)):'';if(key)await this.open(key);}catch(error){this.emit({loading:false,error:error instanceof Error&&error.message.includes('onglets')?error.message:'Le stockage local est indisponible. Autorisez les données du site pour sauvegarder.',saveStatus:'error'});}}
   async create(values:Parameters<typeof createProject>[0]){const p=createProject(values);await this.add(p);return p;}
