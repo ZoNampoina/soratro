@@ -1,4 +1,4 @@
-import {useMemo,useRef,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import type {Project} from '../music/model';
 import {measureAt,measureCount} from '../music/timeline';
 import {audioToBeat,beatToAudio} from '../reference/mapping';
@@ -7,6 +7,7 @@ export function ReferenceWaveform({project,peaks,beat,locked,seek,region,move}:{
  const width=Math.max(720,(viewport.current?.clientWidth??720)*zoom),height=84;
  const path=useMemo(()=>peaks.map((peak,i)=>{const x=i*width/Math.max(1,peaks.length-1),h=Math.max(.6,peak*25);return `M${x.toFixed(1)} ${(45-h).toFixed(1)}v${(h*2).toFixed(1)}`;}).join(''),[peaks,width]);
  const ticks=useMemo(()=>{const result:{x:number;label:string}[]=[];let previous=-100;for(let n=1;n<=Math.min(10000,measureCount(project));n++){const m=measureAt(project,n),time=beatToAudio(r,m.start),x=time/r.duration*width;if(x<0||x>width||x-previous<48)continue;result.push({x,label:String(n)});previous=x;}return result;},[r,project.timeSignature,project.signatureMap,project.settings.pickupBeats,width]);
+ useEffect(()=>{const el=viewport.current;if(!el)return;const x=beatToAudio(r,beat)/r.duration*width;if(x<el.scrollLeft||x>el.scrollLeft+el.clientWidth-24)el.scrollLeft=Math.max(0,x-el.clientWidth/3);},[beat,width]);
  const range=draft??r.region,timeAt=(e:React.PointerEvent<SVGSVGElement>)=>Math.max(0,Math.min(r.duration,(e.clientX-e.currentTarget.getBoundingClientRect().left)/width*r.duration));
  return <div className="reference-waveform"><div className="reference-wave-actions"><button aria-pressed={!select} onClick={()=>setSelect(false)}>Curseur</button><button aria-pressed={select} onClick={()=>setSelect(true)}>Sélectionner une région</button><button aria-label="Réduire la forme d’onde" onClick={()=>setZoom(z=>Math.max(1,z/1.5))}>−</button><span>{Math.round(zoom*100)} %</span><button aria-label="Agrandir la forme d’onde" onClick={()=>setZoom(z=>Math.min(16,z*1.5))}>+</button><span>Mesures en haut · secondes en bas</span></div>
   <div ref={viewport} className="reference-wave-scroll"><svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-label="Forme d’onde de l’audio de référence" style={{touchAction:select?'none':'pan-x'}}

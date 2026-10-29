@@ -1,7 +1,7 @@
 import {type Project} from '../music/model.ts';
 import {cleanLyrics} from '../music/editing.ts';
 import {removeRanges,takeRanges} from './replacement.ts';
-export function chooseTake(p:Project,takeId:string){const take=p.takes.find(t=>t.id===takeId);if(!take)throw new Error('Prise introuvable.');if(take.selected)return;const track=p.tracks.find(t=>t.id===take.trackId);if(!track)throw new Error('Voix introuvable.');const previous=p.takes.filter(t=>t.selected&&t.trackId===take.trackId&&t.startBeat===take.startBeat&&t.endBeat===take.endBeat);for(const prior of previous)restoreBeforeTake(p,prior.id);
+export function chooseTake(p:Project,takeId:string){const take=p.takes.find(t=>t.id===takeId);if(!take)throw new Error('Prise introuvable.');if(take.selected)return;const track=p.tracks.find(t=>t.id===take.trackId);if(!track)throw new Error('Voix introuvable.');const previous=p.takes.filter(t=>t.selected&&t.trackId===take.trackId&&t.startBeat===take.startBeat&&t.endBeat===take.endBeat&&(!take.sessionId||t.sessionId===take.sessionId));for(const prior of previous)restoreBeforeTake(p,prior.id);
  if(take.mode==='replace'){const backed=new Set(take.replacedEvents?.map(n=>n.id));take.replacementFragments=[];track.events=track.events.flatMap(n=>{const parts=removeRanges([n],takeRanges(take));if(backed.has(n.id))take.replacementFragments!.push(...parts.map(n=>n.id));return parts;});}
  const existing=new Set(track.events.map(n=>n.id));track.events.push(...structuredClone(take.events).filter(n=>!existing.has(n.id)));previous.forEach(t=>t.selected=false);take.selected=true;cleanLyrics(p);
 }

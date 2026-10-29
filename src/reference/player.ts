@@ -15,10 +15,11 @@ export class ReferencePlayer {
  async load(p:Project,context:AudioContext){const r=p.referenceAudio;if(!r){this.unload();return null;}if(this.loaded===r.id&&this.buffer)return this.buffer;
   const generation=++this.generation;this.emit({id:r.id,loading:true,progress:0,error:'',peaks:[]});
   try{const row=await audioRepository.get(r.id);if(!row)throw new Error('Audio manquant sur cet appareil. Rechargez le fichier source ou importez la sauvegarde Audio portable.');const buffer=await this.decode(row.blob,context);if(generation!==this.generation)return null;
-   this.buffer=buffer;this.loaded=r.id;this.key='';this.rendered=null;const samples=buffer.getChannelData(0),bins=Math.min(1800,samples.length),peaks:number[]=[];
-   for(let i=0;i<bins;i++){const start=Math.floor(i*samples.length/bins),end=Math.floor((i+1)*samples.length/bins);let peak=0;for(let k=start;k<end;k+=4)peak=Math.max(peak,Math.abs(samples[k]));peaks.push(peak);}this.emit({loading:false,peaks});return buffer;
+   this.adopt(r.id,buffer);return buffer;
   }catch(error){if(generation===this.generation)this.emit({loading:false,error:(error as Error).message});throw error;}
  }
+ adopt(key:string,buffer:AudioBuffer){this.buffer=buffer;this.loaded=key;this.key='';this.rendered=null;const samples=buffer.getChannelData(0),bins=Math.min(1800,samples.length),peaks:number[]=[];
+  for(let i=0;i<bins;i++){const start=Math.floor(i*samples.length/bins),end=Math.floor((i+1)*samples.length/bins);let peak=0;for(let k=start;k<end;k+=4)peak=Math.max(peak,Math.abs(samples[k]));peaks.push(peak);}this.emit({id:key,loading:false,error:'',peaks});}
  async prepare(p:Project,context:AudioContext,speed:number){const buffer=await this.load(p,context),r=p.referenceAudio;if(!buffer||!r)return;
   const key=JSON.stringify([r.id,r.mode,r.bpm,r.anchors,r.offsetMs,p.tempo,p.tempoMap,p.signatureMap,p.timeSignature,p.settings.pickupBeats,speed]);if(key===this.key)return;
   const pieces=renderPieces(p,speed);
