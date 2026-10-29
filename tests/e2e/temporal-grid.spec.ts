@@ -1,3 +1,4 @@
+import {clickHeader} from './helpers';
 import {test,expect,type Locator,type Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 import {rhythmicScore} from '../fixtures/rhythmic-score';
@@ -42,14 +43,14 @@ for(const viewport of sizes)test(`Punctuation preferences, shared SATB anchors a
  const previewMusic=await d.locator('[data-note-id]').evaluateAll(nodes=>nodes.map(n=>({text:n.textContent,x:n.getAttribute('x'),time:n.getAttribute('data-time-x'),size:n.getAttribute('font-size')})));
  expect(previewMusic.every(n=>n.size==='20')).toBeTruthy();const centres=await d.locator('[data-note-id]').evaluateAll(async nodes=>{await document.fonts.ready;const c=document.createElement('canvas').getContext('2d')!;c.fontKerning='none';return nodes.map(n=>{const size=Number(n.getAttribute('font-size'));c.font=size+'px SoratroPrint';const base=c.measureText(n.childNodes[0]?.textContent??''),mark=n.querySelector('tspan');let left=-base.actualBoundingBoxLeft,right=base.actualBoundingBoxRight;if(mark){c.font=mark.getAttribute('font-size')+'px SoratroPrint';const m=c.measureText(mark.textContent??'');left=Math.min(left,base.width-m.actualBoundingBoxLeft);right=Math.max(right,base.width+m.actualBoundingBoxRight);}return Math.abs(Number(n.getAttribute('x'))+(left+right)/2-Number(n.getAttribute('data-center-x')));});});expect(Math.max(...centres)).toBeLessThan(.6);await page.screenshot({path:info.outputPath('rhythmic-layout.png')});await d.getByRole('button',{name:'Appliquer la mise en page'}).click();
  let saved=await currentProject(page);expect(saved.layout.punctuation).toEqual({style:'custom',size:1.05,contrast:.95,weight:1.65,gap:2.25});expect(saved.tracks).toEqual(before.tracks);expect(saved.settings).toEqual(before.settings);
- await page.getByRole('button',{name:'Annuler',exact:true}).click();expect({...await currentProject(page),updatedAt:before.updatedAt}).toEqual(before);await page.getByRole('button',{name:'Rétablir',exact:true}).click();const redone=await currentProject(page);expect({...redone,updatedAt:saved.updatedAt}).toEqual(saved);saved=redone;
- await page.reload();expect(await currentProject(page)).toEqual(saved);await page.getByRole('button',{name:'PDF / Export',exact:true}).click();const e=page.locator('dialog');
+ await clickHeader(page,'Annuler');expect({...await currentProject(page),updatedAt:before.updatedAt}).toEqual(before);await clickHeader(page,'Rétablir');const redone=await currentProject(page);expect({...redone,updatedAt:saved.updatedAt}).toEqual(saved);saved=redone;
+ await page.reload();expect(await currentProject(page)).toEqual(saved);await clickHeader(page,'PDF / Export');const e=page.locator('dialog');
  expect(await e.locator('[data-note-id]').evaluateAll(nodes=>nodes.map(n=>({text:n.textContent,x:n.getAttribute('x'),time:n.getAttribute('data-time-x'),size:n.getAttribute('font-size')})))).toEqual(previewMusic);
  const wait=page.waitForEvent('download');await e.getByRole('button',{name:'SVG',exact:true}).click();const download=await wait,svg=await readFile((await download.path())!,'utf8');expect(svg).toContain('font-size="21"');expect(svg).toContain('data-rhythm-kind="third"');expect(svg).not.toContain('data-measure="8"');await download.saveAs(info.outputPath('rhythmic-grid.svg'));
  expect(errors).toEqual([]);await context.close();
 });
 test('Mixed rhythms export the same vector coordinates to SVG/PDF and a real PNG, with separate octaves',async({page},info)=>{
- const p=rhythmicScore();p.layout.punctuation={style:'custom',size:1.05,contrast:.95,weight:1.65,gap:2.25};await loadScore(page,p);await page.getByRole('button',{name:'PDF / Export',exact:true}).click();const d=page.locator('dialog'),before=await currentProject(page),proof=await punctuationProof(d);
+ const p=rhythmicScore();p.layout.punctuation={style:'custom',size:1.05,contrast:.95,weight:1.65,gap:2.25};await loadScore(page,p);await clickHeader(page,'PDF / Export');const d=page.locator('dialog'),before=await currentProject(page),proof=await punctuationProof(d);
  const vectors=()=>d.locator('[data-score-role="rhythm"],[data-note-id]').evaluateAll(nodes=>nodes.map(n=>n.outerHTML)),beforeZoom=await vectors();
  for(const o of proof)expect(Math.abs(o.center-o.anchor)).toBeLessThan(.002);
  await d.getByLabel('Zoom de la partition (%)').fill('150');expect(await vectors()).toEqual(beforeZoom); // browser hinting may change getBBox; the document vectors must remain identical

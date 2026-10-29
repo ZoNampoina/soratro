@@ -1,5 +1,15 @@
 # SORATRO
-## Version 0.9.1
+## Version 0.11.0
+
+L’audio de référence se charge depuis **Composition → Audio de référence → Importer / régler l’audio**. Sa forme d’onde partage le curseur musical. Configurez le BPM ou plusieurs ancrages (instant source = mesure/temps), puis enregistrez au clavier pendant son écoute. Audio maître suit le tempo du fichier ; SORATRO maître adapte sa durée avec un traitement WSOLA local qui conserve la hauteur. Le précompte peut être désactivé.
+
+Play, Stop, REC et Aller à… partagent désormais la ligne du logo. Les actions de projet se trouvent dans le menu **Projet et paramètres** sur les petits écrans. **Ctrl+Q** quantifie la sélection, ou la voix active en son absence. Replace conserve les silences entre les intervalles réellement joués ; un Punch explicitement activé remplace sa région. Les prises et Ctrl+Z restent disponibles.
+
+**Analyser les notes** propose une transcription monodique locale d’un passage de 3 minutes maximum. Corrigez les hauteurs, octaves, débuts/fins, fusionnez ou scindez les notes dans l’aperçu, choisissez la voix et la transposition instrumentale, puis validez l’insertion. Les résultats ne sont pas insérés sans validation. Un mixage accompagné nécessite d’abord une piste isolée ; la séparation et la reconnaissance polyphonique restent à développer. Les tests synthétiques ne constituent pas une qualification de saxophone ou de voix réels.
+
+Les originaux restent dans la base audio séparée, les paramètres dans le projet. **Audio portable** inclut aussi la piste de référence ; `.soratro` conserve sa référence sans embarquer le son. Limites : fichier de 80 Mo, 15 minutes et 32 millions d’échantillons décodés/rendus ; la première limite atteinte s’applique. Aucune nouvelle dépendance, aucun envoi d’audio. Voir [l’audit](docs/AUDIT-AUDIO-V0.11.md) et [le rapport](docs/RAPPORT-AUDIO-V0.11.md).
+
+### Version 0.9.1
 
 L’atelier utilise un ruban compact à onglets **Composition, Partition et Répétition**, avec des groupes de commandes nommés. Les anciens bandeaux Transport, Outils, Modes et Sous-modes partagent une seule rangée. La flèche **Rabattre le ruban** et le double-clic sur un onglet masquent les groupes détaillés ; Lecture, Stop, REC et Aller à… restent accessibles. Le choix est mémorisé dans la préférence d’affichage existante. Sur téléphone, balayez horizontalement les groupes ou utilisez les flèches du ruban. Voir [le rapport de vérification](docs/RAPPORT-V0.9.1.md).
 

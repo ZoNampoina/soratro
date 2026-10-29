@@ -1,3 +1,4 @@
+import {clickHeader} from './helpers';
 import {test,expect} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 import {createProject,makeNote} from '../../src/music/model';
@@ -16,7 +17,7 @@ for(const mobile of [false,true])for(const voices of [1,4])test(`A4 density, exa
  const columns=await d.locator('rect[aria-label^="Mesure "]').evaluateAll(nodes=>nodes.map(n=>({bar:+n.getAttribute('data-measure')!,x:+n.getAttribute('x')!,width:+n.getAttribute('width')!})));expect(columns).toHaveLength(31);expect(columns[30].x).toBe(columns[0].x);expect(columns[30].width).toBe(columns[0].width);
  if(mobile)await d.getByRole('button',{name:'Fermer les paramètres de mise en page'}).click();await d.getByLabel('Zoom de la partition (%)').fill('150');expect(await music()).toEqual(preview);await page.screenshot({path:info.outputPath('a4-layout.png')});await d.getByRole('button',{name:'Appliquer la mise en page'}).click();
  let saved=await currentProject(page);expect(saved.layout.horizontalDensity).toBe(1.5);expect(saved.layout.measuresPerSystem).toBe(3);expect(saved.layout.margin).toBe(20);expect(saved.tracks).toEqual(before.tracks);expect(saved.settings).toEqual(before.settings);await page.reload();expect(await currentProject(page)).toEqual(saved);
- await page.getByRole('button',{name:'PDF / Export',exact:true}).click();d=page.locator('dialog');expect(await music()).toEqual(preview);if(mobile)await d.getByRole('button',{name:'Paramètres de l’export',exact:true}).click();await expect(d.getByRole('slider',{name:'Densité horizontale (%)'})).toHaveValue('150');if(mobile)await d.getByRole('button',{name:'Paramètres de l’export',exact:true}).click();
+ await clickHeader(page,'PDF / Export');d=page.locator('dialog');expect(await music()).toEqual(preview);if(mobile)await d.getByRole('button',{name:'Paramètres de l’export',exact:true}).click();await expect(d.getByRole('slider',{name:'Densité horizontale (%)'})).toHaveValue('150');if(mobile)await d.getByRole('button',{name:'Paramètres de l’export',exact:true}).click();
  const count=await d.locator('.engraved-page').count();expect(count).toBeGreaterThan(1);const downloading=page.waitForEvent('download');await d.getByRole('button',{name:'Exporter PDF',exact:true}).click();const download=await downloading,bytes=await readFile((await download.path())!);expect(bytes.subarray(0,5).toString()).toBe('%PDF-');expect(bytes.toString('latin1').match(/\/Type \/Page\b/g)).toHaveLength(count);expect(bytes.toString('latin1')).toMatch(/\/MediaBox \[0 0 595\.2756 841\.8898\]/);await download.saveAs(info.outputPath('a4-multipage.pdf'));
  saved=await currentProject(page);expect(saved.tracks).toEqual(before.tracks);expect(saved.settings).toEqual(before.settings);await context.close();
 });

@@ -1,0 +1,38 @@
+{
+  "initialVersion": "0.10.1",
+  "initialCommit": "96a758af0944cf849b1c55cfbd0898234f10a452",
+  "version": "0.11.0",
+  "branch": "feat/reference-audio-0.11",
+  "unitTests": 237,
+  "reactTests": 5,
+  "completeChromiumTests": 105,
+  "latestTargetedChromiumTests": 15,
+  "pwaUpgrade": {
+    "from": "0.10.1",
+    "to": "0.11.0",
+    "projectCount": 1,
+    "noteCount": 96,
+    "layout": "landscape chosen explicitly before update",
+    "projectsAndMarkerPreserved": true,
+    "rollZoomPreserved": true,
+    "oldCaches": [
+      "soratro-%2Fsoratro%2F-16966e180558"
+    ],
+    "newCaches": [
+      "soratro-%2Fsoratro%2F-16966e180558",
+      "soratro-%2Fsoratro%2F-025db201c575"
+    ],
+    "browserProcessRestarted": true,
+    "coldOfflineRestart": true,
+    "cursorRetained": 4.25,
+    "offlinePdf": true,
+    "pageErrors": []
+  },
+  "realSaxophoneFixture": false,
+  "realSingerFixture": false,
+  "physicalAndroidDevice": false,
+  "physicalMidiKeyboard": false,
+  "newDependencies": [],
+  "sourceAudioUploadedToRemoteService": false,
+  "ciVerified": "https://github.com/ZoNampoina/soratro/actions/runs/40820369963"
+}

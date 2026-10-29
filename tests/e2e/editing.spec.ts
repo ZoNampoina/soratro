@@ -1,3 +1,4 @@
+import {clickHeader} from './helpers';
 import {test,expect,type Page} from '@playwright/test';
 import {createProject,makeNote,noteStart,noteDuration,type Project} from '../../src/music/model';
 import {loadScore,currentProject} from './helpers';
@@ -22,12 +23,12 @@ test('Common selection, Solfa m→f in Db, MIDI/roll/playback source and atomic 
   const p=fixture(),id=p.tracks[0].events[0].id;await loadScore(page,p);await page.getByRole('tab',{name:'Piano Roll',exact:true}).click();await page.getByLabel('Cadrage du Piano Roll').selectOption('all');await rollNote(page,id).click();
   await page.getByRole('button',{name:'Partition',exact:true}).click();await expect(page.locator('[data-selected-note="'+id+'"]')).toBeVisible();await expect(scoreNote(page,id)).toHaveText('m');await scoreNote(page,id).click();
   await page.getByLabel('Degré Solfa').selectOption('4');await expect(scoreNote(page,id)).toHaveText('f');expect((await currentProject(page)).tracks[0].events[0].midiPitch).toBe(66);await expect(page.getByLabel('Hauteur de la note')).toHaveValue('66');
-  await page.getByRole('button',{name:'Annuler',exact:true}).click();await expect(scoreNote(page,id)).toHaveText('m');await page.getByRole('button',{name:'Rétablir',exact:true}).click();await expect(scoreNote(page,id)).toHaveText('f');
+  await clickHeader(page,'Annuler');await expect(scoreNote(page,id)).toHaveText('m');await clickHeader(page,'Rétablir');await expect(scoreNote(page,id)).toHaveText('f');
   await scoreNote(page,p.tracks[1].events[0].id).click({modifiers:['Control']});await expect(page.locator('.composition [data-selected-note]')).toHaveCount(2);await page.getByLabel('Alignement intelligent').selectOption('ends');await page.getByRole('button',{name:'Appliquer l’alignement'}).click();
-  const aligned=await currentProject(page);expect(noteStart(aligned.tracks[0].events[0])).toBe(.75);expect(aligned.tracks[0].events[0].midiPitch).toBe(66);await page.getByRole('button',{name:'Annuler',exact:true}).click();
+  const aligned=await currentProject(page);expect(noteStart(aligned.tracks[0].events[0])).toBe(.75);expect(aligned.tracks[0].events[0].midiPitch).toBe(66);await clickHeader(page,'Annuler');
   await page.getByRole('button',{name:'Composition',exact:true}).click();await expect(page.locator('.roll-event.selected-note')).toHaveCount(2);await expect(page.locator('.roll-event[data-note-id="'+id+'"]')).toHaveAttribute('data-pitch','66');
-  await page.keyboard.press('Control+c');await page.getByRole('button',{name:'Partition',exact:true}).click();await page.keyboard.press('Control+v');expect((await currentProject(page)).tracks.flatMap((t:any)=>t.events).length).toBe(14);await page.getByRole('button',{name:'Annuler',exact:true}).click();expect((await currentProject(page)).tracks.flatMap((t:any)=>t.events).length).toBe(12);await page.getByRole('button',{name:'Composition',exact:true}).click();
-  await page.getByRole('button',{name:'Mode clair'}).click();await page.screenshot({path:info.outputPath('edition-light.png')});
+  await page.keyboard.press('Control+c');await page.getByRole('button',{name:'Partition',exact:true}).click();await page.keyboard.press('Control+v');expect((await currentProject(page)).tracks.flatMap((t:any)=>t.events).length).toBe(14);await clickHeader(page,'Annuler');expect((await currentProject(page)).tracks.flatMap((t:any)=>t.events).length).toBe(12);await page.getByRole('button',{name:'Composition',exact:true}).click();
+  await clickHeader(page,'Mode clair');await page.screenshot({path:info.outputPath('edition-light.png')});
 });
 test('Locked Alto is readable and audible; arrows, delete, quantize, transpose and REC reject changes',async({page})=>{
   const p=fixture(),id=p.tracks[1].events[0].id;await loadScore(page,p);await page.getByRole('button',{name:'Verrouiller Alto',exact:true}).click();
@@ -43,7 +44,7 @@ test('Real prelisten plays the selected frequency, releases it and stays silent 
   const p=fixture();await loadScore(page,p);await page.getByRole('button',{name:'Partition',exact:true}).click();await scoreNote(page,p.tracks[0].events[0].id).click();
   await expect.poll(()=>page.evaluate(()=>(window as any).qaOscillators.length)).toBe(2);expect(await page.evaluate(()=>(window as any).qaOscillators[0].frequency.value)).toBeCloseTo(440*2**((65-69)/12),3);await expect(page.locator('.piano-white.pressed,.piano-black.pressed')).toHaveCount(0);
   await scoreNote(page,p.tracks[0].events[3].id).click({modifiers:['Control']});expect(await page.evaluate(()=>(window as any).qaOscillators.length)).toBe(2);
-  await page.getByRole('button',{name:'Paramètres',exact:true}).click();await page.getByLabel('Préécoute des notes').uncheck();await page.locator('dialog > header').getByRole('button',{name:'Fermer',exact:true}).click();await scoreNote(page,p.tracks[0].events[6].id).click();expect(await page.evaluate(()=>(window as any).qaOscillators.length)).toBe(2);
+  await clickHeader(page,'Paramètres');await page.getByLabel('Préécoute des notes').uncheck();await page.locator('dialog > header').getByRole('button',{name:'Fermer',exact:true}).click();await scoreNote(page,p.tracks[0].events[6].id).click();expect(await page.evaluate(()=>(window as any).qaOscillators.length)).toBe(2);
 });
 test('Fullscreen native and fallback restore the prior layout; manual follow suspension is reversible',async({page})=>{
   const p=fixture();p.settings.measureCount=70;p.tracks[0].events=Array.from({length:280},(_,i)=>makeNote('soprano',65,i,1,120));await loadScore(page,p);await page.getByRole('button',{name:'Partition',exact:true}).click();

@@ -169,3 +169,67 @@
   .editor-app .command-ribbon .transport-buttons>.rec-button { width:42px; min-width:42px; }
   .command-ribbon .ribbon-transport .position-display { min-width:76px; width:76px; }
 }
+
+/* Transport shares the logo row; collapsing the ribbon releases its whole row. */
+.editor-app>.app-header {height:48px;min-height:48px;gap:8px;position:relative;z-index:12}
+.editor-app .header-left {flex:1;min-width:0;min-height:0}
+.header-project-menu {flex:none}
+.header-project-menu>summary {display:none;cursor:pointer;list-style:none}
+.header-project-menu>summary::-webkit-details-marker {display:none}
+.header-transport {display:flex;align-items:center;gap:6px;padding:0;border:0;background:none;min-height:0;height:44px;position:static;flex:none}
+.header-transport .ribbon-group {display:flex;padding:0;border:0;flex-direction:row}
+.header-transport .ribbon-group-label,.header-transport .position-display .eyebrow {display:none}
+.header-transport .transport-buttons {display:flex;gap:2px}
+.header-transport .transport-buttons>button {width:34px;min-width:34px;height:36px;min-height:36px;padding:5px}
+.header-transport .transport-buttons>.rec-button {display:inline-flex;width:56px;min-width:56px;margin:0;font-size:11px;gap:4px}
+.header-transport .transport-buttons svg {width:18px;height:18px}
+.header-transport .position-display {width:84px;min-width:84px;min-height:36px;padding:0 3px;border:0;margin:0}
+.header-transport .position-display strong {font-size:18px;line-height:20px}
+.header-transport .position-display strong small {font-size:10px}
+.header-transport .transport-state {display:none}
+.header-transport .transport-divider {height:20px;margin:0 2px}
+.command-ribbon[data-expanded=false] .ribbon-body {height:0;overflow:hidden}
+.command-ribbon .record-mode-control {display:flex;flex-direction:column;gap:3px;font-size:8px}
+.command-ribbon .record-mode-control select {width:100px}
+@media(max-width:1200px){.editor-app .header-left .project-title{max-width:130px}.header-transport .transport-buttons>button[aria-label="Boucle"],.header-transport .transport-buttons>button[aria-label="Métronome"],.header-transport .transport-divider{display:none}}
+@media(max-width:900px){
+ .editor-app .header-project-menu>summary{display:flex;align-items:center;justify-content:center;width:40px;height:40px}
+ .editor-app .header-project-menu>.header-right{position:absolute;right:6px;top:100%;width:min(460px,calc(100vw - 12px));max-width:none;flex-wrap:wrap;justify-content:flex-start;overflow:visible;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;box-shadow:var(--shadow);gap:6px}
+ .editor-app .header-right>button,.editor-app .header-right .file-actions button,.editor-app .history-buttons button{min-height:40px;height:40px}
+}
+@media(max-width:760px){
+ .editor-app>.app-header{height:50px;min-height:50px;padding:0 4px;gap:3px}
+ .editor-app .header-left{flex:1;min-width:24px;gap:0}
+ .editor-app .header-left .small-brand{display:flex}.editor-app .small-brand img{width:24px;height:24px}
+ .editor-app .header-left .project-title,.editor-app .header-left .home-button{display:none}
+ .header-transport{height:48px;gap:2px}.header-transport .transport-buttons>button{width:40px;min-width:40px;height:44px;min-height:44px}
+ .header-transport .transport-buttons>.rec-button{width:50px;min-width:50px}.header-transport .position-display{width:66px;min-width:66px;padding:0}
+ .header-transport .position-display strong{font-size:16px}.header-transport .transport-buttons{gap:0}
+ .editor-app .header-project-menu>summary{width:34px;height:44px}
+}
+@media(min-width:761px) and (max-width:900px){.editor-app .header-left .project-title{max-width:130px}}
+
+.header-home{display:none}@media(max-width:900px){.header-right>.header-home{display:inline-flex}.editor-app .header-left>.home-button{display:none}}
+
+/* Higher specificity than the legacy mobile transport rules. */
+.editor-app .header-transport{position:static;inset:auto;display:flex;height:44px;min-height:0;padding:0;gap:6px;border:0}
+@media(max-width:760px){.editor-app .header-transport{height:48px;min-height:0;gap:2px}}
+
+/* One row of context commands, with group names, frees score height. */
+.command-ribbon .ribbon-body{height:58px}
+.command-ribbon .ribbon-group{padding:4px 8px 2px}
+.command-ribbon .ribbon-group-label{line-height:12px}
+.command-ribbon .work-actions,.command-ribbon .view-tabs,.command-ribbon .partition-toolbar,.command-ribbon .quantization-tools{display:flex;align-items:center;gap:5px}
+.command-ribbon .partition-phases{display:flex}
+.command-ribbon .partition-toolbar>label{flex:none}
+.command-ribbon .ribbon-group button:not(dialog *){min-height:30px}
+.command-ribbon .quantization-tools .quant-strength{display:flex}
+.command-ribbon .quantization-tools .quant-strength>input{width:48px}
+.command-ribbon .mini-timeline{height:32px}.command-ribbon .mini-timeline button{min-height:28px}
+.command-ribbon .tap-button{height:34px}
+.command-ribbon[data-expanded=false] .ribbon-body{height:0}
+@media(max-width:760px){.command-ribbon .ribbon-group button:not(dialog *){min-height:36px}.command-ribbon .ribbon-body{height:58px}.command-ribbon[data-expanded=false] .ribbon-body{height:0}}
+/* Fractions stay inside the position button, including after an offline restart. */
+.header-transport .position-display{overflow:hidden}
+.header-transport .position-display strong{display:block;max-width:100%;white-space:nowrap;overflow:hidden}
+.header-transport .position-display strong small{display:block;font-size:9px;line-height:10px;text-align:center}
